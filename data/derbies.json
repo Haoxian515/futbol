@@ -1,0 +1,27 @@
+{
+  "_note": "Pairs treated as derbies for the HIGH importance rule. Canonical names (see aliases.json). Edit freely.",
+  "pl": [
+    ["Manchester United", "Manchester City"],
+    ["Liverpool", "Everton"],
+    ["Arsenal", "Tottenham"],
+    ["Arsenal", "Chelsea"],
+    ["Chelsea", "Tottenham"],
+    ["Chelsea", "Fulham"],
+    ["Newcastle", "Sunderland"],
+    ["Crystal Palace", "Brighton"],
+    ["West Ham", "Tottenham"],
+    ["Aston Villa", "Birmingham"]
+  ],
+  "laliga": [
+    ["Real Madrid", "Barcelona"],
+    ["Real Madrid", "Atlético Madrid"],
+    ["Barcelona", "Espanyol"],
+    ["Sevilla", "Real Betis"],
+    ["Valencia", "Levante"],
+    ["Athletic Bilbao", "Real Sociedad"],
+    ["Celta Vigo", "Deportivo La Coruña"],
+    ["Rayo Vallecano", "Real Madrid"],
+    ["Rayo Vallecano", "Atlético Madrid"],
+    ["Getafe", "Real Madrid"]
+  ]
+}

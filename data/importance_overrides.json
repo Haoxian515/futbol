@@ -1,0 +1,9 @@
+{
+  "_note": "Per league, keyed by season then \"Home v Away\" (canonical names). Either field may be omitted. grade: high|modhi|mod|low; text <= 40 chars.",
+  "pl": {
+    "2026-27": {}
+  },
+  "laliga": {
+    "2026-27": {}
+  }
+}

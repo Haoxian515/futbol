@@ -1,0 +1,6 @@
+{
+ "url": "https://geocoding-api.open-meteo.com/v1/search?name=A%20Coru%C3%B1a&count=10&language=en&format=json",
+ "status": 200,
+ "fetched_at": 1789369660.6012683,
+ "fetched_at_iso": "2026-09-14T00:07:40"
+}

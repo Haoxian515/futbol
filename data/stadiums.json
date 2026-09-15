@@ -1,0 +1,200 @@
+{
+ "Aston Villa": {
+  "city": "Birmingham",
+  "lat": 52.48142,
+  "lon": -1.89983,
+  "geocoded": "Birmingham, England, GB"
+ },
+ "Bournemouth": {
+  "city": "Bournemouth",
+  "lat": 50.72048,
+  "lon": -1.8795,
+  "geocoded": "Bournemouth, England, GB"
+ },
+ "Chelsea": {
+  "city": "London",
+  "lat": 51.50853,
+  "lon": -0.12574,
+  "geocoded": "London, England, GB"
+ },
+ "Coventry": {
+  "city": "Coventry",
+  "lat": 52.40656,
+  "lon": -1.51217,
+  "geocoded": "Coventry, England, GB"
+ },
+ "Crystal Palace": {
+  "city": "London",
+  "lat": 51.50853,
+  "lon": -0.12574,
+  "geocoded": "London, England, GB"
+ },
+ "Leeds": {
+  "city": "Leeds",
+  "lat": 53.79648,
+  "lon": -1.54785,
+  "geocoded": "Leeds, England, GB"
+ },
+ "Liverpool": {
+  "city": "Liverpool",
+  "lat": 53.41058,
+  "lon": -2.97794,
+  "geocoded": "Liverpool, England, GB"
+ },
+ "Manchester United": {
+  "city": "Manchester",
+  "lat": 53.48095,
+  "lon": -2.23743,
+  "geocoded": "Manchester, England, GB"
+ },
+ "Sunderland": {
+  "city": "Sunderland",
+  "lat": 54.90465,
+  "lon": -1.38222,
+  "geocoded": "Sunderland, England, GB"
+ },
+ "Tottenham": {
+  "city": "London",
+  "lat": 51.50853,
+  "lon": -0.12574,
+  "geocoded": "London, England, GB"
+ },
+ "Athletic Bilbao": {
+  "city": "Bilbao",
+  "lat": 43.26271,
+  "lon": -2.92528,
+  "geocoded": "Bilbao, Basque Country, ES"
+ },
+ "Atlético Madrid": {
+  "city": "Madrid",
+  "lat": 40.4165,
+  "lon": -3.70256,
+  "geocoded": "Madrid, Madrid, ES"
+ },
+ "Celta Vigo": {
+  "city": "Vigo",
+  "lat": 42.23282,
+  "lon": -8.72264,
+  "geocoded": "Vigo, Galicia, ES"
+ },
+ "Deportivo La Coruña": {
+  "city": "A Coruña",
+  "lat": 43.37135,
+  "lon": -8.396,
+  "geocoded": "A Coruña, Galicia, ES"
+ },
+ "Espanyol": {
+  "city": "Barcelona",
+  "lat": 41.38879,
+  "lon": 2.15899,
+  "geocoded": "Barcelona, Catalonia, ES"
+ },
+ "Getafe": {
+  "city": "Getafe",
+  "lat": 40.30571,
+  "lon": -3.73295,
+  "geocoded": "Getafe, Madrid, ES"
+ },
+ "Osasuna": {
+  "city": "Pamplona",
+  "lat": 42.81687,
+  "lon": -1.64323,
+  "geocoded": "Pamplona, Navarre, ES"
+ },
+ "Sevilla": {
+  "city": "Seville",
+  "lat": 37.38283,
+  "lon": -5.97317,
+  "geocoded": "Seville, Andalusia, ES"
+ },
+ "Valencia": {
+  "city": "Valencia",
+  "lat": 39.47391,
+  "lon": -0.37966,
+  "geocoded": "Valencia, Valencia, ES"
+ },
+ "Levante": {
+  "city": "Valencia",
+  "lat": 39.47391,
+  "lon": -0.37966,
+  "geocoded": "Valencia, Valencia, ES"
+ },
+ "Racing Santander": {
+  "city": "Santander",
+  "lat": 43.46589,
+  "lon": -3.80493,
+  "geocoded": "Santander, Cantabria, ES"
+ },
+ "Real Madrid": {
+  "city": "Madrid",
+  "lat": 40.4165,
+  "lon": -3.70256,
+  "geocoded": "Madrid, Madrid, ES"
+ },
+ "Alavés": {
+  "city": "Vitoria",
+  "lat": 42.84998,
+  "lon": -2.67268,
+  "geocoded": "Vitoria-Gasteiz, Basque Country, ES"
+ },
+ "Barcelona": {
+  "city": "Barcelona",
+  "lat": 41.38879,
+  "lon": 2.15899,
+  "geocoded": "Barcelona, Catalonia, ES"
+ },
+ "Elche": {
+  "city": "Elche",
+  "lat": 38.26218,
+  "lon": -0.70107,
+  "geocoded": "Elche, Valencia, ES"
+ },
+ "Málaga": {
+  "city": "Málaga",
+  "lat": 36.72016,
+  "lon": -4.42034,
+  "geocoded": "Málaga, Andalusia, ES"
+ },
+ "Rayo Vallecano": {
+  "city": "Madrid",
+  "lat": 40.4165,
+  "lon": -3.70256,
+  "geocoded": "Madrid, Madrid, ES"
+ },
+ "Real Betis": {
+  "city": "Seville",
+  "lat": 37.38283,
+  "lon": -5.97317,
+  "geocoded": "Seville, Andalusia, ES"
+ },
+ "Arsenal": {
+  "city": "London",
+  "lat": 51.50853,
+  "lon": -0.12574,
+  "geocoded": "London, England, GB"
+ },
+ "Hull": {
+  "city": "Hull",
+  "lat": 53.7446,
+  "lon": -0.33525,
+  "geocoded": "Hull, England, GB"
+ },
+ "Ipswich": {
+  "city": "Ipswich",
+  "lat": 52.05917,
+  "lon": 1.15545,
+  "geocoded": "Ipswich, England, GB"
+ },
+ "Real Sociedad": {
+  "city": "San Sebastián",
+  "lat": 43.31283,
+  "lon": -1.97499,
+  "geocoded": "Donostia / San Sebastian, Basque Country, ES"
+ },
+ "Villarreal": {
+  "city": "Villarreal",
+  "lat": 39.9383,
+  "lon": -0.10087,
+  "geocoded": "Vila-real, Valencia, ES"
+ }
+}

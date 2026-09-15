@@ -1,0 +1,6 @@
+{
+ "url": "https://geocoding-api.open-meteo.com/v1/search?name=Leeds&count=10&language=en&format=json",
+ "status": 200,
+ "fetched_at": 1789369631.5223694,
+ "fetched_at_iso": "2026-09-14T00:07:11"
+}

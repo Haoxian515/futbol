@@ -1,0 +1,3 @@
+{
+  "_note": "Maintained by hand. Format: \"Team\": {\"star\": \"Name\", \"status\": \"fit|exp.|eased|out|—\", \"as_of\": \"YYYY-MM-DD\"}. Team names are canonical (aliases.json). fit/eased/out are downgraded to exp. unless as_of is within 3 days of the run. Missing team -> —."
+}

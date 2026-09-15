@@ -1,0 +1,6 @@
+{
+ "url": "https://archive-api.open-meteo.com/v1/archive?latitude=53.79648&longitude=-1.54785&timezone=Europe/London&start_date=2026-08-30&end_date=2026-08-30&hourly=temperature_2m,weathercode",
+ "status": 200,
+ "fetched_at": 1789369639.922906,
+ "fetched_at_iso": "2026-09-14T00:07:19"
+}

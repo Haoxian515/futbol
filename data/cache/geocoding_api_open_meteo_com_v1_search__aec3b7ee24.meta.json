@@ -1,0 +1,6 @@
+{
+ "url": "https://geocoding-api.open-meteo.com/v1/search?name=Elche&count=10&language=en&format=json",
+ "status": 200,
+ "fetched_at": 1789369779.8279989,
+ "fetched_at_iso": "2026-09-14T00:09:39"
+}
