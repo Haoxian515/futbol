@@ -1,0 +1,18 @@
+name: Serie A
+code: seriea
+teams: 20
+season_games: 38
+sources:
+  calendar: {url: "https://www.worldfootball.net/all_matches/ita-serie-a-{season}/", authority: true}
+  results: "https://www.topscorersfootball.com/serie-a/standing-and-matches-{y1}/{y2}"
+  season_csv: "https://lastseason.co.uk/data/serie-a/{season}.csv"
+  kickoffs: "https://www.sportbusy.com/serie-a-{y1}-{yy2}/"
+  standings: sports_feed:serie_a
+  odds: {api: the-odds-api, key_env: ODDS_API_KEY, sport: soccer_italy_serie_a}
+  weather: open-meteo
+  h2h: "https://www.sportsmole.co.uk/football/{home}/head-to-head/{away}/"
+stars_file: data/stars/serie-a.json
+history_round_default: chart_round
+verified_so_far: []
+pending_priority: ["confirm topscorersfootball + lastseason.co.uk carry Serie A", "team_cities.json entries", "aliases for Italian club names", "stars.json"]
+notes: "Sources are unvalidated: added by pattern from la-liga.yaml, not yet fetched."
