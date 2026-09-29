@@ -1,6 +1,6 @@
 {
  "url": "https://api.open-meteo.com/v1/forecast?latitude=40.4165&longitude=-3.70256&timezone=Europe/Madrid&start_date=2026-09-20&end_date=2026-09-20&hourly=temperature_2m,precipitation_probability,weathercode,precipitation",
  "status": 200,
- "fetched_at": 1789369763.3990679,
- "fetched_at_iso": "2026-09-14T00:09:23"
+ "fetched_at": 1789453383.895869,
+ "fetched_at_iso": "2026-09-14T23:23:03"
 }

@@ -1,0 +1,15 @@
+name: Premier League
+code: pl
+teams: 20
+season_games: 38
+sources:
+  calendar: {url: "https://www.worldfootball.net/all_matches/eng-premier-league-{season}/", authority: true}
+  results: "https://www.topscorersfootball.com/premier-league/standing-and-matches-{y1}/{y2}"
+  season_csv: "https://lastseason.co.uk/data/premier-league/{season}.csv"
+  standings: sports_feed:epl
+  odds: {api: the-odds-api, key_env: ODDS_API_KEY, sport: soccer_epl}
+  weather: open-meteo
+  h2h: "https://www.sportsmole.co.uk/football/{home}/head-to-head/{away}/"
+stars_file: data/stars/premier-league.json
+history_round_default: chart_round
+verified_so_far: ["2025-26 season table", "2024-25 season table", "2025-26 match-5 round", "live standings", "Man Utd-Man City H2H (W-L-D-W-D)"]

@@ -1,0 +1,429 @@
+{
+ "league": "laliga",
+ "updated_at": "2026-09-28T22:17:01",
+ "open": [
+  {
+   "field": "STAR/STATUS",
+   "reason": "club not in data/stars.json",
+   "subjects": [
+    "Espanyol",
+    "Elche",
+    "Osasuna",
+    "Rayo Vallecano",
+    "Athletic Bilbao",
+    "Alavés",
+    "Celta Vigo",
+    "Racing Santander",
+    "Sevilla",
+    "Barcelona",
+    "Getafe",
+    "Málaga",
+    "Atlético Madrid",
+    "Real Madrid",
+    "Deportivo La Coruña",
+    "Real Betis",
+    "Villarreal",
+    "Levante",
+    "Valencia",
+    "Real Sociedad"
+   ],
+   "resolve": "curate data/stars.json for this club (human-curated, rule 6)"
+  },
+  {
+   "field": "DATE",
+   "reason": "no kickoff time — date is the results page's local date",
+   "subjects": [
+    "Espanyol v Elche",
+    "Osasuna v Rayo Vallecano",
+    "Athletic Bilbao v Alavés",
+    "Celta Vigo v Racing Santander",
+    "Sevilla v Barcelona",
+    "Getafe v Málaga",
+    "Atlético Madrid v Real Madrid",
+    "Deportivo La Coruña v Real Betis",
+    "Villarreal v Levante",
+    "Valencia v Real Sociedad"
+   ],
+   "resolve": "investigate: no known pull resolves this"
+  },
+  {
+   "field": "WEATHER",
+   "reason": "kickoff hour unknown — value read at 15:00 local",
+   "subjects": [
+    "Espanyol v Elche",
+    "Osasuna v Rayo Vallecano",
+    "Athletic Bilbao v Alavés",
+    "Celta Vigo v Racing Santander",
+    "Sevilla v Barcelona",
+    "Getafe v Málaga",
+    "Atlético Madrid v Real Madrid",
+    "Deportivo La Coruña v Real Betis",
+    "Villarreal v Levante",
+    "Valencia v Real Sociedad"
+   ],
+   "resolve": "investigate: no known pull resolves this"
+  },
+  {
+   "season": "2026-27",
+   "round": 7,
+   "field": "DATE",
+   "reason": "no kickoff time — date is the results page's local date",
+   "subjects": [
+    "Espanyol v Elche",
+    "Osasuna v Rayo Vallecano",
+    "Athletic Bilbao v Alavés",
+    "Celta Vigo v Racing Santander",
+    "Sevilla v Barcelona",
+    "Getafe v Málaga",
+    "Atlético Madrid v Real Madrid",
+    "Deportivo La Coruña v Real Betis",
+    "Villarreal v Levante",
+    "Valencia v Real Sociedad"
+   ],
+   "resolve": "re-pull the kickoff source for a time, which also fixes the date"
+  },
+  {
+   "season": "2026-27",
+   "round": 7,
+   "field": "STAR/STATUS",
+   "reason": "club not in data/stars.json",
+   "subjects": [
+    "Espanyol",
+    "Elche",
+    "Osasuna",
+    "Rayo Vallecano",
+    "Athletic Bilbao",
+    "Alavés",
+    "Celta Vigo",
+    "Racing Santander",
+    "Sevilla",
+    "Barcelona",
+    "Getafe",
+    "Málaga",
+    "Atlético Madrid",
+    "Real Madrid",
+    "Deportivo La Coruña",
+    "Real Betis",
+    "Villarreal",
+    "Levante",
+    "Valencia",
+    "Real Sociedad"
+   ],
+   "resolve": "curate data/stars.json for this club (human-curated, rule 6)"
+  },
+  {
+   "season": "2026-27",
+   "round": 7,
+   "field": "WEATHER",
+   "reason": "kickoff hour unknown — value read at 15:00 local",
+   "subjects": [
+    "Espanyol v Elche",
+    "Osasuna v Rayo Vallecano",
+    "Athletic Bilbao v Alavés",
+    "Celta Vigo v Racing Santander",
+    "Sevilla v Barcelona",
+    "Getafe v Málaga",
+    "Atlético Madrid v Real Madrid",
+    "Deportivo La Coruña v Real Betis",
+    "Villarreal v Levante",
+    "Valencia v Real Sociedad"
+   ],
+   "resolve": "re-pull the kickoff source for a time, then re-pull the forecast at that hour"
+  }
+ ],
+ "structural": [
+  {
+   "field": "TIME",
+   "reason": "completed fixture — kickoff source no longer lists it",
+   "subjects": [
+    "Espanyol v Elche",
+    "Osasuna v Rayo Vallecano",
+    "Athletic Bilbao v Alavés",
+    "Celta Vigo v Racing Santander",
+    "Sevilla v Barcelona",
+    "Getafe v Málaga",
+    "Atlético Madrid v Real Madrid",
+    "Deportivo La Coruña v Real Betis",
+    "Villarreal v Levante",
+    "Valencia v Real Sociedad"
+   ]
+  },
+  {
+   "field": "STANDING '24",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Espanyol",
+    "Elche",
+    "Racing Santander",
+    "Málaga",
+    "Deportivo La Coruña",
+    "Levante"
+   ]
+  },
+  {
+   "field": "MATCH-7 HIST '24",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Espanyol",
+    "Elche",
+    "Racing Santander",
+    "Málaga",
+    "Deportivo La Coruña",
+    "Levante"
+   ]
+  },
+  {
+   "field": "SEASON RECORD '24",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Espanyol",
+    "Elche",
+    "Racing Santander",
+    "Málaga",
+    "Deportivo La Coruña",
+    "Levante"
+   ]
+  },
+  {
+   "field": "STANDING '25",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Elche",
+    "Racing Santander",
+    "Málaga",
+    "Deportivo La Coruña",
+    "Levante"
+   ]
+  },
+  {
+   "field": "MATCH-7 HIST '25",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Elche",
+    "Racing Santander",
+    "Málaga",
+    "Deportivo La Coruña",
+    "Levante"
+   ]
+  },
+  {
+   "field": "SEASON RECORD '25",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Elche",
+    "Racing Santander",
+    "Málaga",
+    "Deportivo La Coruña",
+    "Levante"
+   ]
+  },
+  {
+   "field": "MATCH-7 HIST '23",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Alavés",
+    "Racing Santander",
+    "Málaga",
+    "Deportivo La Coruña",
+    "Levante"
+   ]
+  },
+  {
+   "field": "SEASON RECORD '23",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Alavés",
+    "Racing Santander",
+    "Málaga",
+    "Deportivo La Coruña",
+    "Levante"
+   ]
+  },
+  {
+   "field": "STANDING '26 / GF-GA baseline",
+   "reason": "promoted — not in last season's table, baseline blank",
+   "subjects": [
+    "Racing Santander",
+    "Málaga",
+    "Deportivo La Coruña"
+   ]
+  },
+  {
+   "field": "MATCH-7 HIST '26",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Racing Santander",
+    "Málaga",
+    "Deportivo La Coruña"
+   ]
+  },
+  {
+   "field": "SEASON RECORD '26",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Racing Santander",
+    "Málaga",
+    "Deportivo La Coruña"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 7,
+   "field": "TIME",
+   "reason": "completed fixture — kickoff source no longer lists it",
+   "subjects": [
+    "Espanyol v Elche",
+    "Osasuna v Rayo Vallecano",
+    "Athletic Bilbao v Alavés",
+    "Celta Vigo v Racing Santander",
+    "Sevilla v Barcelona",
+    "Getafe v Málaga",
+    "Atlético Madrid v Real Madrid",
+    "Deportivo La Coruña v Real Betis",
+    "Villarreal v Levante",
+    "Valencia v Real Sociedad"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 7,
+   "field": "STANDING '24",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Espanyol",
+    "Elche",
+    "Racing Santander",
+    "Málaga",
+    "Deportivo La Coruña",
+    "Levante"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 7,
+   "field": "MATCH-7 HIST '24",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Espanyol",
+    "Elche",
+    "Racing Santander",
+    "Málaga",
+    "Deportivo La Coruña",
+    "Levante"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 7,
+   "field": "SEASON RECORD '24",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Espanyol",
+    "Elche",
+    "Racing Santander",
+    "Málaga",
+    "Deportivo La Coruña",
+    "Levante"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 7,
+   "field": "STANDING '25",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Elche",
+    "Racing Santander",
+    "Málaga",
+    "Deportivo La Coruña",
+    "Levante"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 7,
+   "field": "MATCH-7 HIST '25",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Elche",
+    "Racing Santander",
+    "Málaga",
+    "Deportivo La Coruña",
+    "Levante"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 7,
+   "field": "SEASON RECORD '25",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Elche",
+    "Racing Santander",
+    "Málaga",
+    "Deportivo La Coruña",
+    "Levante"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 7,
+   "field": "MATCH-7 HIST '23",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Alavés",
+    "Racing Santander",
+    "Málaga",
+    "Deportivo La Coruña",
+    "Levante"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 7,
+   "field": "SEASON RECORD '23",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Alavés",
+    "Racing Santander",
+    "Málaga",
+    "Deportivo La Coruña",
+    "Levante"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 7,
+   "field": "STANDING '26 / GF-GA baseline",
+   "reason": "promoted — not in last season's table, baseline blank",
+   "subjects": [
+    "Racing Santander",
+    "Málaga",
+    "Deportivo La Coruña"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 7,
+   "field": "MATCH-7 HIST '26",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Racing Santander",
+    "Málaga",
+    "Deportivo La Coruña"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 7,
+   "field": "SEASON RECORD '26",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Racing Santander",
+    "Málaga",
+    "Deportivo La Coruña"
+   ]
+  }
+ ],
+ "warnings": []
+}

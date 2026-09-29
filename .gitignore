@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+
+# Node
+node_modules/
+
+# Local env / secrets — never commit these
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# OS noise
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Build artifacts / scratch
+futbol-agents-scaffold.zip
+futbol-agents-scaffold/

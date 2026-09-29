@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Match Charts</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="controls">
+    <form id="controls" autocomplete="off">
+      <label>League
+        <select id="league" name="league"></select>
+      </label>
+      <label>Round
+        <select id="round" name="round" disabled></select>
+      </label>
+      <label>History round
+        <select id="historyRound" name="historyRound">
+          <option value="">Same as round</option>
+        </select>
+      </label>
+      <label class="check">
+        <input type="checkbox" id="refresh" name="refresh">
+        Refresh (re-fetch, skip cache)
+      </label>
+      <button type="submit" id="build">Build chart</button>
+      <span id="status" role="status" aria-live="polite"></span>
+    </form>
+  </header>
+
+  <main>
+    <div id="error" class="error" role="alert" hidden></div>
+    <section id="chart" class="chart" hidden></section>
+    <details id="log" class="log" hidden>
+      <summary>Run log</summary>
+      <div id="logBody"></div>
+    </details>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

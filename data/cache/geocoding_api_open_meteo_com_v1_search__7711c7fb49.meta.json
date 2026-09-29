@@ -1,0 +1,6 @@
+{
+ "url": "https://geocoding-api.open-meteo.com/v1/search?name=Brighton&count=10&language=en&format=json",
+ "status": 200,
+ "fetched_at": 1789453530.606,
+ "fetched_at_iso": "2026-09-14T23:25:30"
+}

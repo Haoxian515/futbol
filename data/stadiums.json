@@ -196,5 +196,47 @@
   "lat": 39.9383,
   "lon": -0.10087,
   "geocoded": "Vila-real, Valencia, ES"
+ },
+ "Brentford": {
+  "city": "London",
+  "lat": 51.50853,
+  "lon": -0.12574,
+  "geocoded": "London, England, GB"
+ },
+ "Brighton": {
+  "city": "Brighton",
+  "lat": 50.82838,
+  "lon": -0.13947,
+  "geocoded": "Brighton, England, GB"
+ },
+ "Everton": {
+  "city": "Liverpool",
+  "lat": 53.41058,
+  "lon": -2.97794,
+  "geocoded": "Liverpool, England, GB"
+ },
+ "Fulham": {
+  "city": "London",
+  "lat": 51.50853,
+  "lon": -0.12574,
+  "geocoded": "London, England, GB"
+ },
+ "Manchester City": {
+  "city": "Manchester",
+  "lat": 53.48095,
+  "lon": -2.23743,
+  "geocoded": "Manchester, England, GB"
+ },
+ "Newcastle": {
+  "city": "Newcastle",
+  "lat": 54.97328,
+  "lon": -1.61396,
+  "geocoded": "Newcastle upon Tyne, England, GB"
+ },
+ "Nottingham Forest": {
+  "city": "Nottingham",
+  "lat": 52.9536,
+  "lon": -1.15047,
+  "geocoded": "Nottingham, England, GB"
  }
 }

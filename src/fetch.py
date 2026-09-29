@@ -126,6 +126,29 @@ class Fetcher:
             json.dump({"url": mask(url), "status": status, "fetched_at": now,
                        "fetched_at_iso": dt.datetime.fromtimestamp(now).isoformat(timespec="seconds")}, fh, indent=1)
 
+    def stamp(self, url):
+        """Provenance for a URL already in the cache -> {"src", "at"} or None.
+
+        Reads only the cache metadata, never the network: the verify stage is offline by
+        design, so a cell may cite a source only once that source is actually on disk.
+        """
+        _, meta_p, _ = self._paths(url)
+        if not os.path.exists(meta_p):
+            return None
+        try:
+            with open(meta_p, encoding="utf-8") as fh:
+                meta = json.load(fh)
+        except (OSError, ValueError):
+            return None
+        if meta.get("status") != 200:
+            return None
+        at = meta.get("fetched_at_iso")
+        if not at and meta.get("fetched_at"):
+            at = dt.datetime.fromtimestamp(meta["fetched_at"]).isoformat(timespec="seconds")
+        if not at:
+            return None
+        return {"src": meta.get("url") or mask(url), "at": at}
+
     def get_json(self, url, ttl_hours):
         text = self.get(url, ttl_hours)
         if text is None:

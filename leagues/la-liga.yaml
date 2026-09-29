@@ -1,0 +1,16 @@
+name: La Liga
+code: laliga
+teams: 20
+season_games: 38
+sources:
+  calendar: {url: "https://www.worldfootball.net/all_matches/esp-primera-division-{season}/", authority: true}
+  results: "https://www.topscorersfootball.com/la-liga/standing-and-matches-{y1}/{y2}"
+  season_csv: "https://lastseason.co.uk/data/la-liga/{season}.csv"
+  standings: sports_feed:la_liga
+  odds: {api: the-odds-api, key_env: ODDS_API_KEY, sport: soccer_spain_la_liga}
+  weather: open-meteo
+  h2h: "https://www.sportsmole.co.uk/football/{home}/head-to-head/{away}/"
+stars_file: data/stars/la-liga.json
+history_round_default: chart_round
+verified_so_far: ["2025-26 season table", "2025-26 match-7 round", "live standings"]
+notes: "Catch-up games common — the each-team-exactly-once gate is load-bearing here."

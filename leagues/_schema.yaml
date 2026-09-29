@@ -1,0 +1,17 @@
+# League spec schema — adding a league == adding one file like this.
+name: str                # display name
+code: str                # slug used in CLI + output filenames
+teams: int               # drives complete-round check (teams/2 fixtures) & per-game divisors
+season_games: int        # 38 PL/LL, 34 L1, 8 UCL league phase, 6 NL group
+sources:
+  calendar: {url: str, authority: true}     # what fixtures exist (worldfootball/UEFA)
+  results: str           # round-by-round with "Round N" labels (topscorersfootball pattern)
+  season_csv: str        # lastseason.co.uk/data/... for baselines + SEASON RECORD
+  standings: str         # live table (feed/API) for NOW
+  odds: {api: str, key_env: str, sport: str}
+  weather: open-meteo
+  h2h: str               # per-fixture H2H page pattern, cached until the clubs meet again
+extra_columns:           # optional; appended after core set, never replacing it
+  - {name: str, source: str, agg: str}
+stars_file: str
+history_round_default: chart_round

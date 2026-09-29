@@ -1,0 +1,15 @@
+name: Champions League
+code: ucl
+teams: 36
+season_games: 8
+sources:
+  calendar: {url: "https://www.uefa.com/uefachampionsleague/fixtures-results/", authority: true}
+  results: "https://www.topscorersfootball.com/champions-league/standing-and-matches-{y1}/{y2}"
+  season_csv: null   # STANDING/baselines are DOMESTIC per club -> resolve via that club's league spec
+  standings: sports_feed:champions_league
+  odds: {api: the-odds-api, key_env: ODDS_API_KEY, sport: soccer_uefa_champs_league}
+  weather: open-meteo
+  h2h: "https://www.sportsmole.co.uk/football/{home}/head-to-head/{away}/"
+stars_file: data/stars/champions-league.json
+history_round_default: chart_round   # MD-N across editions; format changed 2024-25 (footer note)
+cross_league: true   # per-club domestic baselines pulled via the club's home-league spec

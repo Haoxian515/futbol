@@ -1,0 +1,16 @@
+name: Ligue 1
+code: ligue1
+teams: 18
+season_games: 34
+sources:
+  calendar: {url: "https://www.worldfootball.net/all_matches/fra-ligue-1-{season}/", authority: true}
+  results: "https://www.topscorersfootball.com/ligue-1/standing-and-matches-{y1}/{y2}"
+  season_csv: "https://lastseason.co.uk/data/ligue-1/{season}.csv"
+  standings: sports_feed:ligue_1
+  odds: {api: the-odds-api, key_env: ODDS_API_KEY, sport: soccer_france_ligue_one}
+  weather: open-meteo
+  h2h: "https://www.sportsmole.co.uk/football/{home}/head-to-head/{away}/"
+stars_file: data/stars/ligue-1.json
+history_round_default: chart_round
+verified_so_far: ["fixtures+odds current round", "live standings"]
+pending_priority: ["2025-26 season CSV (baselines+records)", "match-N history all seasons", "stars.json"]

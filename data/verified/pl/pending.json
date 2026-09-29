@@ -1,0 +1,456 @@
+{
+ "league": "pl",
+ "updated_at": "2026-09-28T22:17:39",
+ "open": [
+  {
+   "season": "2026-27",
+   "round": 4,
+   "field": "DATE",
+   "reason": "no kickoff time — date is the results page's local date",
+   "subjects": [
+    "Aston Villa v Nottingham Forest",
+    "Bournemouth v Brentford",
+    "Chelsea v Hull",
+    "Crystal Palace v Ipswich",
+    "Liverpool v Fulham",
+    "Tottenham v Everton",
+    "Sunderland v Arsenal",
+    "Coventry v Brighton",
+    "Manchester United v Manchester City",
+    "Leeds v Newcastle"
+   ],
+   "resolve": "re-pull the kickoff source for a time, which also fixes the date"
+  },
+  {
+   "season": "2026-27",
+   "round": 4,
+   "field": "STAR/STATUS",
+   "reason": "club not in data/stars.json",
+   "subjects": [
+    "Aston Villa",
+    "Nottingham Forest",
+    "Bournemouth",
+    "Brentford",
+    "Chelsea",
+    "Hull",
+    "Crystal Palace",
+    "Ipswich",
+    "Liverpool",
+    "Fulham",
+    "Tottenham",
+    "Everton",
+    "Sunderland",
+    "Arsenal",
+    "Coventry",
+    "Brighton",
+    "Manchester United",
+    "Manchester City",
+    "Leeds",
+    "Newcastle"
+   ],
+   "resolve": "curate data/stars.json for this club (human-curated, rule 6)"
+  },
+  {
+   "season": "2026-27",
+   "round": 4,
+   "field": "WEATHER",
+   "reason": "kickoff hour unknown — value read at 15:00 local",
+   "subjects": [
+    "Aston Villa v Nottingham Forest",
+    "Bournemouth v Brentford",
+    "Chelsea v Hull",
+    "Crystal Palace v Ipswich",
+    "Liverpool v Fulham",
+    "Tottenham v Everton",
+    "Sunderland v Arsenal",
+    "Coventry v Brighton",
+    "Manchester United v Manchester City",
+    "Leeds v Newcastle"
+   ],
+   "resolve": "re-pull the kickoff source for a time, then re-pull the forecast at that hour"
+  },
+  {
+   "season": "2026-27",
+   "round": 8,
+   "field": "STAR/STATUS",
+   "reason": "club not in data/stars.json",
+   "subjects": [
+    "Ipswich",
+    "Nottingham Forest",
+    "Aston Villa",
+    "Manchester City",
+    "Arsenal",
+    "Everton",
+    "Coventry",
+    "Fulham",
+    "Chelsea",
+    "Tottenham",
+    "Crystal Palace",
+    "Newcastle",
+    "Hull",
+    "Brentford",
+    "Liverpool",
+    "Brighton",
+    "Manchester United",
+    "Bournemouth",
+    "Sunderland",
+    "Leeds"
+   ],
+   "resolve": "curate data/stars.json for this club (human-curated, rule 6)"
+  },
+  {
+   "season": "2026-27",
+   "round": 8,
+   "field": "WEATHER",
+   "reason": "Forecast TBC (>7 days out); ~temp = Open-Meteo archive mean, same hour, ±3 days, last 3 yrs",
+   "subjects": [
+    "Ipswich v Nottingham Forest",
+    "Aston Villa v Manchester City",
+    "Arsenal v Everton",
+    "Coventry v Fulham",
+    "Chelsea v Tottenham",
+    "Crystal Palace v Newcastle",
+    "Hull v Brentford",
+    "Liverpool v Brighton",
+    "Manchester United v Bournemouth",
+    "Sunderland v Leeds"
+   ],
+   "resolve": "re-pull the forecast within 7 days of kickoff"
+  },
+  {
+   "season": "2026-27",
+   "round": 8,
+   "field": "WIN%",
+   "reason": "ODDS_API_KEY not set",
+   "subjects": [
+    "Ipswich v Nottingham Forest",
+    "Aston Villa v Manchester City",
+    "Arsenal v Everton",
+    "Coventry v Fulham",
+    "Chelsea v Tottenham",
+    "Crystal Palace v Newcastle",
+    "Hull v Brentford",
+    "Liverpool v Brighton",
+    "Manchester United v Bournemouth",
+    "Sunderland v Leeds"
+   ],
+   "resolve": "set ODDS_API_KEY and re-run"
+  },
+  {
+   "season": "2026-27",
+   "round": 8,
+   "field": "TIME",
+   "reason": "provisional — NBC note: Match will move to 20:00 if Villa are drawn away in Champions League the Wednesday before",
+   "subjects": [
+    "Aston Villa v Manchester City"
+   ],
+   "resolve": "investigate: no known pull resolves this"
+  }
+ ],
+ "structural": [
+  {
+   "season": "2026-27",
+   "round": 8,
+   "field": "STANDING '26 / GF-GA baseline",
+   "reason": "promoted — not in last season's table, baseline blank",
+   "subjects": [
+    "Ipswich",
+    "Coventry",
+    "Hull"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 8,
+   "field": "STANDING '24",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Ipswich",
+    "Coventry",
+    "Hull",
+    "Sunderland",
+    "Leeds"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 8,
+   "field": "MATCH-8 HIST '23",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Ipswich",
+    "Coventry",
+    "Hull",
+    "Sunderland"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 8,
+   "field": "MATCH-8 HIST '24",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Ipswich",
+    "Coventry",
+    "Hull",
+    "Sunderland",
+    "Leeds"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 8,
+   "field": "MATCH-8 HIST '26",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Ipswich",
+    "Coventry",
+    "Hull"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 8,
+   "field": "SEASON RECORD '23",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Ipswich",
+    "Coventry",
+    "Hull",
+    "Sunderland"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 8,
+   "field": "SEASON RECORD '24",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Ipswich",
+    "Coventry",
+    "Hull",
+    "Sunderland",
+    "Leeds"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 8,
+   "field": "SEASON RECORD '26",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Ipswich",
+    "Coventry",
+    "Hull"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 8,
+   "field": "STANDING '25",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Coventry",
+    "Hull",
+    "Sunderland",
+    "Leeds"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 8,
+   "field": "MATCH-8 HIST '25",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Coventry",
+    "Hull",
+    "Sunderland",
+    "Leeds"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 8,
+   "field": "SEASON RECORD '25",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Coventry",
+    "Hull",
+    "Sunderland",
+    "Leeds"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 4,
+   "field": "TIME",
+   "reason": "completed fixture — kickoff source shows the score only",
+   "subjects": [
+    "Aston Villa v Nottingham Forest",
+    "Bournemouth v Brentford",
+    "Chelsea v Hull",
+    "Crystal Palace v Ipswich",
+    "Liverpool v Fulham",
+    "Tottenham v Everton",
+    "Sunderland v Arsenal",
+    "Coventry v Brighton",
+    "Manchester United v Manchester City",
+    "Leeds v Newcastle"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 4,
+   "field": "STANDING '26 / GF-GA baseline",
+   "reason": "promoted — not in last season's table, baseline blank",
+   "subjects": [
+    "Hull",
+    "Ipswich",
+    "Coventry"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 4,
+   "field": "STANDING '24",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Hull",
+    "Ipswich",
+    "Sunderland",
+    "Coventry",
+    "Leeds"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 4,
+   "field": "STANDING '25",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Hull",
+    "Sunderland",
+    "Coventry",
+    "Leeds"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 4,
+   "field": "MATCH-4 HIST '23",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Hull",
+    "Ipswich",
+    "Sunderland",
+    "Coventry"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 4,
+   "field": "MATCH-4 HIST '24",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Hull",
+    "Ipswich",
+    "Sunderland",
+    "Coventry",
+    "Leeds"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 4,
+   "field": "MATCH-4 HIST '25",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Hull",
+    "Sunderland",
+    "Coventry",
+    "Leeds"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 4,
+   "field": "MATCH-4 HIST '26",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Hull",
+    "Ipswich",
+    "Coventry"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 4,
+   "field": "SEASON RECORD '23",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Hull",
+    "Ipswich",
+    "Sunderland",
+    "Coventry"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 4,
+   "field": "SEASON RECORD '24",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Hull",
+    "Ipswich",
+    "Sunderland",
+    "Coventry",
+    "Leeds"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 4,
+   "field": "SEASON RECORD '25",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Hull",
+    "Sunderland",
+    "Coventry",
+    "Leeds"
+   ]
+  },
+  {
+   "season": "2026-27",
+   "round": 4,
+   "field": "SEASON RECORD '26",
+   "reason": "not in the top flight that season",
+   "subjects": [
+    "Hull",
+    "Ipswich",
+    "Coventry"
+   ]
+  }
+ ],
+ "warnings": [
+  {
+   "season": "2026-27",
+   "round": 8,
+   "text": "2023-24 Everton: 3W+D=48 but Pts=40 in https://lastseason.co.uk/data/premier-league/2023-24.csv (points adjustment?) — W-D-L kept"
+  },
+  {
+   "season": "2026-27",
+   "round": 8,
+   "text": "2023-24 Nottingham Forest: 3W+D=36 but Pts=32 in https://lastseason.co.uk/data/premier-league/2023-24.csv (points adjustment?) — W-D-L kept"
+  },
+  {
+   "season": "2026-27",
+   "round": 4,
+   "text": "2023-24 Everton: 3W+D=48 but Pts=40 in https://lastseason.co.uk/data/premier-league/2023-24.csv (points adjustment?) — W-D-L kept"
+  },
+  {
+   "season": "2026-27",
+   "round": 4,
+   "text": "2023-24 Nottingham Forest: 3W+D=36 but Pts=32 in https://lastseason.co.uk/data/premier-league/2023-24.csv (points adjustment?) — W-D-L kept"
+  }
+ ]
+}

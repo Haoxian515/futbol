@@ -1,0 +1,2396 @@
+{
+ "league": "pl",
+ "league_name": "Premier League",
+ "season": "2026-27",
+ "round": 4,
+ "round_word": "Matchweek",
+ "hist_round": 4,
+ "teams": 20,
+ "built_at": "2026-09-28T22:17:38-07:00",
+ "fixtures": [
+  {
+   "home": "Aston Villa",
+   "away": "Nottingham Forest",
+   "date": "2026-09-12",
+   "round_label_src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+   "done": true,
+   "cells": {
+    "day": {
+     "v": "SAT",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "date": {
+     "v": "Sep 12",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "time": {
+     "v": "—"
+    },
+    "weather": {
+     "v": "Drizzle 0.3mm · ~21°C Birmingham",
+     "src": "https://archive-api.open-meteo.com/v1/archive?latitude=52.48142&longitude=-1.89983&timezone=Europe/London&start_date=2026-09-12&end_date=2026-09-12&hourly=temperature_2m,weathercode,precipitation",
+     "at": "2026-09-28T22:06:09"
+    },
+    "importance": {
+     "v": "mod: Last season: 4th v 16th",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07",
+     "how": "derived from results/standings"
+    }
+   },
+   "home_cells": {
+    "star": {
+     "v": "—"
+    },
+    "status": {
+     "v": "—"
+    },
+    "rank_prev": {
+     "v": "4",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'24": {
+     "v": "4",
+     "src": "https://lastseason.co.uk/data/premier-league/2023-24.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'25": {
+     "v": "6",
+     "src": "https://lastseason.co.uk/data/premier-league/2024-25.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "now_rank": {
+     "v": "16",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "games_played": {
+     "v": 5,
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "gf_g": {
+     "v": 1.4736842105263157,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "ga_g": {
+     "v": 1.2894736842105263,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "gf_ga": {
+     "v": 1.1428571428571428,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "tot_g": {
+     "v": 2.763157894736842,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "last": {
+     "v": "D 0-0",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "hist_'23": {
+     "v": "L",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2022/2023",
+     "at": "2026-09-14T23:34:56"
+    },
+    "hist_'24": {
+     "v": "L",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2023/2024",
+     "at": "2026-09-14T23:34:57"
+    },
+    "hist_'25": {
+     "v": "W",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2024/2025",
+     "at": "2026-09-14T23:34:57"
+    },
+    "hist_'26": {
+     "v": "D",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2025/2026",
+     "at": "2026-09-14T23:34:57"
+    },
+    "record_'23": {
+     "v": "18-7-13",
+     "src": "https://lastseason.co.uk/data/premier-league/2022-23.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'24": {
+     "v": "20-8-10",
+     "src": "https://lastseason.co.uk/data/premier-league/2023-24.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'25": {
+     "v": "19-9-10",
+     "src": "https://lastseason.co.uk/data/premier-league/2024-25.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'26": {
+     "v": "19-8-11",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_now": {
+     "v": "1-1-3",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "ft": {
+     "v": "L 1-2",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    }
+   },
+   "away_cells": {
+    "star": {
+     "v": "—"
+    },
+    "status": {
+     "v": "—"
+    },
+    "rank_prev": {
+     "v": "16",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'24": {
+     "v": "17",
+     "src": "https://lastseason.co.uk/data/premier-league/2023-24.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'25": {
+     "v": "7",
+     "src": "https://lastseason.co.uk/data/premier-league/2024-25.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "now_rank": {
+     "v": "13",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "games_played": {
+     "v": 5,
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "gf_g": {
+     "v": 1.263157894736842,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "ga_g": {
+     "v": 1.3421052631578947,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "gf_ga": {
+     "v": 0.9411764705882353,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "tot_g": {
+     "v": 2.6052631578947367,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "last": {
+     "v": "D 0-0",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "hist_'23": {
+     "v": "L",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2022/2023",
+     "at": "2026-09-14T23:34:56"
+    },
+    "hist_'24": {
+     "v": "W",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2023/2024",
+     "at": "2026-09-14T23:34:57"
+    },
+    "hist_'25": {
+     "v": "W",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2024/2025",
+     "at": "2026-09-14T23:34:57"
+    },
+    "hist_'26": {
+     "v": "L",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2025/2026",
+     "at": "2026-09-14T23:34:57"
+    },
+    "record_'23": {
+     "v": "9-11-18",
+     "src": "https://lastseason.co.uk/data/premier-league/2022-23.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'24": {
+     "v": "9-9-20",
+     "src": "https://lastseason.co.uk/data/premier-league/2023-24.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'25": {
+     "v": "19-8-11",
+     "src": "https://lastseason.co.uk/data/premier-league/2024-25.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'26": {
+     "v": "11-11-16",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_now": {
+     "v": "1-2-2",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "ft": {
+     "v": "W 2-1",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    }
+   }
+  },
+  {
+   "home": "Bournemouth",
+   "away": "Brentford",
+   "date": "2026-09-12",
+   "round_label_src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+   "done": true,
+   "cells": {
+    "day": {
+     "v": "SAT",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "date": {
+     "v": "Sep 12",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "time": {
+     "v": "—"
+    },
+    "weather": {
+     "v": "Partly cloudy · ~20°C Bournemouth",
+     "src": "https://archive-api.open-meteo.com/v1/archive?latitude=50.72048&longitude=-1.8795&timezone=Europe/London&start_date=2026-09-12&end_date=2026-09-12&hourly=temperature_2m,weathercode,precipitation",
+     "at": "2026-09-28T22:06:10"
+    },
+    "importance": {
+     "v": "mod: Last season: 6th v 9th",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07",
+     "how": "derived from results/standings"
+    }
+   },
+   "home_cells": {
+    "star": {
+     "v": "—"
+    },
+    "status": {
+     "v": "—"
+    },
+    "rank_prev": {
+     "v": "6",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'24": {
+     "v": "12",
+     "src": "https://lastseason.co.uk/data/premier-league/2023-24.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'25": {
+     "v": "9",
+     "src": "https://lastseason.co.uk/data/premier-league/2024-25.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "now_rank": {
+     "v": "17",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "games_played": {
+     "v": 5,
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "gf_g": {
+     "v": 1.5263157894736843,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "ga_g": {
+     "v": 1.4210526315789473,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "gf_ga": {
+     "v": 1.0740740740740742,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "tot_g": {
+     "v": 2.9473684210526314,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "last": {
+     "v": "D 2-2",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "hist_'23": {
+     "v": "L",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2022/2023",
+     "at": "2026-09-14T23:34:56"
+    },
+    "hist_'24": {
+     "v": "D",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2023/2024",
+     "at": "2026-09-14T23:34:57"
+    },
+    "hist_'25": {
+     "v": "L",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2024/2025",
+     "at": "2026-09-14T23:34:57"
+    },
+    "hist_'26": {
+     "v": "W",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2025/2026",
+     "at": "2026-09-14T23:34:57"
+    },
+    "record_'23": {
+     "v": "11-6-21",
+     "src": "https://lastseason.co.uk/data/premier-league/2022-23.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'24": {
+     "v": "13-9-16",
+     "src": "https://lastseason.co.uk/data/premier-league/2023-24.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'25": {
+     "v": "15-11-12",
+     "src": "https://lastseason.co.uk/data/premier-league/2024-25.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'26": {
+     "v": "13-18-7",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_now": {
+     "v": "0-3-2",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "ft": {
+     "v": "D 2-2",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    }
+   },
+   "away_cells": {
+    "star": {
+     "v": "—"
+    },
+    "status": {
+     "v": "—"
+    },
+    "rank_prev": {
+     "v": "9",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'24": {
+     "v": "16",
+     "src": "https://lastseason.co.uk/data/premier-league/2023-24.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'25": {
+     "v": "10",
+     "src": "https://lastseason.co.uk/data/premier-league/2024-25.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "now_rank": {
+     "v": "4",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "games_played": {
+     "v": 5,
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "gf_g": {
+     "v": 1.4473684210526316,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "ga_g": {
+     "v": 1.368421052631579,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "gf_ga": {
+     "v": 1.0576923076923077,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "tot_g": {
+     "v": 2.8157894736842106,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "last": {
+     "v": "D 1-1",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "hist_'23": {
+     "v": "D",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2022/2023",
+     "at": "2026-09-14T23:34:56"
+    },
+    "hist_'24": {
+     "v": "D",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2023/2024",
+     "at": "2026-09-14T23:34:57"
+    },
+    "hist_'25": {
+     "v": "L",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2024/2025",
+     "at": "2026-09-14T23:34:57"
+    },
+    "hist_'26": {
+     "v": "D",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2025/2026",
+     "at": "2026-09-14T23:34:57"
+    },
+    "record_'23": {
+     "v": "15-14-9",
+     "src": "https://lastseason.co.uk/data/premier-league/2022-23.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'24": {
+     "v": "10-9-19",
+     "src": "https://lastseason.co.uk/data/premier-league/2023-24.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'25": {
+     "v": "16-8-14",
+     "src": "https://lastseason.co.uk/data/premier-league/2024-25.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'26": {
+     "v": "14-11-13",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_now": {
+     "v": "2-3-0",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "ft": {
+     "v": "D 2-2",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    }
+   }
+  },
+  {
+   "home": "Chelsea",
+   "away": "Hull",
+   "date": "2026-09-12",
+   "round_label_src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+   "done": true,
+   "cells": {
+    "day": {
+     "v": "SAT",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "date": {
+     "v": "Sep 12",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "time": {
+     "v": "—"
+    },
+    "weather": {
+     "v": "Overcast · ~23°C London",
+     "src": "https://archive-api.open-meteo.com/v1/archive?latitude=51.50853&longitude=-0.12574&timezone=Europe/London&start_date=2026-09-12&end_date=2026-09-12&hourly=temperature_2m,weathercode,precipitation",
+     "at": "2026-09-28T22:06:11"
+    },
+    "importance": {
+     "v": "mod: Last season: 10th v PROM",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07",
+     "how": "derived from results/standings"
+    }
+   },
+   "home_cells": {
+    "star": {
+     "v": "—"
+    },
+    "status": {
+     "v": "—"
+    },
+    "rank_prev": {
+     "v": "10",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'24": {
+     "v": "6",
+     "src": "https://lastseason.co.uk/data/premier-league/2023-24.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'25": {
+     "v": "4",
+     "src": "https://lastseason.co.uk/data/premier-league/2024-25.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "now_rank": {
+     "v": "10",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "games_played": {
+     "v": 5,
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "gf_g": {
+     "v": 1.5263157894736843,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "ga_g": {
+     "v": 1.368421052631579,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "gf_ga": {
+     "v": 1.1153846153846154,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "tot_g": {
+     "v": 2.8947368421052633,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "last": {
+     "v": "L 1-2",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "hist_'23": {
+     "v": "W",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2022/2023",
+     "at": "2026-09-14T23:34:56"
+    },
+    "hist_'24": {
+     "v": "L",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2023/2024",
+     "at": "2026-09-14T23:34:57"
+    },
+    "hist_'25": {
+     "v": "W",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2024/2025",
+     "at": "2026-09-14T23:34:57"
+    },
+    "hist_'26": {
+     "v": "D",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2025/2026",
+     "at": "2026-09-14T23:34:57"
+    },
+    "record_'23": {
+     "v": "11-11-16",
+     "src": "https://lastseason.co.uk/data/premier-league/2022-23.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'24": {
+     "v": "18-9-11",
+     "src": "https://lastseason.co.uk/data/premier-league/2023-24.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'25": {
+     "v": "20-9-9",
+     "src": "https://lastseason.co.uk/data/premier-league/2024-25.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'26": {
+     "v": "14-10-14",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_now": {
+     "v": "2-1-2",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "ft": {
+     "v": "D 2-2",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    }
+   },
+   "away_cells": {
+    "star": {
+     "v": "—"
+    },
+    "status": {
+     "v": "—"
+    },
+    "rank_prev": {
+     "v": "PROM",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'24": {
+     "v": "new"
+    },
+    "rank_'25": {
+     "v": "new"
+    },
+    "now_rank": {
+     "v": "8",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "games_played": {
+     "v": 5,
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "gf_g": {
+     "v": "—"
+    },
+    "ga_g": {
+     "v": "—"
+    },
+    "gf_ga": {
+     "v": "—"
+    },
+    "tot_g": {
+     "v": "—"
+    },
+    "last": {
+     "v": "D 0-0",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "hist_'23": {
+     "v": "new"
+    },
+    "hist_'24": {
+     "v": "new"
+    },
+    "hist_'25": {
+     "v": "new"
+    },
+    "hist_'26": {
+     "v": "new"
+    },
+    "record_'23": {
+     "v": "new"
+    },
+    "record_'24": {
+     "v": "new"
+    },
+    "record_'25": {
+     "v": "new"
+    },
+    "record_'26": {
+     "v": "new"
+    },
+    "record_now": {
+     "v": "2-2-1",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "ft": {
+     "v": "D 2-2",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    }
+   }
+  },
+  {
+   "home": "Crystal Palace",
+   "away": "Ipswich",
+   "date": "2026-09-12",
+   "round_label_src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+   "done": true,
+   "cells": {
+    "day": {
+     "v": "SAT",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "date": {
+     "v": "Sep 12",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "time": {
+     "v": "—"
+    },
+    "weather": {
+     "v": "Overcast · ~23°C London",
+     "src": "https://archive-api.open-meteo.com/v1/archive?latitude=51.50853&longitude=-0.12574&timezone=Europe/London&start_date=2026-09-12&end_date=2026-09-12&hourly=temperature_2m,weathercode,precipitation",
+     "at": "2026-09-28T22:06:11"
+    },
+    "importance": {
+     "v": "mod: Last season: 15th v PROM",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07",
+     "how": "derived from results/standings"
+    }
+   },
+   "home_cells": {
+    "star": {
+     "v": "—"
+    },
+    "status": {
+     "v": "—"
+    },
+    "rank_prev": {
+     "v": "15",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'24": {
+     "v": "10",
+     "src": "https://lastseason.co.uk/data/premier-league/2023-24.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'25": {
+     "v": "12",
+     "src": "https://lastseason.co.uk/data/premier-league/2024-25.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "now_rank": {
+     "v": "15",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "games_played": {
+     "v": 5,
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "gf_g": {
+     "v": 1.0789473684210527,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "ga_g": {
+     "v": 1.3421052631578947,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "gf_ga": {
+     "v": 0.803921568627451,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "tot_g": {
+     "v": 2.4210526315789473,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "last": {
+     "v": "W 3-2",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "hist_'23": {
+     "v": "L",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2022/2023",
+     "at": "2026-09-14T23:34:56"
+    },
+    "hist_'24": {
+     "v": "W",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2023/2024",
+     "at": "2026-09-14T23:34:57"
+    },
+    "hist_'25": {
+     "v": "D",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2024/2025",
+     "at": "2026-09-14T23:34:57"
+    },
+    "hist_'26": {
+     "v": "D",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2025/2026",
+     "at": "2026-09-14T23:34:57"
+    },
+    "record_'23": {
+     "v": "11-12-15",
+     "src": "https://lastseason.co.uk/data/premier-league/2022-23.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'24": {
+     "v": "13-10-15",
+     "src": "https://lastseason.co.uk/data/premier-league/2023-24.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'25": {
+     "v": "13-14-11",
+     "src": "https://lastseason.co.uk/data/premier-league/2024-25.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'26": {
+     "v": "11-12-15",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_now": {
+     "v": "1-1-3",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "ft": {
+     "v": "L 2-3",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    }
+   },
+   "away_cells": {
+    "star": {
+     "v": "—"
+    },
+    "status": {
+     "v": "—"
+    },
+    "rank_prev": {
+     "v": "PROM",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'24": {
+     "v": "new"
+    },
+    "rank_'25": {
+     "v": "19",
+     "src": "https://lastseason.co.uk/data/premier-league/2024-25.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "now_rank": {
+     "v": "11",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "games_played": {
+     "v": 5,
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "gf_g": {
+     "v": "—"
+    },
+    "ga_g": {
+     "v": "—"
+    },
+    "gf_ga": {
+     "v": "—"
+    },
+    "tot_g": {
+     "v": "—"
+    },
+    "last": {
+     "v": "L 0-2",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "hist_'23": {
+     "v": "new"
+    },
+    "hist_'24": {
+     "v": "new"
+    },
+    "hist_'25": {
+     "v": "D",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2024/2025",
+     "at": "2026-09-14T23:34:57"
+    },
+    "hist_'26": {
+     "v": "new"
+    },
+    "record_'23": {
+     "v": "new"
+    },
+    "record_'24": {
+     "v": "new"
+    },
+    "record_'25": {
+     "v": "4-10-24",
+     "src": "https://lastseason.co.uk/data/premier-league/2024-25.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'26": {
+     "v": "new"
+    },
+    "record_now": {
+     "v": "2-0-3",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "ft": {
+     "v": "W 3-2",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    }
+   }
+  },
+  {
+   "home": "Liverpool",
+   "away": "Fulham",
+   "date": "2026-09-12",
+   "round_label_src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+   "done": true,
+   "cells": {
+    "day": {
+     "v": "SAT",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "date": {
+     "v": "Sep 12",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "time": {
+     "v": "—"
+    },
+    "weather": {
+     "v": "Partly cloudy · ~20°C Liverpool",
+     "src": "https://archive-api.open-meteo.com/v1/archive?latitude=53.41058&longitude=-2.97794&timezone=Europe/London&start_date=2026-09-12&end_date=2026-09-12&hourly=temperature_2m,weathercode,precipitation",
+     "at": "2026-09-28T22:06:12"
+    },
+    "importance": {
+     "v": "mod: Last season: 5th v 11th",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07",
+     "how": "derived from results/standings"
+    }
+   },
+   "home_cells": {
+    "star": {
+     "v": "—"
+    },
+    "status": {
+     "v": "—"
+    },
+    "rank_prev": {
+     "v": "5",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'24": {
+     "v": "3",
+     "src": "https://lastseason.co.uk/data/premier-league/2023-24.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'25": {
+     "v": "1",
+     "src": "https://lastseason.co.uk/data/premier-league/2024-25.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "now_rank": {
+     "v": "6",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "games_played": {
+     "v": 5,
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "gf_g": {
+     "v": 1.6578947368421053,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "ga_g": {
+     "v": 1.394736842105263,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "gf_ga": {
+     "v": 1.1886792452830188,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "tot_g": {
+     "v": 3.0526315789473686,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "last": {
+     "v": "W 2-0",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "hist_'23": {
+     "v": "W",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2022/2023",
+     "at": "2026-09-14T23:34:56"
+    },
+    "hist_'24": {
+     "v": "W",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2023/2024",
+     "at": "2026-09-14T23:34:57"
+    },
+    "hist_'25": {
+     "v": "L",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2024/2025",
+     "at": "2026-09-14T23:34:57"
+    },
+    "hist_'26": {
+     "v": "W",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2025/2026",
+     "at": "2026-09-14T23:34:57"
+    },
+    "record_'23": {
+     "v": "19-10-9",
+     "src": "https://lastseason.co.uk/data/premier-league/2022-23.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'24": {
+     "v": "24-10-4",
+     "src": "https://lastseason.co.uk/data/premier-league/2023-24.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'25": {
+     "v": "25-9-4",
+     "src": "https://lastseason.co.uk/data/premier-league/2024-25.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'26": {
+     "v": "17-9-12",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_now": {
+     "v": "2-3-0",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "ft": {
+     "v": "D 0-0",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    }
+   },
+   "away_cells": {
+    "star": {
+     "v": "—"
+    },
+    "status": {
+     "v": "—"
+    },
+    "rank_prev": {
+     "v": "11",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'24": {
+     "v": "13",
+     "src": "https://lastseason.co.uk/data/premier-league/2023-24.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'25": {
+     "v": "11",
+     "src": "https://lastseason.co.uk/data/premier-league/2024-25.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "now_rank": {
+     "v": "19",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "games_played": {
+     "v": 5,
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "gf_g": {
+     "v": 1.236842105263158,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "ga_g": {
+     "v": 1.3421052631578947,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "gf_ga": {
+     "v": 0.9215686274509803,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "tot_g": {
+     "v": 2.5789473684210527,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "last": {
+     "v": "L 2-3",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "hist_'23": {
+     "v": "L",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2022/2023",
+     "at": "2026-09-14T23:34:56"
+    },
+    "hist_'24": {
+     "v": "L",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2023/2024",
+     "at": "2026-09-14T23:34:57"
+    },
+    "hist_'25": {
+     "v": "D",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2024/2025",
+     "at": "2026-09-14T23:34:57"
+    },
+    "hist_'26": {
+     "v": "W",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2025/2026",
+     "at": "2026-09-14T23:34:57"
+    },
+    "record_'23": {
+     "v": "15-7-16",
+     "src": "https://lastseason.co.uk/data/premier-league/2022-23.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'24": {
+     "v": "13-8-17",
+     "src": "https://lastseason.co.uk/data/premier-league/2023-24.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'25": {
+     "v": "15-9-14",
+     "src": "https://lastseason.co.uk/data/premier-league/2024-25.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'26": {
+     "v": "15-7-16",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_now": {
+     "v": "0-2-3",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "ft": {
+     "v": "D 0-0",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    }
+   }
+  },
+  {
+   "home": "Sunderland",
+   "away": "Arsenal",
+   "date": "2026-09-12",
+   "round_label_src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+   "done": true,
+   "cells": {
+    "day": {
+     "v": "SAT",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "date": {
+     "v": "Sep 12",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "time": {
+     "v": "—"
+    },
+    "weather": {
+     "v": "Overcast · ~22°C Sunderland",
+     "src": "https://archive-api.open-meteo.com/v1/archive?latitude=54.90465&longitude=-1.38222&timezone=Europe/London&start_date=2026-09-12&end_date=2026-09-12&hourly=temperature_2m,weathercode,precipitation",
+     "at": "2026-09-28T22:06:13"
+    },
+    "importance": {
+     "v": "mod: Last season: 7th v 1st",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07",
+     "how": "derived from results/standings"
+    }
+   },
+   "home_cells": {
+    "star": {
+     "v": "—"
+    },
+    "status": {
+     "v": "—"
+    },
+    "rank_prev": {
+     "v": "7",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'24": {
+     "v": "new"
+    },
+    "rank_'25": {
+     "v": "new"
+    },
+    "now_rank": {
+     "v": "14",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "games_played": {
+     "v": 5,
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "gf_g": {
+     "v": 1.105263157894737,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "ga_g": {
+     "v": 1.263157894736842,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "gf_ga": {
+     "v": 0.875,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "tot_g": {
+     "v": 2.3684210526315788,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "last": {
+     "v": "D 1-1",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "hist_'23": {
+     "v": "new"
+    },
+    "hist_'24": {
+     "v": "new"
+    },
+    "hist_'25": {
+     "v": "new"
+    },
+    "hist_'26": {
+     "v": "D",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2025/2026",
+     "at": "2026-09-14T23:34:57"
+    },
+    "record_'23": {
+     "v": "new"
+    },
+    "record_'24": {
+     "v": "new"
+    },
+    "record_'25": {
+     "v": "new"
+    },
+    "record_'26": {
+     "v": "14-12-12",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_now": {
+     "v": "1-1-3",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "ft": {
+     "v": "L 0-2",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    }
+   },
+   "away_cells": {
+    "star": {
+     "v": "—"
+    },
+    "status": {
+     "v": "—"
+    },
+    "rank_prev": {
+     "v": "1",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'24": {
+     "v": "2",
+     "src": "https://lastseason.co.uk/data/premier-league/2023-24.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'25": {
+     "v": "2",
+     "src": "https://lastseason.co.uk/data/premier-league/2024-25.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "now_rank": {
+     "v": "2",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "games_played": {
+     "v": 5,
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "gf_g": {
+     "v": 1.868421052631579,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "ga_g": {
+     "v": 0.7105263157894737,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "gf_ga": {
+     "v": 2.6296296296296298,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "tot_g": {
+     "v": 2.5789473684210527,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "last": {
+     "v": "W 2-1",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "hist_'23": {
+     "v": "W",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2022/2023",
+     "at": "2026-09-14T23:34:56"
+    },
+    "hist_'24": {
+     "v": "W",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2023/2024",
+     "at": "2026-09-14T23:34:57"
+    },
+    "hist_'25": {
+     "v": "W",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2024/2025",
+     "at": "2026-09-14T23:34:57"
+    },
+    "hist_'26": {
+     "v": "W",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2025/2026",
+     "at": "2026-09-14T23:34:57"
+    },
+    "record_'23": {
+     "v": "26-6-6",
+     "src": "https://lastseason.co.uk/data/premier-league/2022-23.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'24": {
+     "v": "28-5-5",
+     "src": "https://lastseason.co.uk/data/premier-league/2023-24.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'25": {
+     "v": "20-14-4",
+     "src": "https://lastseason.co.uk/data/premier-league/2024-25.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'26": {
+     "v": "26-7-5",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_now": {
+     "v": "4-0-1",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "ft": {
+     "v": "W 2-0",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    }
+   }
+  },
+  {
+   "home": "Tottenham",
+   "away": "Everton",
+   "date": "2026-09-12",
+   "round_label_src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+   "done": true,
+   "cells": {
+    "day": {
+     "v": "SAT",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "date": {
+     "v": "Sep 12",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "time": {
+     "v": "—"
+    },
+    "weather": {
+     "v": "Overcast · ~23°C London",
+     "src": "https://archive-api.open-meteo.com/v1/archive?latitude=51.50853&longitude=-0.12574&timezone=Europe/London&start_date=2026-09-12&end_date=2026-09-12&hourly=temperature_2m,weathercode,precipitation",
+     "at": "2026-09-28T22:06:11"
+    },
+    "importance": {
+     "v": "mod: Last season: 17th v 13th",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07",
+     "how": "derived from results/standings"
+    }
+   },
+   "home_cells": {
+    "star": {
+     "v": "—"
+    },
+    "status": {
+     "v": "—"
+    },
+    "rank_prev": {
+     "v": "17",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'24": {
+     "v": "5",
+     "src": "https://lastseason.co.uk/data/premier-league/2023-24.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'25": {
+     "v": "17",
+     "src": "https://lastseason.co.uk/data/premier-league/2024-25.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "now_rank": {
+     "v": "20",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "games_played": {
+     "v": 5,
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "gf_g": {
+     "v": 1.263157894736842,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "ga_g": {
+     "v": 1.5,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "gf_ga": {
+     "v": 0.8421052631578947,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "tot_g": {
+     "v": 2.763157894736842,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "last": {
+     "v": "D 0-0",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "hist_'23": {
+     "v": "W",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2022/2023",
+     "at": "2026-09-14T23:34:56"
+    },
+    "hist_'24": {
+     "v": "W",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2023/2024",
+     "at": "2026-09-14T23:34:57"
+    },
+    "hist_'25": {
+     "v": "L",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2024/2025",
+     "at": "2026-09-14T23:34:57"
+    },
+    "hist_'26": {
+     "v": "W",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2025/2026",
+     "at": "2026-09-14T23:34:57"
+    },
+    "record_'23": {
+     "v": "18-6-14",
+     "src": "https://lastseason.co.uk/data/premier-league/2022-23.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'24": {
+     "v": "20-6-12",
+     "src": "https://lastseason.co.uk/data/premier-league/2023-24.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'25": {
+     "v": "11-5-22",
+     "src": "https://lastseason.co.uk/data/premier-league/2024-25.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'26": {
+     "v": "10-11-17",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_now": {
+     "v": "0-2-3",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "ft": {
+     "v": "D 0-0",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    }
+   },
+   "away_cells": {
+    "star": {
+     "v": "—"
+    },
+    "status": {
+     "v": "—"
+    },
+    "rank_prev": {
+     "v": "13",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'24": {
+     "v": "15",
+     "src": "https://lastseason.co.uk/data/premier-league/2023-24.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'25": {
+     "v": "13",
+     "src": "https://lastseason.co.uk/data/premier-league/2024-25.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "now_rank": {
+     "v": "7",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "games_played": {
+     "v": 5,
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "gf_g": {
+     "v": 1.236842105263158,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "ga_g": {
+     "v": 1.3157894736842106,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "gf_ga": {
+     "v": 0.94,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "tot_g": {
+     "v": 2.5526315789473686,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "last": {
+     "v": "D 2-2",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "hist_'23": {
+     "v": "D",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2022/2023",
+     "at": "2026-09-14T23:34:56"
+    },
+    "hist_'24": {
+     "v": "D",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2023/2024",
+     "at": "2026-09-14T23:34:57"
+    },
+    "hist_'25": {
+     "v": "L",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2024/2025",
+     "at": "2026-09-14T23:34:57"
+    },
+    "hist_'26": {
+     "v": "D",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2025/2026",
+     "at": "2026-09-14T23:34:57"
+    },
+    "record_'23": {
+     "v": "8-12-18",
+     "src": "https://lastseason.co.uk/data/premier-league/2022-23.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'24": {
+     "v": "13-9-16",
+     "src": "https://lastseason.co.uk/data/premier-league/2023-24.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'25": {
+     "v": "11-15-12",
+     "src": "https://lastseason.co.uk/data/premier-league/2024-25.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'26": {
+     "v": "13-10-15",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_now": {
+     "v": "2-3-0",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "ft": {
+     "v": "D 0-0",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    }
+   }
+  },
+  {
+   "home": "Coventry",
+   "away": "Brighton",
+   "date": "2026-09-13",
+   "round_label_src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+   "done": true,
+   "cells": {
+    "day": {
+     "v": "SUN",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "date": {
+     "v": "Sep 13",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "time": {
+     "v": "—"
+    },
+    "weather": {
+     "v": "Overcast · ~22°C Coventry",
+     "src": "https://archive-api.open-meteo.com/v1/archive?latitude=52.40656&longitude=-1.51217&timezone=Europe/London&start_date=2026-09-13&end_date=2026-09-13&hourly=temperature_2m,weathercode,precipitation",
+     "at": "2026-09-28T22:06:14"
+    },
+    "importance": {
+     "v": "modhi: Coventry 0 pts after 3 games",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07",
+     "how": "derived from results/standings"
+    }
+   },
+   "home_cells": {
+    "star": {
+     "v": "—"
+    },
+    "status": {
+     "v": "—"
+    },
+    "rank_prev": {
+     "v": "PROM",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'24": {
+     "v": "new"
+    },
+    "rank_'25": {
+     "v": "new"
+    },
+    "now_rank": {
+     "v": "18",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "games_played": {
+     "v": 5,
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "gf_g": {
+     "v": "—"
+    },
+    "ga_g": {
+     "v": "—"
+    },
+    "gf_ga": {
+     "v": "—"
+    },
+    "tot_g": {
+     "v": "—"
+    },
+    "last": {
+     "v": "L 0-1",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "hist_'23": {
+     "v": "new"
+    },
+    "hist_'24": {
+     "v": "new"
+    },
+    "hist_'25": {
+     "v": "new"
+    },
+    "hist_'26": {
+     "v": "new"
+    },
+    "record_'23": {
+     "v": "new"
+    },
+    "record_'24": {
+     "v": "new"
+    },
+    "record_'25": {
+     "v": "new"
+    },
+    "record_'26": {
+     "v": "new"
+    },
+    "record_now": {
+     "v": "1-0-4",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "ft": {
+     "v": "L 0-5",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    }
+   },
+   "away_cells": {
+    "star": {
+     "v": "—"
+    },
+    "status": {
+     "v": "—"
+    },
+    "rank_prev": {
+     "v": "8",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'24": {
+     "v": "11",
+     "src": "https://lastseason.co.uk/data/premier-league/2023-24.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'25": {
+     "v": "8",
+     "src": "https://lastseason.co.uk/data/premier-league/2024-25.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "now_rank": {
+     "v": "3",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "games_played": {
+     "v": 5,
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "gf_g": {
+     "v": 1.368421052631579,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "ga_g": {
+     "v": 1.2105263157894737,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "gf_ga": {
+     "v": 1.1304347826086956,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "tot_g": {
+     "v": 2.5789473684210527,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "last": {
+     "v": "D 1-1",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "hist_'23": {
+     "v": "W",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2022/2023",
+     "at": "2026-09-14T23:34:56"
+    },
+    "hist_'24": {
+     "v": "W",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2023/2024",
+     "at": "2026-09-14T23:34:57"
+    },
+    "hist_'25": {
+     "v": "D",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2024/2025",
+     "at": "2026-09-14T23:34:57"
+    },
+    "hist_'26": {
+     "v": "L",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2025/2026",
+     "at": "2026-09-14T23:34:57"
+    },
+    "record_'23": {
+     "v": "18-8-12",
+     "src": "https://lastseason.co.uk/data/premier-league/2022-23.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'24": {
+     "v": "12-12-14",
+     "src": "https://lastseason.co.uk/data/premier-league/2023-24.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'25": {
+     "v": "16-13-9",
+     "src": "https://lastseason.co.uk/data/premier-league/2024-25.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'26": {
+     "v": "14-11-13",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_now": {
+     "v": "3-1-1",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "ft": {
+     "v": "W 5-0",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    }
+   }
+  },
+  {
+   "home": "Manchester United",
+   "away": "Manchester City",
+   "date": "2026-09-13",
+   "round_label_src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+   "done": true,
+   "cells": {
+    "day": {
+     "v": "SUN",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "date": {
+     "v": "Sep 13",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "time": {
+     "v": "—"
+    },
+    "weather": {
+     "v": "Partly cloudy · ~21°C Manchester",
+     "src": "https://archive-api.open-meteo.com/v1/archive?latitude=53.48095&longitude=-2.23743&timezone=Europe/London&start_date=2026-09-13&end_date=2026-09-13&hourly=temperature_2m,weathercode,precipitation",
+     "at": "2026-09-28T22:06:15"
+    },
+    "importance": {
+     "v": "high: Derby",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07",
+     "how": "derived from results/standings"
+    }
+   },
+   "home_cells": {
+    "star": {
+     "v": "—"
+    },
+    "status": {
+     "v": "—"
+    },
+    "rank_prev": {
+     "v": "3",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'24": {
+     "v": "8",
+     "src": "https://lastseason.co.uk/data/premier-league/2023-24.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'25": {
+     "v": "15",
+     "src": "https://lastseason.co.uk/data/premier-league/2024-25.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "now_rank": {
+     "v": "12",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "games_played": {
+     "v": 5,
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "gf_g": {
+     "v": 1.8157894736842106,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "ga_g": {
+     "v": 1.3157894736842106,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "gf_ga": {
+     "v": 1.38,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "tot_g": {
+     "v": 3.1315789473684212,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "last": {
+     "v": "D 2-2",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "hist_'23": {
+     "v": "W",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2022/2023",
+     "at": "2026-09-14T23:34:56"
+    },
+    "hist_'24": {
+     "v": "L",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2023/2024",
+     "at": "2026-09-14T23:34:57"
+    },
+    "hist_'25": {
+     "v": "W",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2024/2025",
+     "at": "2026-09-14T23:34:57"
+    },
+    "hist_'26": {
+     "v": "L",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2025/2026",
+     "at": "2026-09-14T23:34:57"
+    },
+    "record_'23": {
+     "v": "23-6-9",
+     "src": "https://lastseason.co.uk/data/premier-league/2022-23.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'24": {
+     "v": "18-6-14",
+     "src": "https://lastseason.co.uk/data/premier-league/2023-24.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'25": {
+     "v": "11-9-18",
+     "src": "https://lastseason.co.uk/data/premier-league/2024-25.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'26": {
+     "v": "20-11-7",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_now": {
+     "v": "1-2-2",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "ft": {
+     "v": "L 0-1",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    }
+   },
+   "away_cells": {
+    "star": {
+     "v": "—"
+    },
+    "status": {
+     "v": "—"
+    },
+    "rank_prev": {
+     "v": "2",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'24": {
+     "v": "1",
+     "src": "https://lastseason.co.uk/data/premier-league/2023-24.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'25": {
+     "v": "3",
+     "src": "https://lastseason.co.uk/data/premier-league/2024-25.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "now_rank": {
+     "v": "1",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "games_played": {
+     "v": 5,
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "gf_g": {
+     "v": 2.026315789473684,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "ga_g": {
+     "v": 0.9210526315789473,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "gf_ga": {
+     "v": 2.2,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "tot_g": {
+     "v": 2.9473684210526314,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "last": {
+     "v": "W 1-0",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "hist_'23": {
+     "v": "W",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2022/2023",
+     "at": "2026-09-14T23:34:56"
+    },
+    "hist_'24": {
+     "v": "W",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2023/2024",
+     "at": "2026-09-14T23:34:57"
+    },
+    "hist_'25": {
+     "v": "W",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2024/2025",
+     "at": "2026-09-14T23:34:57"
+    },
+    "hist_'26": {
+     "v": "W",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2025/2026",
+     "at": "2026-09-14T23:34:57"
+    },
+    "record_'23": {
+     "v": "28-5-5",
+     "src": "https://lastseason.co.uk/data/premier-league/2022-23.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'24": {
+     "v": "28-7-3",
+     "src": "https://lastseason.co.uk/data/premier-league/2023-24.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'25": {
+     "v": "21-8-9",
+     "src": "https://lastseason.co.uk/data/premier-league/2024-25.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'26": {
+     "v": "23-9-6",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_now": {
+     "v": "5-0-0",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "ft": {
+     "v": "W 1-0",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    }
+   }
+  },
+  {
+   "home": "Leeds",
+   "away": "Newcastle",
+   "date": "2026-09-14",
+   "round_label_src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+   "done": true,
+   "cells": {
+    "day": {
+     "v": "MON",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "date": {
+     "v": "Sep 14",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "time": {
+     "v": "—"
+    },
+    "weather": {
+     "v": "Mainly clear · ~23°C Leeds",
+     "src": "https://archive-api.open-meteo.com/v1/archive?latitude=53.79648&longitude=-1.54785&timezone=Europe/London&start_date=2026-09-14&end_date=2026-09-14&hourly=temperature_2m,weathercode,precipitation",
+     "at": "2026-09-28T22:06:15"
+    },
+    "importance": {
+     "v": "mod: Last season: 14th v 12th",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07",
+     "how": "derived from results/standings"
+    }
+   },
+   "home_cells": {
+    "star": {
+     "v": "—"
+    },
+    "status": {
+     "v": "—"
+    },
+    "rank_prev": {
+     "v": "14",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'24": {
+     "v": "new"
+    },
+    "rank_'25": {
+     "v": "new"
+    },
+    "now_rank": {
+     "v": "5",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "games_played": {
+     "v": 5,
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "gf_g": {
+     "v": 1.2894736842105263,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "ga_g": {
+     "v": 1.4736842105263157,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "gf_ga": {
+     "v": 0.875,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "tot_g": {
+     "v": 2.763157894736842,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "last": {
+     "v": "D 1-1",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "hist_'23": {
+     "v": "L",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2022/2023",
+     "at": "2026-09-14T23:34:56"
+    },
+    "hist_'24": {
+     "v": "new"
+    },
+    "hist_'25": {
+     "v": "new"
+    },
+    "hist_'26": {
+     "v": "L",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2025/2026",
+     "at": "2026-09-14T23:34:57"
+    },
+    "record_'23": {
+     "v": "7-10-21",
+     "src": "https://lastseason.co.uk/data/premier-league/2022-23.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'24": {
+     "v": "new"
+    },
+    "record_'25": {
+     "v": "new"
+    },
+    "record_'26": {
+     "v": "11-14-13",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_now": {
+     "v": "2-3-0",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "ft": {
+     "v": "W 4-1",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    }
+   },
+   "away_cells": {
+    "star": {
+     "v": "—"
+    },
+    "status": {
+     "v": "—"
+    },
+    "rank_prev": {
+     "v": "12",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'24": {
+     "v": "7",
+     "src": "https://lastseason.co.uk/data/premier-league/2023-24.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "rank_'25": {
+     "v": "5",
+     "src": "https://lastseason.co.uk/data/premier-league/2024-25.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "now_rank": {
+     "v": "9",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "games_played": {
+     "v": 5,
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "gf_g": {
+     "v": 1.394736842105263,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "ga_g": {
+     "v": 1.4473684210526316,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "gf_ga": {
+     "v": 0.9636363636363636,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "tot_g": {
+     "v": 2.8421052631578947,
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "last": {
+     "v": "D 2-2",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "hist_'23": {
+     "v": "D",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2022/2023",
+     "at": "2026-09-14T23:34:56"
+    },
+    "hist_'24": {
+     "v": "L",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2023/2024",
+     "at": "2026-09-14T23:34:57"
+    },
+    "hist_'25": {
+     "v": "W",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2024/2025",
+     "at": "2026-09-14T23:34:57"
+    },
+    "hist_'26": {
+     "v": "W",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2025/2026",
+     "at": "2026-09-14T23:34:57"
+    },
+    "record_'23": {
+     "v": "19-14-5",
+     "src": "https://lastseason.co.uk/data/premier-league/2022-23.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'24": {
+     "v": "18-6-14",
+     "src": "https://lastseason.co.uk/data/premier-league/2023-24.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'25": {
+     "v": "20-6-12",
+     "src": "https://lastseason.co.uk/data/premier-league/2024-25.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_'26": {
+     "v": "14-7-17",
+     "src": "https://lastseason.co.uk/data/premier-league/2025-26.csv",
+     "at": "2026-09-14T23:34:56"
+    },
+    "record_now": {
+     "v": "2-2-1",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    },
+    "ft": {
+     "v": "L 1-4",
+     "src": "https://www.topscorersfootball.com/premier-league/standing-and-matches-2026/2027",
+     "at": "2026-09-28T22:06:07"
+    }
+   }
+  }
+ ]
+}

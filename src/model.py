@@ -223,16 +223,17 @@ def pick_kickoff(entries, fx_date, local_tz):
 
 
 def load_odds(fetcher, L, names, log):
+    """-> (events or None, url or None); the url is the provenance for WIN% cells."""
     key = os.environ.get("ODDS_API_KEY")
     if not key:
         log.note("ODDS_API_KEY not set — no odds requested")
-        return None
+        return None, None
     url = (f"https://api.the-odds-api.com/v4/sports/{L['odds']}/odds/?apiKey={key}"
            f"&regions=uk,eu&markets=h2h&oddsFormat=decimal")
     j = fetcher.get_json(url, TTL_CUR)
     if not isinstance(j, list):
         log.warn("The Odds API returned no usable data")
-        return None
+        return None, url
     out = []
     for ev in j:
         probs = []
@@ -251,7 +252,7 @@ def load_odds(fetcher, L, names, log):
                             date=ev["commence_time"][:10], n=len(probs),
                             h=100 * statistics.mean(p[0] for p in probs),
                             a=100 * statistics.mean(p[2] for p in probs)))
-    return out
+    return out, url
 
 
 # ------------------------------------------------------------------ weather
@@ -308,17 +309,18 @@ def _hourly_at(j, stamp):
 
 
 def weather(fx_date, kick_local, city, L, fetcher, today_local, log, label):
+    """-> (line1, line2, category, [urls read]) — the urls are the cell's provenance."""
     if not city:
-        return ("—", "—", "tbc")
+        return ("—", "—", "tbc", [])
     if fx_date is None:
         log.cell("WEATHER", "fixture has no date", label)
-        return ("—", city["city"], "tbc")
+        return ("—", city["city"], "tbc", [])
     hour = kick_local.hour if kick_local else 15
     stamp = f"{fx_date.isoformat()}T{hour:02d}:00"
     base = f"latitude={city['lat']}&longitude={city['lon']}&timezone={quote(L['tz'])}"
     days = (fx_date - today_local).days
     if days > 7:
-        temps = []
+        temps, arch = [], []
         for back in (1, 2, 3):
             try:
                 d = fx_date.replace(year=fx_date.year - back)
@@ -326,13 +328,14 @@ def weather(fx_date, kick_local, city, L, fetcher, today_local, log, label):
                 d = fx_date.replace(year=fx_date.year - back, day=28)
             url = (f"https://archive-api.open-meteo.com/v1/archive?{base}&start_date={d - dt.timedelta(days=3)}"
                    f"&end_date={d + dt.timedelta(days=3)}&hourly=temperature_2m")
+            arch.append(url)
             h = ((fetcher.get_json(url, TTL_PAST) or {}).get("hourly")) or {}
             temps += [v for t, v in zip(h.get("time", []), h.get("temperature_2m", []))
                       if t.endswith(f"T{hour:02d}:00") and v is not None]
         log.cell("WEATHER", "Forecast TBC (>7 days out); ~temp = Open-Meteo archive mean, same hour, ±3 days, last 3 yrs", label)
         if temps:
-            return ("Forecast TBC", f"~{statistics.mean(temps):.0f}°C {city['city']}", "tbc")
-        return ("Forecast TBC", city["city"], "tbc")
+            return ("Forecast TBC", f"~{statistics.mean(temps):.0f}°C {city['city']}", "tbc", arch)
+        return ("Forecast TBC", city["city"], "tbc", [])
     if kick_local is None:
         log.cell("WEATHER", "kickoff hour unknown — value read at 15:00 local", label)
     if days < -5:
@@ -346,7 +349,7 @@ def weather(fx_date, kick_local, city, L, fetcher, today_local, log, label):
     v = _hourly_at(fetcher.get_json(url, ttl), stamp)
     if not v or v["t"] is None:
         log.cell("WEATHER", "Open-Meteo returned no value for the kickoff hour", label)
-        return ("—", city["city"], "tbc")
+        return ("—", city["city"], "tbc", [])
     code, pp, t, mm = v["code"], (None if observed else v["pp"]), v["t"], v["mm"]
     precip_code = code is not None and code >= 51
     # drizzle codes (51-57) fire on trace amounts; only call it wet with real rain or a high chance of it
@@ -362,7 +365,7 @@ def weather(fx_date, kick_local, city, L, fetcher, today_local, log, label):
         line1 = wmo_text(code) + (f" {mm:.1f}mm" if mm is not None and mm >= 0.1 else "")
     else:
         line1 = wmo_text(code) + (f" {pp:.0f}%" if pp is not None and pp >= 20 else "")
-    return (line1, f"~{t:.0f}°C {city['city']}", cat)
+    return (line1, f"~{t:.0f}°C {city['city']}", cat, [url])
 
 
 # ------------------------------------------------------------------ importance
@@ -402,6 +405,42 @@ def importance(fx, c, closest):
 
 
 # ------------------------------------------------------------------ build
+# ------------------------------------------------------------------ provenance
+def file_stamp(path, kind="curated"):
+    """Provenance for a human-curated local file (stars, overrides)."""
+    if not os.path.exists(path):
+        return None
+    return {"src": f"{kind}:{os.path.relpath(path, F.ROOT).replace(os.sep, '/')}",
+            "at": dt.datetime.fromtimestamp(os.path.getmtime(path)).isoformat(timespec="seconds")}
+
+
+def combine(stamps):
+    """One stamp covering several source records (weather reads up to 3 archive pages)."""
+    ok = [x for x in stamps if x]
+    if not ok:
+        return None
+    return {"src": " + ".join(dict.fromkeys(x["src"] for x in ok)), "at": min(x["at"] for x in ok)}
+
+
+def cell(v, stamp, how=None):
+    """One verified cell.
+
+    "—"/"new"/"TBC" are the sanctioned empties and carry no source. Any other value is
+    emitted WITHOUT src/at when no cached record backs it — gate_provenance then blocks
+    the render, which is the point: an unsourced value must never reach the chart.
+    """
+    if v is None or v == "":
+        return {"v": "—"}
+    if v in ("—", "new", "TBC"):
+        return {"v": v}
+    c = {"v": v}
+    if stamp:
+        c["src"], c["at"] = stamp["src"], stamp["at"]
+    if how:
+        c["how"] = how
+    return c
+
+
 def build(league_key, rnd, hist_round, fetcher, log, now=None):
     L = LEAGUES[league_key]
     now = now or dt.datetime.now(LA)
@@ -469,7 +508,7 @@ def build(league_key, rnd, hist_round, fetcher, log, now=None):
             log.warn(f"{sstr(py)} 'Round {hist_n}' block invalid ({len(block or [])} matches, clubs unique={len(set(bteams)) == len(bteams)}) — column shown as —")
             hist_rounds[py] = None
             continue
-        hist_rounds[py] = dict(block=block, table=ts["table"])
+        hist_rounds[py] = dict(block=block, table=ts["table"], url=ts["url"])
 
     last_t = tables[y - 1]
     base_rank = {}
@@ -481,11 +520,20 @@ def build(league_key, rnd, hist_round, fetcher, log, now=None):
 
     # ---- kickoffs, odds, stadiums, stars
     kick_by, prov_rounds, kick_url = load_kickoffs(fetcher, L, y, names, clubs, log)
-    odds = load_odds(fetcher, L, names, log)
+    odds, odds_url = load_odds(fetcher, L, names, log)
     stadiums = ensure_stadiums({m["home"] for m in fixtures}, L, fetcher, log)
     stars = {k: v for k, v in load_json("stars.json", {}).items() if not k.startswith("_")}
     derbies = {frozenset(p) for p in load_json("derbies.json", {}).get(league_key, [])}
     overrides = load_json("importance_overrides.json", {}).get(league_key, {}).get(sstr(y), {})
+
+    # provenance stamps — read from cache metadata only, never the network
+    st_cur = fetcher.stamp(cur["url"])
+    st_tbl = {py: (fetcher.stamp(tables[py]["src"]) if tables[py] else None) for py in past}
+    st_hist = {py: (fetcher.stamp(hist_rounds[py]["url"]) if hist_rounds[py] else None) for py in past}
+    st_kick = fetcher.stamp(kick_url)
+    st_odds = fetcher.stamp(odds_url) if odds_url else None
+    st_stars = file_stamp(os.path.join(DATA, "stars.json"))
+    verified_fixtures = []
 
     # NOW records: tally completed results and cross-check against standings
     tally = {c: [0, 0, 0] for c in clubs}
@@ -551,11 +599,12 @@ def build(league_key, rnd, hist_round, fetcher, log, now=None):
         elif not done:
             log.cell("WIN%", "ODDS_API_KEY not set", label)
 
-        wx = weather(fx_date, kick_local, stadiums.get(h), L, fetcher, today_local, log, label)
+        w1, w2, wcat, wx_urls = weather(fx_date, kick_local, stadiums.get(h), L, fetcher, today_local, log, label)
+        wx = (w1, w2, wcat)
         before = m["date"] or "9999"
         prior = [x for x in done_cur if x["date"] < before and not (x["home"] == h and x["away"] == a)]
         fx_out.append(dict(m=m, home=h, away=a, done=done, fx_date=fx_date, show_date=show_date, et=et,
-                           time=time_s, wx=wx, win_h=win_h, win_a=win_a, prior=prior))
+                           time=time_s, wx=wx, wx_urls=wx_urls, win_h=win_h, win_a=win_a, prior=prior))
 
     # closest fixture by win%
     open_w = [f for f in fx_out if f["win_h"] is not None]
@@ -595,6 +644,7 @@ def build(league_key, rnd, hist_round, fetcher, log, now=None):
         imp = (grade if grade in ("high", "modhi", "mod", "low") else "mod", clip(reason))
 
         team_rows = []
+        side_cells = {}
         for club, ha, win in ((h, "H", f["win_h"]), (a, "A", f["win_a"])):
             # star + status
             s = stars.get(club)
@@ -690,11 +740,55 @@ def build(league_key, rnd, hist_round, fetcher, log, now=None):
                 res = ("ft", f"{o} {gf}-{ga}", o)
             else:
                 res = ("wp", win, None)
+            # ---- the same values, recorded with the source each one came from
+            vc = {
+                "star": cell(star, st_stars),
+                "status": cell(status, st_stars),
+                "rank_prev": cell(standing[0], st_tbl[y - 1]),
+                f"rank_{lab(y - 3)}": cell(standing[1], st_tbl[y - 3]),
+                f"rank_{lab(y - 2)}": cell(standing[2], st_tbl[y - 2]),
+                "now_rank": cell(standing[3], st_cur),
+                "games_played": cell(now_row["P"] if now_row else None, st_cur),
+                "gf_g": cell(gfg, st_tbl[y - 1]),
+                "ga_g": cell(gag, st_tbl[y - 1]),
+                "gf_ga": cell(ratio, st_tbl[y - 1]),
+                "tot_g": cell(total, st_tbl[y - 1]),
+                "last": cell(last_s, st_cur),
+            }
+            for py, v in zip(past, hist):
+                vc[f"hist_{lab(py)}"] = cell(v, st_hist[py])
+            for py, v in zip(past, records):
+                vc[f"record_{lab(py)}"] = cell(v, st_tbl[py])
+            vc["record_now"] = cell(records[-1], st_cur)
+            if res[0] == "ft":
+                vc["ft"] = cell(res[1], st_cur)
+            else:
+                vc["win_pct"] = cell(None if win is None else round(win, 1), st_odds)
+            side_cells[ha] = vc
+
             team_rows.append(dict(ha=ha, team=club, star=star, status=status, standing=standing, gfg=gfg, gag=gag,
                                   ratio=ratio, total=total, last=last_s, last_o=last_o, hist=hist,
                                   records=records, res=res))
 
         sd = f["show_date"]
+        st_when = st_kick if f["et"] else st_cur
+        wx_stamp = combine([fetcher.stamp(u) for u in f["wx_urls"]])
+        if f["wx"][2] == "tbc":
+            # no forecast in range -> TBC per rule 7; keep the archive record when there was one
+            wx_cell = {"v": "TBC"}
+            if wx_stamp and f["wx"][0] == "Forecast TBC":
+                wx_cell.update(src=wx_stamp["src"], at=wx_stamp["at"],
+                               how="archive mean, same hour, ±3 days, last 3 yrs")
+        else:
+            wx_cell = cell(f"{f['wx'][0]} · {f['wx'][1]}", wx_stamp)
+        verified_fixtures.append(dict(
+            home=h, away=a, date=f["m"]["date"], round_label_src=cur["url"], done=f["done"],
+            cells={"day": cell(sd.strftime("%a").upper() if sd else None, st_when),
+                   "date": cell(f"{sd:%b} {sd.day}" if sd else None, st_when),
+                   "time": cell(f["time"], st_kick),
+                   "weather": wx_cell,
+                   "importance": cell(f"{imp[0]}: {imp[1]}", st_cur, "derived from results/standings")},
+            home_cells=side_cells["H"], away_cells=side_cells["A"]))
         fixtures_render.append(dict(
             sort=(f["et"].astimezone(pytz.utc).replace(tzinfo=None) if f["et"] else
                   dt.datetime.combine(sd or dt.date.max, dt.time(23, 59)), h),
@@ -759,4 +853,8 @@ def build(league_key, rnd, hist_round, fetcher, log, now=None):
                      rec_labels=[lab(py) for py in past] + ["NOW"], last_label="LAST",
                      foot1=foot1, foot2=foot2, releg=releg)
     header = f"Run log — {L['name']} {L['round_word']} {rnd} ({sstr(y)})"
-    return dict(render=render_kw, out=L["out"].format(n=rnd), header=header)
+    verified = dict(league=league_key, league_name=L["name"], season=sstr(y), round=rnd,
+                    round_word=L["round_word"], hist_round=hist_n, teams=teams,
+                    built_at=now.isoformat(timespec="seconds"),
+                    fixtures=sorted(verified_fixtures, key=lambda x: (x["date"] or "9999", x["home"])))
+    return dict(render=render_kw, out=L["out"].format(n=rnd), header=header, verified=verified)

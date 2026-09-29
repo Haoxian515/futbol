@@ -1,0 +1,6 @@
+{
+ "url": "https://api.open-meteo.com/v1/forecast?latitude=53.79648&longitude=-1.54785&timezone=Europe/London&start_date=2026-09-20&end_date=2026-09-20&hourly=temperature_2m,precipitation_probability,weathercode,precipitation",
+ "status": 200,
+ "fetched_at": 1789453532.013,
+ "fetched_at_iso": "2026-09-14T23:25:32"
+}
