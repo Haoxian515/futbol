@@ -1,5 +1,5 @@
 'use strict';
-// UI: dropdowns (league / round / history round) + refresh toggle, and the chart renderer.
+// UI: dropdowns (league / round / history round / cached-or-fresh data) and the chart renderer.
 // All cell colouring follows the chart spec (§7); data arrives pre-computed from /api/chart.
 
 const $ = (id) => document.getElementById(id);
@@ -82,13 +82,14 @@ async function buildChart() {
   const league = $('league').value;
   const round = $('round').value;
   const historyRound = $('historyRound').value;
-  const refresh = $('refresh').checked;
+  const mode = $('data').value;
+  const refresh = mode === 'fresh';
 
   const shown = new URLSearchParams({ league, round });
   if (historyRound) shown.set('historyRound', historyRound);
   history.replaceState(null, '', `?${shown}`);
   const qs = new URLSearchParams(shown);
-  if (refresh) qs.set('refresh', '1');
+  qs.set('data', mode);
 
   $('build').disabled = true;
   hideError();
@@ -104,7 +105,7 @@ async function buildChart() {
     const ms = data.meta.elapsedMs;
     setStatus(`Built in ${ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1)}s`} · ${n} network request${n === 1 ? '' : 's'}`
       + `${n === 0 ? ' (all from cache)' : ''}${data.meta.refresh ? ' · refreshed' : ''}`);
-    $('refresh').checked = false; // one-shot, like the CLI flag
+    $('data').value = 'cache'; // one-shot: what was just pulled is now the cache
   } catch (e) {
     showError(e.message);
     if (e.body && e.body.log) renderLog(e.body.log);
@@ -118,6 +119,8 @@ async function buildChart() {
 
 $('controls').addEventListener('submit', (ev) => { ev.preventDefault(); buildChart(); });
 $('league').addEventListener('change', () => loadRounds(null, null));
+$('round').addEventListener('change', buildChart);
+$('historyRound').addEventListener('change', buildChart);
 
 // ------------------------------------------------------------------ chart
 const RES = { W: 'res-w', D: 'res-d', L: 'res-l' };
