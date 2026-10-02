@@ -108,7 +108,7 @@ main { padding: 18px 24px 48px; }
 
 table.match {
   width: 100%;
-  min-width: 1640px;
+  min-width: 1900px;
   border-collapse: collapse;
   font-variant-numeric: tabular-nums;
 }
@@ -161,6 +161,9 @@ table.match {
 .res-w { color: var(--good); font-weight: 700; }
 .res-d { color: var(--draw); font-weight: 700; }
 .res-l { color: var(--bad); font-weight: 700; }
+
+.match td.h2h { white-space: nowrap; font-size: 11px; font-variant-numeric: tabular-nums; }
+.h2h-g { display: inline-block; min-width: 40px; cursor: default; }
 
 .st-fit { color: var(--good); font-weight: 700; }
 .st-exp { color: var(--draw); }

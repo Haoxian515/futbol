@@ -1,5 +1,5 @@
 'use strict';
-// UI: dropdowns (league / round / history round) + refresh toggle, and the chart renderer.
+// UI: dropdowns (league / round / history round / cached-or-fresh data) and the chart renderer.
 // All cell colouring follows the chart spec (§7); data arrives pre-computed from /api/chart.
 
 const $ = (id) => document.getElementById(id);
@@ -82,13 +82,14 @@ async function buildChart() {
   const league = $('league').value;
   const round = $('round').value;
   const historyRound = $('historyRound').value;
-  const refresh = $('refresh').checked;
+  const mode = $('data').value;
+  const refresh = mode === 'fresh';
 
   const shown = new URLSearchParams({ league, round });
   if (historyRound) shown.set('historyRound', historyRound);
   history.replaceState(null, '', `?${shown}`);
   const qs = new URLSearchParams(shown);
-  if (refresh) qs.set('refresh', '1');
+  qs.set('data', mode);
 
   $('build').disabled = true;
   hideError();
@@ -104,7 +105,7 @@ async function buildChart() {
     const ms = data.meta.elapsedMs;
     setStatus(`Built in ${ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1)}s`} · ${n} network request${n === 1 ? '' : 's'}`
       + `${n === 0 ? ' (all from cache)' : ''}${data.meta.refresh ? ' · refreshed' : ''}`);
-    $('refresh').checked = false; // one-shot, like the CLI flag
+    $('data').value = 'cache'; // one-shot: what was just pulled is now the cache
   } catch (e) {
     showError(e.message);
     if (e.body && e.body.log) renderLog(e.body.log);
@@ -118,6 +119,8 @@ async function buildChart() {
 
 $('controls').addEventListener('submit', (ev) => { ev.preventDefault(); buildChart(); });
 $('league').addEventListener('change', () => loadRounds(null, null));
+$('round').addEventListener('change', buildChart);
+$('historyRound').addEventListener('change', buildChart);
 
 // ------------------------------------------------------------------ chart
 const RES = { W: 'res-w', D: 'res-d', L: 'res-l' };
@@ -179,6 +182,18 @@ function resCell(res) {
   return td(`${fmt0(res.pct)}%`, cls('num big sep', res.pct >= 50 && 'good', res.pct >= 55 && 'b'));
 }
 
+function h2hCells(h, since) {
+  if (!h) return [td('—', 'l muted sep'), td('—', 'num muted')];
+  if (!h.games.length) return [td(`none since ${since}`, 'l muted h2h sep'), td('—', 'num muted')];
+  const games = el('td', { class: 'l h2h sep' }, h.games.map((g) => el('span', {
+    class: cls('h2h-g', RES[g.o]),
+    title: `${g.season}${g.date ? ` · ${g.date}` : ''} · ${g.ha === 'H' ? 'home' : 'away'}`,
+    text: `${g.o} ${g.gf}-${g.ga}`,
+  })));
+  const c = h.gf > h.ga ? 'good b' : h.gf < h.ga ? 'bad b' : '';
+  return [games, td(`${h.gf}-${h.ga}`, cls('num big', c))];
+}
+
 function twoLine(a, aClass, b, bClass, extra) {
   return el('td', { class: cls('l two', extra), rowspan: 2 }, el('div', { class: aClass, text: a }), el('div', { class: bClass, text: b }));
 }
@@ -196,8 +211,9 @@ function renderChart(c) {
       th('GF/G'), th('GA/G'), th('GF/GA'), th('TOT/G'), th(c.lastLabel),
       group(c.histTitle, 4, 'sep'),
       group('SEASON RECORD  W-D-L', 5, 'sep'),
-      th('FT / WIN%', { colspan: 2, class: 'sep' }), th('WEATHER', { class: 'l sep' }), th('IMPORTANCE', { class: 'l sep' })),
-    el('tr', { class: 'sub' }, ...subs(c.standLabels), ...subs(c.histLabels), ...subs(c.recLabels)));
+      th('FT / WIN%', { colspan: 2, class: 'sep' }), group('H2H LAST 5', 2, 'sep'), th('WEATHER', { class: 'l sep' }), th('IMPORTANCE', { class: 'l sep' })),
+    el('tr', { class: 'sub' }, ...subs(c.standLabels), ...subs(c.histLabels), ...subs(c.recLabels),
+      el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'GF-GA' })));
 
   const bodies = c.fixtures.map((fx, i) => el('tbody', { class: cls('fx', fx.done ? 'done' : i % 2 === 1 && 'band') },
     fx.teams.map((t, ti) => {
@@ -224,10 +240,12 @@ function renderChart(c) {
       if (ti === 0) {
         cells.push(
           el('td', { class: 'ft-tag', rowspan: 2 }, fx.done ? el('span', { text: 'FT' }) : null),
+          ...h2hCells(t.h2h, c.histLabels[0]),
           twoLine(fx.wx[0], cls('wx1', WXC[fx.wx[2]]), fx.wx[1], 'wx2', 'sep'),
           twoLine(IMP[fx.imp[0]][0], cls('imp1', IMP[fx.imp[0]][1]), fx.imp[1], 'imp2', 'sep'),
         );
       }
+      if (ti === 1) cells.push(...h2hCells(t.h2h, c.histLabels[0]));
       return el('tr', {}, cells);
     })));
 

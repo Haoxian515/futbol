@@ -27,7 +27,13 @@ LEAGUES = {
                teams=20, games=38, kickoffs="nbc"),
     "laliga": dict(name="La Liga", round_word="Jornada", out="laliga-j{n}.png", slug_ls="la-liga",
                    slug_ts="la-liga", tz="Europe/Madrid", country="ES", odds="soccer_spain_la_liga",
-                   teams=20, games=38, kickoffs="sportbusy"),
+                   teams=20, games=38, kickoffs="sportbusy", slug_sb="la-liga"),
+    "ligue1": dict(name="Ligue 1", round_word="Matchday", out="ligue1-md{n}.png", slug_ls="ligue-1",
+                   slug_ts="ligue-1", tz="Europe/Paris", country="FR", odds="soccer_france_ligue_one",
+                   teams=18, games=34, kickoffs="sportbusy", slug_sb="ligue-1"),
+    "seriea": dict(name="Serie A", round_word="Giornata", out="seriea-g{n}.png", slug_ls="serie-a",
+                   slug_ts="serie-a", tz="Europe/Rome", country="IT", odds="soccer_italy_serie_a",
+                   teams=20, games=38, kickoffs="sportbusy", slug_sb="serie-a"),
 }
 
 
@@ -177,7 +183,7 @@ def load_kickoffs(fetcher, L, y, names, clubs, log):
         url = f"https://www.nbcsports.com/soccer/news/premier-league-schedule-for-{sstr(y)}-season-released"
         rows = fetcher.get_parsed(url, TTL_CUR, F.parse_nbc, y)
     else:
-        url = f"https://www.sportbusy.com/la-liga-{y}-{str(y + 1)[2:]}/"
+        url = f"https://www.sportbusy.com/{L['slug_sb']}-{y}-{str(y + 1)[2:]}/"
         rows = fetcher.get_parsed(url, TTL_CUR, F.parse_sportbusy)
     if rows is None:
         log.warn(f"kickoff source unavailable: {url} — TIME is — for every fixture")

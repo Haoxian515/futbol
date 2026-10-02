@@ -20,9 +20,11 @@
           <option value="">Same as round</option>
         </select>
       </label>
-      <label class="check">
-        <input type="checkbox" id="refresh" name="refresh">
-        Refresh (re-fetch, skip cache)
+      <label>Data
+        <select id="data" name="data">
+          <option value="cache">Cached (already fetched)</option>
+          <option value="fresh">Fresh (re-pull every source)</option>
+        </select>
       </label>
       <button type="submit" id="build">Build chart</button>
       <span id="status" role="status" aria-live="polite"></span>

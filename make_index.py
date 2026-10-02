@@ -17,9 +17,10 @@ LEAGUES = {
     "laliga": "La Liga",
     "ucl": "Champions League",
     "ligue1": "Ligue 1",
+    "seriea": "Serie A",
     "nations-league": "Nations League",
 }
-ROUNDS = {"mw": "Matchweek", "j": "Jornada", "md": "Matchday"}
+ROUNDS = {"mw": "Matchweek", "j": "Jornada", "md": "Matchday", "g": "Giornata"}
 
 
 def label(stem):

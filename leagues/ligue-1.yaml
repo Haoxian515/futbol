@@ -6,6 +6,7 @@ sources:
   calendar: {url: "https://www.worldfootball.net/all_matches/fra-ligue-1-{season}/", authority: true}
   results: "https://www.topscorersfootball.com/ligue-1/standing-and-matches-{y1}/{y2}"
   season_csv: "https://lastseason.co.uk/data/ligue-1/{season}.csv"
+  kickoffs: "https://www.sportbusy.com/ligue-1-{y1}-{yy2}/"
   standings: sports_feed:ligue_1
   odds: {api: the-odds-api, key_env: ODDS_API_KEY, sport: soccer_france_ligue_one}
   weather: open-meteo
