@@ -12,7 +12,7 @@
       <label>League
         <select id="league" name="league"></select>
       </label>
-      <label>Round
+      <label><span id="roundWord">Round</span>
         <select id="round" name="round" disabled></select>
       </label>
       <label>History round
@@ -33,6 +33,9 @@
 
   <main>
     <div id="error" class="error" role="alert" hidden></div>
+    <label id="filterBox" class="filter" hidden>Filter teams
+      <input type="search" id="filter" placeholder="e.g. Brazil" autocomplete="off">
+    </label>
     <section id="chart" class="chart" hidden></section>
     <details id="log" class="log" hidden>
       <summary>Run log</summary>
