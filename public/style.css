@@ -223,3 +223,6 @@ table.match {
 .how-net { color: var(--accent); }
 .how-cache { color: var(--good); }
 .how-bad { color: var(--bad); }
+
+.filter { display: inline-flex; gap: 8px; align-items: center; margin: 0 0 12px; font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--sub); }
+.filter input { font: inherit; text-transform: none; letter-spacing: 0; font-weight: 400; padding: 4px 8px; min-width: 180px; }

@@ -66,6 +66,8 @@ async function loadRounds(preferredRound, preferredHistory) {
     hist.replaceChildren(el('option', { value: '', text: 'Same as round' }),
       ...Array.from({ length: data.maxRound }, (_, i) => el('option', { value: i + 1, text: `Round ${i + 1}` })));
     hist.value = keep && +keep <= data.maxRound ? String(keep) : '';
+    hist.disabled = !data.maxRound; // friendlies have no round history
+    $('roundWord').textContent = data.kind === 'intl' ? 'Window' : 'Round';
 
     sel.disabled = false;
     $('build').disabled = false;
@@ -100,6 +102,8 @@ async function buildChart() {
   try {
     const data = await api(`/api/chart?${qs}`);
     renderChart(data.chart);
+    $('filterBox').hidden = false;
+    applyFilter();
     renderLog(data.log);
     const n = data.meta.network;
     const ms = data.meta.elapsedMs;
@@ -199,6 +203,7 @@ function twoLine(a, aClass, b, bClass, extra) {
 }
 
 function renderChart(c) {
+  if (c.kind === 'intl') return renderIntl(c);
   const th = (text, props = {}) => el('th', { rowspan: 2, ...props, text });
   const group = (text, n, extra) => el('th', { colspan: n, class: cls('group', extra), text });
   const subs = (labels) => labels.map((lb, i) => el('th', { class: cls(lb === 'NOW' && 'now', i === 0 && 'sep'), text: lb }));
@@ -215,7 +220,9 @@ function renderChart(c) {
     el('tr', { class: 'sub' }, ...subs(c.standLabels), ...subs(c.histLabels), ...subs(c.recLabels),
       el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'GF-GA' })));
 
-  const bodies = c.fixtures.map((fx, i) => el('tbody', { class: cls('fx', fx.done ? 'done' : i % 2 === 1 && 'band') },
+  const bodies = c.fixtures.map((fx, i) => el('tbody', {
+    class: cls('fx', fx.done ? 'done' : i % 2 === 1 && 'band'), 'data-teams': fx.teams.map((t) => t.team.toLowerCase()).join('|'),
+  },
     fx.teams.map((t, ti) => {
       const cells = [];
       if (ti === 0) {
@@ -259,6 +266,73 @@ function renderChart(c) {
   $('chart').hidden = false;
   document.title = c.title;
 }
+
+// ------------------------------------------------------------------ friendlies
+function formCell(form) {
+  if (!form.length) return td('—', 'l muted');
+  return el('td', { class: 'l h2h' }, form.map((g) => el('span', {
+    class: cls('h2h-g', RES[g.o]), title: `${g.date} · v ${g.opp} · ${g.comp}`, text: `${g.o} ${g.gf}-${g.ga}`,
+  })));
+}
+
+function renderIntl(c) {
+  const th = (text, props = {}) => el('th', { rowspan: 2, ...props, text });
+  const head = el('thead', {},
+    el('tr', {},
+      th('DAY', { class: 'l' }), th('DATE', { class: 'l' }), th('TIME', { class: 'l' }), th('VENUE', { class: 'l' }),
+      th('TEAM', { class: 'l' }), th('H/A/N'), th('STAR', { class: 'l' }), th('STATUS'),
+      th('FORM LAST 5', { class: 'l sep' }), th('GF/G'), th('GA/G'), th('12-MO W-D-L'),
+      th('FT', { colspan: 2, class: 'sep' }), el('th', { colspan: 2, class: 'group sep', text: 'H2H LAST 5' }),
+      th('WEATHER', { class: 'l sep' }), th('IMPORTANCE', { class: 'l sep' })),
+    el('tr', { class: 'sub' }, el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'GF-GA' })));
+
+  const since = 'records began';
+  const bodies = c.fixtures.map((fx, i) => el('tbody', {
+    class: cls('fx', i % 2 === 1 && 'band'), 'data-teams': fx.teams.map((t) => t.team.toLowerCase()).join('|'),
+  }, fx.teams.map((t, ti) => {
+    const cells = [];
+    if (ti === 0) {
+      cells.push(dayCell(fx.day), td(fx.date, 'l', 2), td(fx.time, 'l muted', 2), td(fx.venue, 'l', 2));
+    }
+    const st = STAT[t.status] || STAT['—'];
+    cells.push(
+      td(t.team, 'l team'),
+      td(t.ha, t.ha === 'H' ? 'ha-h b' : 'ha-a'),
+      td(t.star, cls('l', t.star === '—' && 'muted')),
+      td(st[0], st[1]),
+      formCell(t.form),
+      td(f2(t.gfg), cls('num', t.gfg == null && 'muted')),
+      td(f2(t.gag), cls('num', t.gag == null && 'muted')),
+      recCell(t.rec12, false),
+      resCell(t.res),
+    );
+    if (ti === 0) cells.push(el('td', { class: 'ft-tag', rowspan: 2 }, el('span', { text: 'FT' })));
+    cells.push(...h2hCells(t.h2h, since));
+    if (ti === 0) {
+      cells.push(td('—', 'l muted sep', 2), td('—', 'l muted sep', 2));
+    }
+    return el('tr', {}, cells);
+  })));
+
+  $('chart').replaceChildren(
+    el('h1', { text: c.title }),
+    el('p', { class: 'subtitle', text: c.sub }),
+    el('div', { class: 'table-wrap' }, el('table', { class: 'match' }, head, ...bodies)),
+    el('p', { class: 'foot', text: c.foot1 }),
+    el('p', { class: 'foot', text: c.foot2 }),
+  );
+  $('chart').hidden = false;
+  document.title = c.title;
+}
+
+// Team filter: hides fixtures whose teams don't match (all chart types).
+function applyFilter() {
+  const f = $('filter').value.trim().toLowerCase();
+  for (const tb of $('chart').querySelectorAll('tbody[data-teams]')) {
+    tb.hidden = !!f && !tb.dataset.teams.includes(f);
+  }
+}
+$('filter').addEventListener('input', applyFilter);
 
 // ------------------------------------------------------------------ run log
 function howClass(how) {
