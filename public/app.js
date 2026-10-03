@@ -141,11 +141,11 @@ function dayCell(d) {
   return td(d, cls('l', c), 2);
 }
 
-function rankCell(v, releg, sep) {
+function rankCell(v, releg, sep, top = ['1', '2', '3', '4']) {
   if (v === 'PROM') return td('PROM', cls('num prom', sep));
   if (v === 'new') return td('new', cls('num new', sep));
   if (v == null || v === '—') return td('—', cls('num muted', sep));
-  const c = ['1', '2', '3', '4'].includes(v) ? 'good b' : releg.includes(v) ? 'bad b' : '';
+  const c = top.includes(v) ? 'good b' : releg.includes(v) ? 'bad b' : '';
   return td(v, cls('num big', c, sep));
 }
 
@@ -212,11 +212,12 @@ function renderChart(c) {
     el('tr', {},
       th('DAY', { class: 'l' }), th('DATE', { class: 'l' }), th('TIME', { class: 'l' }), th('TEAM', { class: 'l' }),
       th('H/A'), th('STAR', { class: 'l' }), th('STATUS'),
-      group('STANDING', 4, 'sep'),
+      group('STANDING', c.standLabels.length, 'sep'),
       th('GF/G'), th('GA/G'), th('GF/GA'), th('TOT/G'), th(c.lastLabel),
-      group(c.histTitle, 4, 'sep'),
-      group('SEASON RECORD  W-D-L', 5, 'sep'),
-      th('FT / WIN%', { colspan: 2, class: 'sep' }), group('H2H LAST 5', 2, 'sep'), th('WEATHER', { class: 'l sep' }), th('IMPORTANCE', { class: 'l sep' })),
+      group(c.histTitle, c.histLabels.length, 'sep'),
+      group('SEASON RECORD  W-D-L', c.recLabels.length, 'sep'),
+      th('FT / WIN%', { colspan: 2, class: 'sep' }), group('H2H LAST 5', 2, 'sep'), th('WEATHER', { class: 'l sep' }), th('IMPORTANCE', { class: 'l sep' }),
+      ...(c.extraLabels || []).map((x) => th(x, { class: 'l sep' }))),
     el('tr', { class: 'sub' }, ...subs(c.standLabels), ...subs(c.histLabels), ...subs(c.recLabels),
       el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'GF-GA' })));
 
@@ -234,7 +235,7 @@ function renderChart(c) {
         td(t.ha, t.ha === 'H' ? 'ha-h b' : 'ha-a'),
         td(t.star, cls('l', t.star === '—' && 'muted')),
         td(st[0], st[1]),
-        ...t.standing.map((v, k) => rankCell(v, c.releg, k === 0 && 'sep')),
+        ...t.standing.map((v, k) => rankCell(v, c.releg, k === 0 && 'sep', c.top)),
         td(f2(t.gfg), cls('num', t.gfg == null && 'muted')),
         td(f2(t.gag), cls('num', t.gag == null && 'muted')),
         ratioCell(t.ratio),
@@ -250,6 +251,7 @@ function renderChart(c) {
           ...h2hCells(t.h2h, c.histLabels[0]),
           twoLine(fx.wx[0], cls('wx1', WXC[fx.wx[2]]), fx.wx[1], 'wx2', 'sep'),
           twoLine(IMP[fx.imp[0]][0], cls('imp1', IMP[fx.imp[0]][1]), fx.imp[1], 'imp2', 'sep'),
+          ...(fx.extra || []).map((x) => td(x, 'l b sep', 2)),
         );
       }
       if (ti === 1) cells.push(...h2hCells(t.h2h, c.histLabels[0]));
