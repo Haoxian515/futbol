@@ -163,6 +163,23 @@ function recCell(v, sep) {
   return td(v, cls('num rec', c, sep));
 }
 
+// Goals per game, with the non-penalty rate underneath when the source itemises penalties.
+// np: rate excluding penalties; pens: penalty goals in the sample; what: 'scored' | 'conceded';
+// sample: e.g. 'last season' or 'last 10 internationals'.
+function goalsCell(v, pen, side, sample) {
+  if (v == null) return td('—', 'num muted');
+  if (!pen) return td(f2(v), 'num');
+  const [np, pens, what] = side === 'f' ? [pen.npgfg, pen.pf, 'scored'] : [pen.npgag, pen.pa, 'conceded'];
+  const part = pen.n != null && pen.n < pen.of;
+  return el('td', {
+    class: 'num gp',
+    title: `${f2(v)} per game ${what} ${sample}; `
+      + `${part ? `of the ${pen.n} games with goal-by-goal records, ` : ''}${pens} from penalties, ${f2(np)} per game excluding them`,
+  }, el('div', { text: f2(v) }), el('div', {
+    class: cls('np', pens > 0 && 'np-has'), text: `np ${f2(np)} · ${pens}P${part ? ` (${pen.n}/${pen.of})` : ''}`,
+  }));
+}
+
 function ratioCell(r) {
   const c = r == null ? 'muted' : r >= 1.3 ? 'good b' : r >= 1.0 ? 'good' : r >= 0.9 ? '' : 'bad b';
   return td(f2(r), cls('num big', c));
@@ -236,8 +253,8 @@ function renderChart(c) {
         td(t.star, cls('l', t.star === '—' && 'muted')),
         td(st[0], st[1]),
         ...t.standing.map((v, k) => rankCell(v, c.releg, k === 0 && 'sep', c.top)),
-        td(f2(t.gfg), cls('num', t.gfg == null && 'muted')),
-        td(f2(t.gag), cls('num', t.gag == null && 'muted')),
+        goalsCell(t.gfg, t.pen, 'f', c.goalsSample || 'last season'),
+        goalsCell(t.gag, t.pen, 'a', c.goalsSample || 'last season'),
         ratioCell(t.ratio),
         totalCell(t.total),
         td(t.last, cls('num', RES[t.lastOutcome] || 'muted')),
@@ -303,8 +320,8 @@ function renderIntl(c) {
       td(t.star, cls('l', t.star === '—' && 'muted')),
       td(st[0], st[1]),
       formCell(t.form),
-      td(f2(t.gfg), cls('num', t.gfg == null && 'muted')),
-      td(f2(t.gag), cls('num', t.gag == null && 'muted')),
+      goalsCell(t.gfg, t.pen, 'f', 'over the last 10 internationals'),
+      goalsCell(t.gag, t.pen, 'a', 'over the last 10 internationals'),
       recCell(t.rec12, false),
       resCell(t.res),
     );
