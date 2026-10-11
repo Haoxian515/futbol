@@ -109,7 +109,7 @@ async function buildChart() {
     const ms = data.meta.elapsedMs;
     setStatus(`Built in ${ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1)}s`} · ${n} network request${n === 1 ? '' : 's'}`
       + `${n === 0 ? ' (all from cache)' : ''}${data.meta.refresh ? ' · refreshed' : ''}`);
-    $('data').value = 'cache'; // one-shot: what was just pulled is now the cache
+    if ($('data').value === 'fresh') $('data').value = 'auto'; // one-shot: what was just pulled is now current
     // phones: fold the (multi-line) controls into one summary line so the chart gets the screen
     if (window.matchMedia('(max-width: 700px)').matches) {
       const pick = (id) => $(id).options[$(id).selectedIndex].textContent;
