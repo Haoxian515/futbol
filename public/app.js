@@ -110,6 +110,12 @@ async function buildChart() {
     setStatus(`Built in ${ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1)}s`} · ${n} network request${n === 1 ? '' : 's'}`
       + `${n === 0 ? ' (all from cache)' : ''}${data.meta.refresh ? ' · refreshed' : ''}`);
     $('data').value = 'cache'; // one-shot: what was just pulled is now the cache
+    // phones: fold the (multi-line) controls into one summary line so the chart gets the screen
+    if (window.matchMedia('(max-width: 700px)').matches) {
+      const pick = (id) => $(id).options[$(id).selectedIndex].textContent;
+      $('ctlSummary').textContent = `${pick('league')} · ${pick('round').split(' · ')[0]}`;
+      document.querySelector('.controls').classList.add('collapsed');
+    }
   } catch (e) {
     showError(e.message);
     if (e.body && e.body.log) renderLog(e.body.log);
@@ -122,6 +128,13 @@ async function buildChart() {
 }
 
 $('controls').addEventListener('submit', (ev) => { ev.preventDefault(); buildChart(); });
+$('ctlChange').addEventListener('click', () => document.querySelector('.controls').classList.remove('collapsed'));
+// Notes and the run log share the space under the table: opening one folds the other.
+document.addEventListener('toggle', (ev) => {
+  const d = ev.target;
+  if (!d.open || !(d.id === 'log' || d.classList.contains('notes'))) return;
+  for (const o of document.querySelectorAll('details.notes[open], details#log[open]')) if (o !== d) o.open = false;
+}, true);
 $('league').addEventListener('change', () => loadRounds(null, null));
 $('round').addEventListener('change', buildChart);
 $('historyRound').addEventListener('change', buildChart);
@@ -279,8 +292,8 @@ function renderChart(c) {
     el('h1', { text: c.title }),
     el('p', { class: 'subtitle', text: c.sub }),
     el('div', { class: 'table-wrap' }, el('table', { class: 'match', 'data-lock': 5 }, head, ...bodies)),
-    el('p', { class: 'foot', text: c.foot1 }),
-    el('p', { class: 'foot', text: c.foot2 }),
+    el('details', { class: 'notes' }, el('summary', { text: 'Notes & sources' }),
+      el('p', { class: 'foot', text: c.foot1 }), el('p', { class: 'foot', text: c.foot2 })),
   );
   $('chart').hidden = false;
   document.title = c.title;
@@ -338,8 +351,8 @@ function renderIntl(c) {
     el('h1', { text: c.title }),
     el('p', { class: 'subtitle', text: c.sub }),
     el('div', { class: 'table-wrap' }, el('table', { class: 'match', 'data-lock': 6 }, head, ...bodies)),
-    el('p', { class: 'foot', text: c.foot1 }),
-    el('p', { class: 'foot', text: c.foot2 }),
+    el('details', { class: 'notes' }, el('summary', { text: 'Notes & sources' }),
+      el('p', { class: 'foot', text: c.foot1 }), el('p', { class: 'foot', text: c.foot2 })),
   );
   $('chart').hidden = false;
   document.title = c.title;
@@ -351,8 +364,6 @@ function renderIntl(c) {
 // logical columns through their rowspans/colspans, and the offsets are measured from the header,
 // so this re-runs whenever column widths can change (render, filter, resize).
 function lockLayout() {
-  // the table's scroll box fills the window below the (sticky, sometimes two-line) controls bar
-  document.documentElement.style.setProperty('--ctl-h', `${document.querySelector('.controls').offsetHeight}px`);
   const table = $('chart').querySelector('table.match[data-lock]');
   if (!table) return;
   const n = +table.dataset.lock;

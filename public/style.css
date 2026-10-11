@@ -105,9 +105,10 @@ main { padding: 18px 24px 48px; }
 .chart h1 { margin: 4px 0; font-size: 24px; font-weight: 700; }
 .subtitle { margin: 0 0 14px; font-size: 12px; color: var(--sub); }
 .table-wrap {
+  /* the only vertical scroller on the page (see the app shell below) */
+  flex: 1 1 auto;
+  min-height: 0;
   overflow: auto;
-  /* its own scroll box, so the header can stick while scrolling down: viewport minus the controls bar */
-  max-height: calc(100vh - var(--ctl-h, 72px) - 8px);
   position: relative;
 }
 
@@ -246,10 +247,37 @@ table.match {
 .match td.lock-last { box-shadow: inset -1px 0 0 var(--rule), 4px 0 5px -3px rgba(20, 23, 31, .22); }
 .match thead tr:first-child th.lock-last { box-shadow: inset 0 2px 0 var(--ink), inset 0 -1px 0 var(--rule), inset -1px 0 0 var(--rule); }
 
-/* phones: the controls wrap to several lines, so let them scroll away and give the table the screen */
 #controls label { max-width: 100%; min-width: 0; }
 #controls select { max-width: 100%; min-width: 0; flex: 0 1 auto; }
+
+/* ---------------------------------------------------------------- app shell
+   The page itself never scrolls: controls on top, the chart fills the rest of the window, and
+   only the table's box scrolls (both ways). Notes and the run log fold away under it and scroll
+   inside themselves when opened. */
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body { display: flex; flex-direction: column; height: 100vh; height: 100dvh; overflow: hidden; }
+.controls { position: static; flex: none; }
+main { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; padding: 12px 24px 10px; }
+main > .error, main > .filter { flex: none; }
+.chart { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+.chart > h1, .chart > .subtitle { flex: none; }
+.chart h1 { font-size: 20px; }
+.subtitle { margin-bottom: 8px; }
+.notes, .log { flex: none; }
+.notes { margin-top: 8px; font-size: 12px; }
+.notes summary, .log summary { cursor: pointer; font-weight: 700; color: var(--sub); font-size: 12px; }
+.notes[open] { max-height: 30vh; overflow: auto; }
+.log { margin-top: 8px; padding: 6px 14px; }
+.log[open] { max-height: 40vh; overflow: auto; }
+
+/* phones: after a build the controls fold into one line ("Premier League · Matchweek 6  Change") */
+.ctl-summary { display: none; align-items: center; justify-content: space-between; gap: 10px; font-weight: 600; }
+.ctl-summary button { font: inherit; font-size: 12px; padding: 4px 10px; }
 @media (max-width: 700px) {
-  .controls { position: static; }
-  .table-wrap { max-height: calc(100vh - 8px); }
+  main { padding: 8px 12px 8px; }
+  .controls { padding: 8px 12px; }
+  .controls.collapsed .ctl-summary { display: flex; }
+  .controls.collapsed #controls { display: none; }
+  .chart h1 { font-size: 16px; }
 }
