@@ -287,3 +287,12 @@ main > .error, main > .filter { flex: none; }
 .abs-n { display: inline-block; min-width: 16px; padding: 0 4px; border-radius: 8px; text-align: center; font-weight: 700; color: #fff; }
 .abs-inj .abs-n { background: var(--orange); }
 .abs-susp .abs-n { background: var(--bad); }
+
+/* MODEL column + backtest panel */
+.match td.m-hit { outline: 2px solid var(--good); outline-offset: -3px; border-radius: 3px; }
+.backtest[open] { max-height: 45vh; }
+.bt-wrap { overflow-x: auto; }
+table.bt { border-collapse: collapse; font-size: 11.5px; font-variant-numeric: tabular-nums; margin: 6px 0 4px; }
+table.bt th { font-size: 10px; color: var(--sub); padding: 3px 8px; text-align: center; white-space: nowrap; border-bottom: 1px solid var(--rule); }
+table.bt td { padding: 3px 8px; text-align: center; white-space: nowrap; }
+table.bt td.l { text-align: left; }
