@@ -20,7 +20,7 @@ from bs4 import BeautifulSoup
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CACHE_DIR = os.path.join(ROOT, "data", "cache")
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
-PARSER_VERSION = 2
+PARSER_VERSION = 3
 MISSING = (404, 410)
 
 MONTHS = {m: i for i, m in enumerate(
@@ -236,11 +236,20 @@ def parse_topscorers(text):
         if box is None or "match-round-matches" not in (box.get("class") or []):
             continue
         for mr in box.select("div.match-result"):
-            names = "".join(mr.find_all(string=True, recursive=False)).strip()
+            # names: the whole line minus the score and the date block, so a team wrapped in a span
+            # (e.g. <span class="penalty-winners">) is kept
+            line = BeautifulSoup(str(mr), "html.parser")
+            for t in line.select("span.match-score, div div"):
+                t.decompose()
+            names = " ".join(line.get_text(" ").split())
             parts = [p.strip() for p in names.split(" - ")]
             sc, d = mr.select_one("span.match-score"), mr.select_one("div.date")
+            parent = mr.find_parent("div", class_="match-details-comp")
+            # a "not-played" match can carry a running score while in progress: never a result
+            not_played = parent is not None and "not-played" in (parent.get("class") or [])
+            live = not_played and parent.select_one(".match-comment.in-progress") is not None
             hg = ag = None
-            if sc:
+            if sc and not not_played:
                 ms = re.match(r"^\s*(\d+)\s*-\s*(\d+)\s*$", sc.get_text())
                 if ms:
                     hg, ag = int(ms.group(1)), int(ms.group(2))
@@ -249,9 +258,8 @@ def parse_topscorers(text):
                 md = re.match(r"^(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})$", d.get_text(strip=True))
                 if md and md.group(2)[:3].lower() in MONTHS:
                     date = dt.date(int(md.group(3)), MONTHS[md.group(2)[:3].lower()], int(md.group(1))).isoformat()
-            parent = mr.find_parent("div", class_="match-details-comp")
             items.append(dict(raw=names, home=parts[0] if len(parts) == 2 else None,
-                              away=parts[1] if len(parts) == 2 else None, hg=hg, ag=ag, date=date,
+                              away=parts[1] if len(parts) == 2 else None, hg=hg, ag=ag, date=date, live=live,
                               id=parent.get("data-apif-id") if parent else None))
     table = []
     tb = soup.find("table")

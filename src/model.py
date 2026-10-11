@@ -481,6 +481,9 @@ def build(league_key, rnd, hist_round, fetcher, log, now=None):
         raise ChartError(f"Round {rnd} failed validation: " + "; ".join(problems))
     clubs = set(seen) if len(clubs) != teams else clubs
     log.note(f"Round {rnd}: {len(fixtures)} fixtures, {teams} clubs, each exactly once (from 'Round {rnd}' label on topscorersfootball)")
+    for m in fixtures:
+        if m.get("live"):
+            log.note(f"{m['home']} v {m['away']} is in progress — its running score is not counted as a result")
 
     all_cur = [m for ms in cur["rounds"].values() for m in ms if m["home"] and m["away"]]
     done_cur = [m for m in all_cur if m["hg"] is not None and m["date"]]

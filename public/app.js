@@ -110,6 +110,12 @@ async function buildChart() {
     setStatus(`Built in ${ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1)}s`} · ${n} network request${n === 1 ? '' : 's'}`
       + `${n === 0 ? ' (all from cache)' : ''}${data.meta.refresh ? ' · refreshed' : ''}`);
     $('data').value = 'cache'; // one-shot: what was just pulled is now the cache
+    // phones: fold the (multi-line) controls into one summary line so the chart gets the screen
+    if (window.matchMedia('(max-width: 700px)').matches) {
+      const pick = (id) => $(id).options[$(id).selectedIndex].textContent;
+      $('ctlSummary').textContent = `${pick('league')} · ${pick('round').split(' · ')[0]}`;
+      document.querySelector('.controls').classList.add('collapsed');
+    }
   } catch (e) {
     showError(e.message);
     if (e.body && e.body.log) renderLog(e.body.log);
@@ -122,6 +128,13 @@ async function buildChart() {
 }
 
 $('controls').addEventListener('submit', (ev) => { ev.preventDefault(); buildChart(); });
+$('ctlChange').addEventListener('click', () => document.querySelector('.controls').classList.remove('collapsed'));
+// Notes and the run log share the space under the table: opening one folds the other.
+document.addEventListener('toggle', (ev) => {
+  const d = ev.target;
+  if (!d.open || !(d.id === 'log' || d.classList.contains('notes'))) return;
+  for (const o of document.querySelectorAll('details.notes[open], details#log[open]')) if (o !== d) o.open = false;
+}, true);
 $('league').addEventListener('change', () => loadRounds(null, null));
 $('round').addEventListener('change', buildChart);
 $('historyRound').addEventListener('change', buildChart);
@@ -161,6 +174,23 @@ function recCell(v, sep) {
   const [w, , l] = v.split('-').map(Number);
   const c = w > 0 && l === 0 ? 'good b' : w === 0 && l > 0 ? 'bad b' : '';
   return td(v, cls('num rec', c, sep));
+}
+
+// Goals per game, with the non-penalty rate underneath when the source itemises penalties.
+// np: rate excluding penalties; pens: penalty goals in the sample; what: 'scored' | 'conceded';
+// sample: e.g. 'last season' or 'last 10 internationals'.
+function goalsCell(v, pen, side, sample) {
+  if (v == null) return td('—', 'num muted');
+  if (!pen) return td(f2(v), 'num');
+  const [np, pens, what] = side === 'f' ? [pen.npgfg, pen.pf, 'scored'] : [pen.npgag, pen.pa, 'conceded'];
+  const part = pen.n != null && pen.n < pen.of;
+  return el('td', {
+    class: 'num gp',
+    title: `${f2(v)} per game ${what} ${sample}; `
+      + `${part ? `of the ${pen.n} games with goal-by-goal records, ` : ''}${pens} from penalties, ${f2(np)} per game excluding them`,
+  }, el('div', { text: f2(v) }), el('div', {
+    class: cls('np', pens > 0 && 'np-has'), text: `np ${f2(np)} · ${pens}P${part ? ` (${pen.n}/${pen.of})` : ''}`,
+  }));
 }
 
 function ratioCell(r) {
@@ -236,8 +266,8 @@ function renderChart(c) {
         td(t.star, cls('l', t.star === '—' && 'muted')),
         td(st[0], st[1]),
         ...t.standing.map((v, k) => rankCell(v, c.releg, k === 0 && 'sep', c.top)),
-        td(f2(t.gfg), cls('num', t.gfg == null && 'muted')),
-        td(f2(t.gag), cls('num', t.gag == null && 'muted')),
+        goalsCell(t.gfg, t.pen, 'f', c.goalsSample || 'last season'),
+        goalsCell(t.gag, t.pen, 'a', c.goalsSample || 'last season'),
         ratioCell(t.ratio),
         totalCell(t.total),
         td(t.last, cls('num', RES[t.lastOutcome] || 'muted')),
@@ -261,12 +291,13 @@ function renderChart(c) {
   $('chart').replaceChildren(
     el('h1', { text: c.title }),
     el('p', { class: 'subtitle', text: c.sub }),
-    el('div', { class: 'table-wrap' }, el('table', { class: 'match' }, head, ...bodies)),
-    el('p', { class: 'foot', text: c.foot1 }),
-    el('p', { class: 'foot', text: c.foot2 }),
+    el('div', { class: 'table-wrap' }, el('table', { class: 'match', 'data-lock': 5 }, head, ...bodies)),
+    el('details', { class: 'notes' }, el('summary', { text: 'Notes & sources' }),
+      el('p', { class: 'foot', text: c.foot1 }), el('p', { class: 'foot', text: c.foot2 })),
   );
   $('chart').hidden = false;
   document.title = c.title;
+  lockLayout();
 }
 
 // ------------------------------------------------------------------ friendlies
@@ -303,8 +334,8 @@ function renderIntl(c) {
       td(t.star, cls('l', t.star === '—' && 'muted')),
       td(st[0], st[1]),
       formCell(t.form),
-      td(f2(t.gfg), cls('num', t.gfg == null && 'muted')),
-      td(f2(t.gag), cls('num', t.gag == null && 'muted')),
+      goalsCell(t.gfg, t.pen, 'f', 'over the last 10 internationals'),
+      goalsCell(t.gag, t.pen, 'a', 'over the last 10 internationals'),
       recCell(t.rec12, false),
       resCell(t.res),
     );
@@ -319,13 +350,61 @@ function renderIntl(c) {
   $('chart').replaceChildren(
     el('h1', { text: c.title }),
     el('p', { class: 'subtitle', text: c.sub }),
-    el('div', { class: 'table-wrap' }, el('table', { class: 'match' }, head, ...bodies)),
-    el('p', { class: 'foot', text: c.foot1 }),
-    el('p', { class: 'foot', text: c.foot2 }),
+    el('div', { class: 'table-wrap' }, el('table', { class: 'match', 'data-lock': 6 }, head, ...bodies)),
+    el('details', { class: 'notes' }, el('summary', { text: 'Notes & sources' }),
+      el('p', { class: 'foot', text: c.foot1 }), el('p', { class: 'foot', text: c.foot2 })),
   );
   $('chart').hidden = false;
   document.title = c.title;
+  lockLayout();
 }
+
+// Frozen panes: the header rows stick to the top of the table's scroll box and the first
+// data-lock columns (DAY DATE TIME [VENUE] TEAM H/A) stick to its left edge. Cells are mapped to
+// logical columns through their rowspans/colspans, and the offsets are measured from the header,
+// so this re-runs whenever column widths can change (render, filter, resize).
+function lockLayout() {
+  const table = $('chart').querySelector('table.match[data-lock]');
+  if (!table) return;
+  const n = +table.dataset.lock;
+  const heads = [...table.tHead.rows[0].cells].slice(0, n);
+  const widths = heads.map((th) => th.getBoundingClientRect().width);
+  // narrow screens (phones): locking all n would leave no room to scroll, so keep only TEAM and H/A
+  const all = widths.reduce((a, w) => a + w, 0);
+  const narrow = table.parentElement.clientWidth < 2 * all;
+  const locked = narrow ? [n - 2, n - 1] : [...Array(n).keys()];
+  const left = {};
+  let x = 0;
+  for (const c of locked) { left[c] = x; x += widths[c]; }
+
+  const grid = (rows) => {
+    const taken = [];
+    rows.forEach((tr, r) => {
+      let col = 0;
+      for (const cell of tr.cells) {
+        while (taken[r] && taken[r][col]) col++;
+        for (let dr = 0; dr < cell.rowSpan; dr++) {
+          for (let dc = 0; dc < cell.colSpan; dc++) {
+            taken[r + dr] = taken[r + dr] || [];
+            taken[r + dr][col + dc] = true;
+          }
+        }
+        const on = cell.colSpan === 1 && col in left;
+        cell.classList.toggle('lock', on);
+        cell.classList.toggle('lock-last', on && col === n - 1);
+        cell.style.left = on ? `${left[col]}px` : '';
+        col += cell.colSpan;
+      }
+    });
+  };
+  grid([...table.tHead.rows]);
+  for (const tb of table.tBodies) grid([...tb.rows]);
+
+  const top1 = table.tHead.rows[0].getBoundingClientRect().height;
+  for (const th of table.tHead.rows[0].cells) th.style.top = '0px';
+  if (table.tHead.rows[1]) for (const th of table.tHead.rows[1].cells) th.style.top = `${top1}px`;
+}
+window.addEventListener('resize', lockLayout);
 
 // Team filter: hides fixtures whose teams don't match (all chart types).
 function applyFilter() {
@@ -333,6 +412,7 @@ function applyFilter() {
   for (const tb of $('chart').querySelectorAll('tbody[data-teams]')) {
     tb.hidden = !!f && !tb.dataset.teams.includes(f);
   }
+  lockLayout();
 }
 $('filter').addEventListener('input', applyFilter);
 
