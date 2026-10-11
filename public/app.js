@@ -278,12 +278,13 @@ function renderChart(c) {
   $('chart').replaceChildren(
     el('h1', { text: c.title }),
     el('p', { class: 'subtitle', text: c.sub }),
-    el('div', { class: 'table-wrap' }, el('table', { class: 'match' }, head, ...bodies)),
+    el('div', { class: 'table-wrap' }, el('table', { class: 'match', 'data-lock': 5 }, head, ...bodies)),
     el('p', { class: 'foot', text: c.foot1 }),
     el('p', { class: 'foot', text: c.foot2 }),
   );
   $('chart').hidden = false;
   document.title = c.title;
+  lockLayout();
 }
 
 // ------------------------------------------------------------------ friendlies
@@ -336,13 +337,63 @@ function renderIntl(c) {
   $('chart').replaceChildren(
     el('h1', { text: c.title }),
     el('p', { class: 'subtitle', text: c.sub }),
-    el('div', { class: 'table-wrap' }, el('table', { class: 'match' }, head, ...bodies)),
+    el('div', { class: 'table-wrap' }, el('table', { class: 'match', 'data-lock': 6 }, head, ...bodies)),
     el('p', { class: 'foot', text: c.foot1 }),
     el('p', { class: 'foot', text: c.foot2 }),
   );
   $('chart').hidden = false;
   document.title = c.title;
+  lockLayout();
 }
+
+// Frozen panes: the header rows stick to the top of the table's scroll box and the first
+// data-lock columns (DAY DATE TIME [VENUE] TEAM H/A) stick to its left edge. Cells are mapped to
+// logical columns through their rowspans/colspans, and the offsets are measured from the header,
+// so this re-runs whenever column widths can change (render, filter, resize).
+function lockLayout() {
+  // the table's scroll box fills the window below the (sticky, sometimes two-line) controls bar
+  document.documentElement.style.setProperty('--ctl-h', `${document.querySelector('.controls').offsetHeight}px`);
+  const table = $('chart').querySelector('table.match[data-lock]');
+  if (!table) return;
+  const n = +table.dataset.lock;
+  const heads = [...table.tHead.rows[0].cells].slice(0, n);
+  const widths = heads.map((th) => th.getBoundingClientRect().width);
+  // narrow screens (phones): locking all n would leave no room to scroll, so keep only TEAM and H/A
+  const all = widths.reduce((a, w) => a + w, 0);
+  const narrow = table.parentElement.clientWidth < 2 * all;
+  const locked = narrow ? [n - 2, n - 1] : [...Array(n).keys()];
+  const left = {};
+  let x = 0;
+  for (const c of locked) { left[c] = x; x += widths[c]; }
+
+  const grid = (rows) => {
+    const taken = [];
+    rows.forEach((tr, r) => {
+      let col = 0;
+      for (const cell of tr.cells) {
+        while (taken[r] && taken[r][col]) col++;
+        for (let dr = 0; dr < cell.rowSpan; dr++) {
+          for (let dc = 0; dc < cell.colSpan; dc++) {
+            taken[r + dr] = taken[r + dr] || [];
+            taken[r + dr][col + dc] = true;
+          }
+        }
+        const on = cell.colSpan === 1 && col in left;
+        cell.classList.toggle('lock', on);
+        cell.classList.toggle('lock-last', on && col === n - 1);
+        cell.style.left = on ? `${left[col]}px` : '';
+        col += cell.colSpan;
+      }
+    });
+  };
+  grid([...table.tHead.rows]);
+  for (const tb of table.tBodies) grid([...tb.rows]);
+
+  const top1 = table.tHead.rows[0].getBoundingClientRect().height;
+  for (const th of table.tHead.rows[0].cells) th.style.top = '0px';
+  if (table.tHead.rows[1]) for (const th of table.tHead.rows[1].cells) th.style.top = `${top1}px`;
+}
+window.addEventListener('resize', lockLayout);
 
 // Team filter: hides fixtures whose teams don't match (all chart types).
 function applyFilter() {
@@ -350,6 +401,7 @@ function applyFilter() {
   for (const tb of $('chart').querySelectorAll('tbody[data-teams]')) {
     tb.hidden = !!f && !tb.dataset.teams.includes(f);
   }
+  lockLayout();
 }
 $('filter').addEventListener('input', applyFilter);
 
