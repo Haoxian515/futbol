@@ -109,7 +109,7 @@ async function buildChart() {
     const ms = data.meta.elapsedMs;
     setStatus(`Built in ${ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1)}s`} · ${n} network request${n === 1 ? '' : 's'}`
       + `${n === 0 ? ' (all from cache)' : ''}${data.meta.refresh ? ' · refreshed' : ''}`);
-    $('data').value = 'cache'; // one-shot: what was just pulled is now the cache
+    if ($('data').value === 'fresh') $('data').value = 'auto'; // one-shot: what was just pulled is now current
     // phones: fold the (multi-line) controls into one summary line so the chart gets the screen
     if (window.matchMedia('(max-width: 700px)').matches) {
       const pick = (id) => $(id).options[$(id).selectedIndex].textContent;
@@ -141,7 +141,6 @@ $('historyRound').addEventListener('change', buildChart);
 
 // ------------------------------------------------------------------ chart
 const RES = { W: 'res-w', D: 'res-d', L: 'res-l' };
-const STAT = { fit: ['fit', 'st-fit'], 'exp.': ['exp.', 'st-exp'], eased: ['eased', 'st-exp'], out: ['OUT', 'st-out'], '—': ['—', 'muted'] };
 const IMP = { high: ['HIGH', 'imp-high'], modhi: ['MOD-HI', 'imp-modhi'], mod: ['MOD', 'imp-mod'], low: ['LOW', 'imp-low'] };
 const WXC = { wet: 'wx-wet', mix: 'wx-mix', dry: 'wx-dry', hot: 'wx-hot', tbc: 'wx-tbc' };
 const f2 = (v) => (v == null ? '—' : v.toFixed(2));
@@ -228,6 +227,35 @@ function h2hCells(h, since) {
   return [games, td(`${h.gf}-${h.ga}`, cls('num big', c))];
 }
 
+// INJURED / SUSP. cells (the repurposed STAR / STATUS columns): count + the two most-used players,
+// full list on hover. absent = { inj, susp } or null when there is no source / not applicable.
+function absentCells(absent) {
+  if (!absent) return [td('—', 'l muted'), td('—', 'l muted')];
+  const cell = (list, kind) => {
+    if (!list.length) return td('none', 'l muted abs');
+    const short = (p) => `${p.name.split(' ').slice(-1)[0]}${p.type === 'doubt' ? '?' : ''}`;
+    const shown = list.slice(0, 2).map(short).join(', ') + (list.length > 2 ? ` +${list.length - 2}` : '');
+    const tip = list.map((p) => `${p.name}${p.pos ? ` (${p.pos})` : ''} — ${p.type === 'doubt' ? 'doubtful, ' : ''}${p.info || kind}`
+      + ` — ${p.apps} apps${p.goals ? `, ${p.goals} G` : ''}${p.ret ? ` — back ${p.ret}` : ''}`).join('\n');
+    const key = list.some((p) => p.type !== 'doubt' && p.apps >= 5);
+    return el('td', { class: cls('l abs', kind === 'suspended' ? 'abs-susp' : 'abs-inj', key && 'b'), title: `As of ${absent.updated}:\n${tip}` },
+      el('span', { class: 'abs-n', text: String(list.length) }), ` ${shown}`);
+  };
+  return [cell(absent.inj, 'injured'), cell(absent.susp, 'suspended')];
+}
+
+// LAST 5: newest first, plus W-D-L over those games
+function last5Cells(list) {
+  if (!list || !list.length) return [td('—', 'l muted sep'), td('—', 'num muted')];
+  const games = el('td', { class: 'l h2h sep' }, list.map((g) => el('span', {
+    class: cls('h2h-g', RES[g.o]), title: `${g.date} · ${g.ha === 'H' ? 'home' : g.ha === 'N' ? 'neutral' : 'away'} v ${g.opp}${g.comp ? ` · ${g.comp}` : ''}`,
+    text: `${g.o} ${g.gf}-${g.ga}`,
+  })));
+  const r = [0, 0, 0];
+  for (const g of list) r['WDL'.indexOf(g.o)] += 1;
+  return [games, recCell(r.join('-'), false)];
+}
+
 function twoLine(a, aClass, b, bClass, extra) {
   return el('td', { class: cls('l two', extra), rowspan: 2 }, el('div', { class: aClass, text: a }), el('div', { class: bClass, text: b }));
 }
@@ -240,16 +268,17 @@ function renderChart(c) {
 
   const head = el('thead', {},
     el('tr', {},
-      th('DAY', { class: 'l' }), th('DATE', { class: 'l' }), th('TIME', { class: 'l' }), th('TEAM', { class: 'l' }),
-      th('H/A'), th('STAR', { class: 'l' }), th('STATUS'),
+      th('DAY', { class: 'l' }), th('DATE', { class: 'l' }), th('TIME (PT)', { class: 'l' }), th('TEAM', { class: 'l' }),
+      th('H/A'), th('INJURED', { class: 'l' }), th('SUSP.', { class: 'l' }),
       group('STANDING', c.standLabels.length, 'sep'),
       th('GF/G'), th('GA/G'), th('GF/GA'), th('TOT/G'), th(c.lastLabel),
       group(c.histTitle, c.histLabels.length, 'sep'),
       group('SEASON RECORD  W-D-L', c.recLabels.length, 'sep'),
-      th('FT / WIN%', { colspan: 2, class: 'sep' }), group('H2H LAST 5', 2, 'sep'), th('WEATHER', { class: 'l sep' }), th('IMPORTANCE', { class: 'l sep' }),
+      th('FT / WIN%', { colspan: 2, class: 'sep' }), group('H2H LAST 5', 2, 'sep'), group('LAST 5', 2, 'sep'), th('WEATHER', { class: 'l sep' }), th('IMPORTANCE', { class: 'l sep' }),
       ...(c.extraLabels || []).map((x) => th(x, { class: 'l sep' }))),
     el('tr', { class: 'sub' }, ...subs(c.standLabels), ...subs(c.histLabels), ...subs(c.recLabels),
-      el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'GF-GA' })));
+      el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'GF-GA' }),
+      el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'W-D-L' })));
 
   const bodies = c.fixtures.map((fx, i) => el('tbody', {
     class: cls('fx', fx.done ? 'done' : i % 2 === 1 && 'band'), 'data-teams': fx.teams.map((t) => t.team.toLowerCase()).join('|'),
@@ -259,12 +288,10 @@ function renderChart(c) {
       if (ti === 0) {
         cells.push(dayCell(fx.day), td(fx.date, 'l', 2), td(fx.time, cls('l', fx.time === '—' && 'muted'), 2));
       }
-      const st = STAT[t.status] || STAT['—'];
       cells.push(
         td(t.team, cls('l team', ['1', '2'].includes(t.standing[0]) && 'b')),
         td(t.ha, t.ha === 'H' ? 'ha-h b' : 'ha-a'),
-        td(t.star, cls('l', t.star === '—' && 'muted')),
-        td(st[0], st[1]),
+        ...absentCells(t.absent),
         ...t.standing.map((v, k) => rankCell(v, c.releg, k === 0 && 'sep', c.top)),
         goalsCell(t.gfg, t.pen, 'f', c.goalsSample || 'last season'),
         goalsCell(t.gag, t.pen, 'a', c.goalsSample || 'last season'),
@@ -279,12 +306,13 @@ function renderChart(c) {
         cells.push(
           el('td', { class: 'ft-tag', rowspan: 2 }, fx.done ? el('span', { text: 'FT' }) : null),
           ...h2hCells(t.h2h, c.histLabels[0]),
+          ...last5Cells(t.last5),
           twoLine(fx.wx[0], cls('wx1', WXC[fx.wx[2]]), fx.wx[1], 'wx2', 'sep'),
           twoLine(IMP[fx.imp[0]][0], cls('imp1', IMP[fx.imp[0]][1]), fx.imp[1], 'imp2', 'sep'),
           ...(fx.extra || []).map((x) => td(x, 'l b sep', 2)),
         );
       }
-      if (ti === 1) cells.push(...h2hCells(t.h2h, c.histLabels[0]));
+      if (ti === 1) cells.push(...h2hCells(t.h2h, c.histLabels[0]), ...last5Cells(t.last5));
       return el('tr', {}, cells);
     })));
 
@@ -301,23 +329,18 @@ function renderChart(c) {
 }
 
 // ------------------------------------------------------------------ friendlies
-function formCell(form) {
-  if (!form.length) return td('—', 'l muted');
-  return el('td', { class: 'l h2h' }, form.map((g) => el('span', {
-    class: cls('h2h-g', RES[g.o]), title: `${g.date} · v ${g.opp} · ${g.comp}`, text: `${g.o} ${g.gf}-${g.ga}`,
-  })));
-}
-
 function renderIntl(c) {
   const th = (text, props = {}) => el('th', { rowspan: 2, ...props, text });
   const head = el('thead', {},
     el('tr', {},
-      th('DAY', { class: 'l' }), th('DATE', { class: 'l' }), th('TIME', { class: 'l' }), th('VENUE', { class: 'l' }),
-      th('TEAM', { class: 'l' }), th('H/A/N'), th('STAR', { class: 'l' }), th('STATUS'),
-      th('FORM LAST 5', { class: 'l sep' }), th('GF/G'), th('GA/G'), th('12-MO W-D-L'),
+      th('DAY', { class: 'l' }), th('DATE', { class: 'l' }), th('TIME (PT)', { class: 'l' }), th('VENUE', { class: 'l' }),
+      th('TEAM', { class: 'l' }), th('H/A/N'), th('INJURED', { class: 'l' }), th('SUSP.', { class: 'l' }),
+      th('GF/G', { class: 'sep' }), th('GA/G'), th('12-MO W-D-L'),
       th('FT', { colspan: 2, class: 'sep' }), el('th', { colspan: 2, class: 'group sep', text: 'H2H LAST 5' }),
+      el('th', { colspan: 2, class: 'group sep', text: 'LAST 5' }),
       th('WEATHER', { class: 'l sep' }), th('IMPORTANCE', { class: 'l sep' })),
-    el('tr', { class: 'sub' }, el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'GF-GA' })));
+    el('tr', { class: 'sub' }, el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'GF-GA' }),
+      el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'W-D-L' })));
 
   const since = 'records began';
   const bodies = c.fixtures.map((fx, i) => el('tbody', {
@@ -327,20 +350,17 @@ function renderIntl(c) {
     if (ti === 0) {
       cells.push(dayCell(fx.day), td(fx.date, 'l', 2), td(fx.time, 'l muted', 2), td(fx.venue, 'l', 2));
     }
-    const st = STAT[t.status] || STAT['—'];
     cells.push(
       td(t.team, 'l team'),
       td(t.ha, t.ha === 'H' ? 'ha-h b' : 'ha-a'),
-      td(t.star, cls('l', t.star === '—' && 'muted')),
-      td(st[0], st[1]),
-      formCell(t.form),
+      ...absentCells(t.absent),
       goalsCell(t.gfg, t.pen, 'f', 'over the last 10 internationals'),
       goalsCell(t.gag, t.pen, 'a', 'over the last 10 internationals'),
       recCell(t.rec12, false),
       resCell(t.res),
     );
     if (ti === 0) cells.push(el('td', { class: 'ft-tag', rowspan: 2 }, el('span', { text: 'FT' })));
-    cells.push(...h2hCells(t.h2h, since));
+    cells.push(...h2hCells(t.h2h, since), ...last5Cells(t.last5));
     if (ti === 0) {
       cells.push(td('—', 'l muted sep', 2), td('—', 'l muted sep', 2));
     }

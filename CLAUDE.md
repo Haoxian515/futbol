@@ -15,13 +15,14 @@
 4. MATCH-N HISTORY: the history block shows each club's result in game N
    of past seasons where N = the charted round (--history-round overrides).
 5. FULL COLUMN SET, never drop a column:
-   DAY|DATE|TIME|TEAM|H/A|STAR|STATUS|STANDING('26,'24,'25,NOW)|GF/G|GA/G|
-   GF/GA|TOT/G|LAST|MATCH-N HIST '23-'26|SEASON RECORD '23-'26+NOW|
-   FT/WIN%|H2H LAST 5|WEATHER|IMPORTANCE. League extra_columns append
+   DAY|DATE|TIME (PT)|TEAM|H/A|INJURED|SUSP.|STANDING('26,'24,'25,NOW)|GF/G|
+   GA/G|GF/GA|TOT/G|LAST|MATCH-N HIST '23-'26|SEASON RECORD '23-'26+NOW|
+   FT/WIN%|H2H LAST 5|LAST 5|WEATHER|IMPORTANCE. League extra_columns append
    after the core set.
-6. Stars are human-curated (data/stars/<league>.json). Agents never guess
-   a star player. Status defaults "exp." unless a dated source ≤3 days
-   confirms.
+6. INJURED / SUSP. (formerly STAR / STATUS, repurposed by the owner) come
+   only from a dated injuries & suspensions source (SportsGambler league
+   pages) whose "Updated" stamp is ≤3 days old, and only for fixtures not
+   yet played; otherwise "—". Agents never guess a player's availability.
 7. Weather only from a real forecast ≤7 days out (Open-Meteo, kickoff
    hour, stadium coords); otherwise "TBC".
 8. Live standings overrule running tallies for NOW records and positions.
