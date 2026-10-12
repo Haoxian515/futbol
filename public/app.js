@@ -258,24 +258,61 @@ function last5Cells(list) {
 
 // ------------------------------------------------------------------ model (Poisson) column
 const pct = (x) => (x == null ? '—' : `${Math.round(100 * x)}%`);
+// Which figures came true on a finished game (outlined): win/draw, team 1+ / 2+, BTTS, over 2.5
+function hits(r) {
+  if (!r) return {};
+  return {
+    pH: r.hg > r.ag, pD: r.hg === r.ag, pA: r.hg < r.ag, h1: r.hg >= 1, h2: r.hg >= 2, a1: r.ag >= 1, a2: r.ag >= 2,
+    btts: r.hg > 0 && r.ag > 0, o25: r.hg + r.ag > 2,
+  };
+}
+const SIDE = { H: ['pH', 'h1', 'h2'], A: ['pA', 'a1', 'a2'] };
+
 // per team: xG, win %, P(scores 1+), P(scores 2+); `hit` outlines the cell that matched the result
-function modelTeamCells(p, side) {
+function modelTeamCells(p, side, result) {
   if (!p) return [td('—', 'num muted sep'), td('—', 'num muted'), td('—', 'num muted'), td('—', 'num muted')];
   const [xg, win, g1, g2] = side === 'H' ? [p.lh, p.pH, p.h1, p.h2] : [p.la, p.pA, p.a1, p.a2];
-  const hit = p.outcome === side;
+  const H = hits(result);
+  const [kw, k1, k2] = SIDE[side];
+  const hit = H[kw];
   const n = side === 'H' ? p.hN : p.aN;
   const promoted = side === 'H' ? p.hPromoted : p.aPromoted;
   return [
     el('td', { class: 'num sep', title: `expected goals; strength from last season blended with ${n} game(s) this season${promoted ? ' (promoted: starts at last season\'s bottom-three level)' : ''}`, text: xg.toFixed(2) }),
     td(pct(win), cls('num b', win >= 0.5 && 'good', hit && 'm-hit')),
-    td(pct(g1), 'num'), td(pct(g2), 'num'),
+    td(pct(g1), cls('num', H[k1] && 'm-hit')), td(pct(g2), cls('num', H[k2] && 'm-hit')),
   ];
 }
 // per fixture (rowspan 2): draw, both teams score, over 2.5
-function modelFixtureCells(p) {
+function modelFixtureCells(p, result) {
   if (!p) return [td('—', 'num muted', 2), td('—', 'num muted', 2), td('—', 'num muted', 2)];
-  return [td(pct(p.pD), cls('num b', p.outcome === 'D' && 'm-hit'), 2), td(pct(p.btts), 'num', 2), td(pct(p.o25), 'num', 2)];
+  const H = hits(result);
+  return [td(pct(p.pD), cls('num b', H.pD && 'm-hit'), 2), td(pct(p.btts), cls('num', H.btts && 'm-hit'), 2), td(pct(p.o25), cls('num', H.o25 && 'm-hit'), 2)];
 }
+
+// KALSHI / POLYMARKET cells: same figures as the model; amber when ≥5 points from the model
+const DIFF = 0.05;
+function marketCell(m, key, model, H, rowspan, extra) {
+  const v = m ? m[key] : null;
+  if (v == null) return td('—', cls('num muted', extra), rowspan);
+  const mv = model ? model[key] : null;
+  const far = mv != null && Math.abs(v - mv) >= DIFF;
+  const when = m.asOf === 'live' ? 'live price' : 'last price before kickoff';
+  const title = `${m.source} ${when}: ${pct(v)}${mv != null ? ` · model ${pct(mv)} (${v > mv ? '+' : ''}${Math.round(100 * (v - mv))} pts)` : ''}`;
+  return el('td', {
+    class: cls('num', extra, key === 'pH' || key === 'pA' || key === 'pD' ? 'b' : '', far && 'm-diff', H[key] && 'm-hit'), rowspan, title, text: pct(v),
+  });
+}
+function marketTeamCells(m, side, model, result) {
+  const H = hits(result);
+  const [kw, k1, k2] = SIDE[side];
+  return [marketCell(m, kw, model, H, null, 'sep'), marketCell(m, k1, model, H), marketCell(m, k2, model, H)];
+}
+function marketFixtureCells(m, model, result) {
+  const H = hits(result);
+  return ['pD', 'btts', 'o25'].map((k) => marketCell(m, k, model, H, 2));
+}
+const MARKETS = [['kalshi', 'KALSHI'], ['poly', 'POLYMARKET']];
 
 // Backtest panel: per season, model vs bookmakers (closing odds) vs base rate; lower Brier = better
 function backtestPanel(m) {
@@ -321,12 +358,15 @@ function renderChart(c) {
       group(c.histTitle, c.histLabels.length, 'sep'),
       group('SEASON RECORD  W-D-L', c.recLabels.length, 'sep'),
       th('FT / WIN%', { colspan: 2, class: 'sep' }), group('H2H LAST 5', 2, 'sep'), group('LAST 5', 2, 'sep'), th('WEATHER', { class: 'l sep' }), th('IMPORTANCE', { class: 'l sep' }),
-      ...(c.model ? [group('MODEL (Poisson)', 7, 'sep')] : []),
+      ...(c.model ? [group('MODEL (Poisson)', 7, 'sep'), ...MARKETS.map(([, name]) => group(name, 6, 'sep'))] : []),
       ...(c.extraLabels || []).map((x) => th(x, { class: 'l sep' }))),
     el('tr', { class: 'sub' }, ...subs(c.standLabels), ...subs(c.histLabels), ...subs(c.recLabels),
       el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'GF-GA' }),
       el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'W-D-L' }),
-      ...(c.model ? ['xG', 'WIN', '1+', '2+', 'DRAW', 'BTTS', 'O2.5'].map((x, k) => el('th', { class: cls(k === 0 && 'sep'), text: x })) : [])));
+      ...(c.model ? ['xG', 'WIN', '1+', '2+', 'DRAW', 'BTTS', 'O2.5'].map((x, k) => el('th', { class: cls(k === 0 && 'sep'), text: x })) : []),
+      ...(c.model ? MARKETS.flatMap(() => ['WIN', '1+', '2+', 'DRAW', 'BTTS', 'O2.5'].map((x, k) => el('th', {
+        class: cls(k === 0 && 'sep'), text: x, title: 'mid of bid/ask; live before kickoff, last price before kickoff once started; amber = ≥5 pts from the model',
+      }))) : [])));
 
   const bodies = c.fixtures.map((fx, i) => el('tbody', {
     class: cls('fx', fx.done ? 'done' : i % 2 === 1 && 'band'), 'data-teams': fx.teams.map((t) => t.team.toLowerCase()).join('|'),
@@ -357,11 +397,15 @@ function renderChart(c) {
           ...last5Cells(t.last5),
           twoLine(fx.wx[0], cls('wx1', WXC[fx.wx[2]]), fx.wx[1], 'wx2', 'sep'),
           twoLine(IMP[fx.imp[0]][0], cls('imp1', IMP[fx.imp[0]][1]), fx.imp[1], 'imp2', 'sep'),
-          ...(c.model ? [...modelTeamCells(fx.pred, 'H'), ...modelFixtureCells(fx.pred)] : []),
+          ...(c.model ? [...modelTeamCells(fx.pred, 'H', fx.result), ...modelFixtureCells(fx.pred, fx.result),
+            ...MARKETS.flatMap(([k]) => [...marketTeamCells(fx[k], 'H', fx.pred, fx.result), ...marketFixtureCells(fx[k], fx.pred, fx.result)])] : []),
           ...(fx.extra || []).map((x) => td(x, 'l b sep', 2)),
         );
       }
-      if (ti === 1) cells.push(...h2hCells(t.h2h, c.histLabels[0]), ...last5Cells(t.last5), ...(c.model ? modelTeamCells(fx.pred, 'A') : []));
+      if (ti === 1) {
+        cells.push(...h2hCells(t.h2h, c.histLabels[0]), ...last5Cells(t.last5),
+          ...(c.model ? [...modelTeamCells(fx.pred, 'A', fx.result), ...MARKETS.flatMap(([k]) => marketTeamCells(fx[k], 'A', fx.pred, fx.result))] : []));
+      }
       return el('tr', {}, cells);
     })));
 
