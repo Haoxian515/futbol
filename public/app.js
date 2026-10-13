@@ -367,7 +367,24 @@ function bttsPanel(b) {
     td(f.label, 'l'), td(r(f.r), cls('num', Math.abs(f.r || 0) >= 0.1 && 'b')), td(String(f.n), 'num muted'),
     ...f.buckets.map((k) => el('td', {}, el('div', { class: 'bt-lab', text: k.label }), bar(k.rate, k.n))),
     ...Array.from({ length: maxB - f.buckets.length }, () => td(''))));
-  const KEYS = [['l5', 'LAST 5 BTTS H+A'], ['h2h', 'H2H BTTS'], ['one', 'BOTH 1+'], ['xgmin', 'LOWER xG'], ['xgsum', 'TOTAL xG'], ['model', 'MODEL BTTS']];
+  const KEYS = [['l5', 'LAST 5 BTTS H+A'], ['s1min', 'SCORED 1+ L5 H/A'], ['np5min', 'NP GF/G L5 H–A'], ['np5delta', 'NP GF GAP'], ['gddelta', 'GD GAP'],
+    ['h2h', 'H2H BTTS'], ['h2hmin', 'H2H GF–GA /G'], ['one', 'BOTH 1+'], ['xgmin', 'LOWER xG'], ['xgsum', 'TOTAL xG'], ['model', 'MODEL BTTS']];
+  const f2 = (v) => (v == null ? '—' : v.toFixed(1));
+  const SHOW = {
+    l5: (x) => `${x.l5h}+${x.l5a}`, s1min: (x) => `${x.s1h}/${x.s1a}`, np5min: (x) => `${f2(x.np5h)}–${f2(x.np5a)}`, h2hmin: (x) => `${f2(x.h2hgf)}–${f2(x.h2hga)}`,
+  };
+  // heat map: home buckets (rows) × away buckets (columns); shade = distance from the base rate
+  const heat = (rate, n) => {
+    if (rate == null || n < b.minBucket) return '';
+    const d = Math.max(-0.15, Math.min(0.15, rate - b.base)) / 0.15;
+    return d >= 0 ? `background: rgba(26,127,78,${(0.6 * d).toFixed(2)})` : `background: rgba(192,57,43,${(-0.6 * d).toFixed(2)})`;
+  };
+  const grids = (b.grids || []).map((g) => el('div', { class: 'bt-grid' }, el('div', { class: 'bt-grid-t', text: g.label }),
+    el('table', { class: 'bt heat' },
+      el('thead', {}, el('tr', {}, el('th', { text: 'home ↓ / away →' }), ...g.labels.map((l) => el('th', { text: l })))),
+      el('tbody', {}, ...g.cells.map((row, i) => el('tr', {}, el('th', { text: g.labels[i] }),
+        ...row.map((c) => el('td', { class: cls(c.n < b.minBucket && 'muted'), style: heat(c.rate, c.n), title: `${c.n} games` },
+          el('div', { class: 'b', text: pct(c.rate) }), el('div', { class: 'bt-n', text: String(c.n) })))))))));
   const roundRows = b.round.map((x) => {
     const both = x.result ? (x.result.hg > 0 && x.result.ag > 0) : null;
     return el('tr', {},
@@ -376,7 +393,7 @@ function bttsPanel(b) {
         const c = x.cells[k];
         if (!c) return td('—', 'muted');
         return el('td', { title: `bucket ${c.bucket}: BTTS ${pct(c.rate)} of ${c.n} games` },
-          el('div', { class: 'bt-val', text: k === 'l5' ? `${x.l5h}+${x.l5a}` : c.text }),
+          el('div', { class: 'bt-val', text: SHOW[k] ? SHOW[k](x) : c.text }),
           el('div', { class: cls('bt-hist', tone(c.rate, c.n)), text: `→ ${pct(c.rate)}` }));
       }),
       td(both == null ? '—' : both ? 'Yes' : 'No', cls(both == null ? 'muted' : both ? 'good b' : 'bad b')));
@@ -385,11 +402,14 @@ function bttsPanel(b) {
     el('p', { class: 'foot', text: 'Each past league game is described by what was known before kickoff (earlier games only); bars = how often both teams then scored, with the number of games. '
       + 'r = correlation with BTTS (0 = none, ±1 = perfect; |r| < 0.1 is weak). Green / red = 5+ pts above / below the base rate on '
       + `${b.minBucket}+ games. LAST 5 = BTTS games in each club's last 5 league games; H2H = BTTS share of the last 5 league meetings since ${b.h2hFrom} (3+ meetings); `
-      + `BOTH 1+ = model chance each team scores, multiplied; xG = the model's expected goals. Source: ${b.source}.` }),
+      + 'SCORED 1+ = games with a goal in the last 5; NP GF/G = non-penalty goals per game over the last 5; NP GF GAP / GD GAP = difference between the two sides\' '
+      + 'non-penalty goals per game / goal difference per game (a mismatch); H2H GF–GA = goals per game for / against the home side in the last 5 meetings (all goals); '
+      + `BOTH 1+ = model chance each team scores, multiplied; xG = the model's expected goals. Heat maps: cells shaded by distance from the base rate; grey = under ${b.minBucket} games. Source: ${b.source}.` }),
     el('div', { class: 'bt-wrap' }, el('table', { class: 'bt btts-feat' },
       el('thead', {}, el('tr', {}, el('th', { text: 'Before kickoff' }), el('th', { text: 'r' }), el('th', { text: 'Games' }),
         el('th', { text: 'BTTS rate by bucket (rate · games)', colspan: maxB }))),
       el('tbody', {}, ...featRows))),
+    el('div', { class: 'bt-grids' }, ...grids),
     el('div', { class: 'bt-wrap' }, el('table', { class: 'bt btts-round' },
       el('thead', {}, el('tr', {}, ...['This round', ...KEYS.map(([, l]) => l), 'BTTS?'].map((x) => el('th', { text: x })))),
       el('tbody', {}, ...roundRows))));
