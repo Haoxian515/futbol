@@ -348,6 +348,74 @@ function backtestPanel(m) {
     el('div', { class: 'bt-wrap' }, el('table', { class: 'bt' }, el('thead', {}, head), el('tbody', {}, ...rows))));
 }
 
+// BTTS correlation panel: historic BTTS rate by what was known before kickoff, and where this
+// round's fixtures fall. A bucket is coloured when it is 5+ pts off the base rate on enough games.
+const bttsOpen = () => { try { return localStorage.getItem('bttsOpen') === '1'; } catch { return false; } };
+document.addEventListener('toggle', (ev) => {
+  if (!ev.target.classList || !ev.target.classList.contains('btts')) return;
+  try { localStorage.setItem('bttsOpen', ev.target.open ? '1' : '0'); } catch { /* per-viewer convenience only */ }
+}, true);
+function bttsPanel(b) {
+  if (!b || !b.features) return null;
+  const tone = (rate, n) => (rate == null || n < b.minBucket ? '' : rate >= b.base + 0.05 ? 'good' : rate <= b.base - 0.05 ? 'bad' : '');
+  const bar = (rate, n) => el('div', { class: cls('bt-bar', tone(rate, n)), title: `${n} games` },
+    el('span', { class: 'bt-fill', style: `width:${Math.round(100 * (rate || 0))}%` }),
+    el('span', { class: 'bt-txt', text: rate == null ? '—' : `${pct(rate)} · ${n}` }));
+  const r = (x) => (x == null ? '—' : (x >= 0 ? '+' : '') + x.toFixed(3));
+  const maxB = Math.max(...b.features.map((f) => f.buckets.length));
+  const featRows = b.features.map((f) => el('tr', {},
+    td(f.label, 'l'), td(r(f.r), cls('num', Math.abs(f.r || 0) >= 0.1 && 'b')), td(String(f.n), 'num muted'),
+    ...f.buckets.map((k) => el('td', {}, el('div', { class: 'bt-lab', text: k.label }), bar(k.rate, k.n))),
+    ...Array.from({ length: maxB - f.buckets.length }, () => td(''))));
+  const N = b.formN || 5;
+  const KEYS = [['l5', `LAST ${N} BTTS H+A`], ['s1min', `SCORED 1+ L${N} H/A`], ['np5min', `NP GF/G L${N} H–A`], ['np5delta', 'NP GF GAP'], ['gddelta', 'GD GAP'],
+    ['h2h', 'H2H BTTS'], ['h2hmin', 'H2H GF–GA /G'], ['one', 'BOTH 1+'], ['xgmin', 'LOWER xG'], ['xgsum', 'TOTAL xG'], ['model', 'MODEL BTTS']];
+  const f2 = (v) => (v == null ? '—' : v.toFixed(1));
+  const SHOW = {
+    l5: (x) => `${x.l5h}+${x.l5a}`, s1min: (x) => `${x.s1h}/${x.s1a}`, np5min: (x) => `${f2(x.np5h)}–${f2(x.np5a)}`, h2hmin: (x) => `${f2(x.h2hgf)}–${f2(x.h2hga)}`,
+  };
+  // heat map: home buckets (rows) × away buckets (columns); shade = distance from the base rate
+  const heat = (rate, n) => {
+    if (rate == null || n < b.minBucket) return '';
+    const d = Math.max(-0.15, Math.min(0.15, rate - b.base)) / 0.15;
+    return d >= 0 ? `background: rgba(26,127,78,${(0.6 * d).toFixed(2)})` : `background: rgba(192,57,43,${(-0.6 * d).toFixed(2)})`;
+  };
+  const grids = (b.grids || []).map((g) => el('div', { class: 'bt-grid' }, el('div', { class: 'bt-grid-t', text: g.label }),
+    el('table', { class: 'bt heat' },
+      el('thead', {}, el('tr', {}, el('th', { text: 'home ↓ / away →' }), ...g.labels.map((l) => el('th', { text: l })))),
+      el('tbody', {}, ...g.cells.map((row, i) => el('tr', {}, el('th', { text: g.labels[i] }),
+        ...row.map((c) => el('td', { class: cls(c.n < b.minBucket && 'muted'), style: heat(c.rate, c.n), title: `${c.n} games` },
+          el('div', { class: 'b', text: pct(c.rate) }), el('div', { class: 'bt-n', text: String(c.n) })))))))));
+  const roundRows = b.round.map((x) => {
+    const both = x.result ? (x.result.hg > 0 && x.result.ag > 0) : null;
+    return el('tr', {},
+      td(x.label, 'l'),
+      ...KEYS.map(([k]) => {
+        const c = x.cells[k];
+        if (!c) return td('—', 'muted');
+        return el('td', { title: `bucket ${c.bucket}: BTTS ${pct(c.rate)} of ${c.n} games` },
+          el('div', { class: 'bt-val', text: SHOW[k] ? SHOW[k](x) : c.text }),
+          el('div', { class: cls('bt-hist', tone(c.rate, c.n)), text: `→ ${pct(c.rate)}` }));
+      }),
+      td(both == null ? '—' : both ? 'Yes' : 'No', cls(both == null ? 'muted' : both ? 'good b' : 'bad b')));
+  });
+  return el('details', { class: 'notes btts', open: bttsOpen() }, el('summary', { text: `BTTS correlation (history) — both teams scored in ${pct(b.base)} of ${b.games} games, ${b.seasons}` }),
+    el('p', { class: 'foot', text: 'Each past league game is described by what was known before kickoff (earlier games only); bars = how often both teams then scored, with the number of games. '
+      + 'r = correlation with BTTS (0 = none, ±1 = perfect; |r| < 0.1 is weak). Green / red = 5+ pts above / below the base rate on '
+      + `${b.minBucket}+ games. LAST ${b.formN || 5} = BTTS games in each club's last ${b.formN || 5} league games (within 12 months); H2H = BTTS share of every league meeting since ${b.h2hFrom} (3+ meetings); `
+      + `SCORED 1+ = games with a goal in the last ${b.formN || 5}; NP GF/G = non-penalty goals per game over the last ${b.formN || 5}; NP GF GAP / GD GAP = difference between the two sides' `
+      + 'non-penalty goals per game / goal difference per game (a mismatch); H2H GF–GA = goals per game for / against the home side over all those meetings (all goals); '
+      + `BOTH 1+ = model chance each team scores, multiplied; xG = the model's expected goals. Heat maps: cells shaded by distance from the base rate; grey = under ${b.minBucket} games. Source: ${b.source}.` }),
+    el('div', { class: 'bt-wrap' }, el('table', { class: 'bt btts-feat' },
+      el('thead', {}, el('tr', {}, el('th', { text: 'Before kickoff' }), el('th', { text: 'r' }), el('th', { text: 'Games' }),
+        el('th', { text: 'BTTS rate by bucket (rate · games)', colspan: maxB }))),
+      el('tbody', {}, ...featRows))),
+    el('div', { class: 'bt-grids' }, ...grids),
+    el('div', { class: 'bt-wrap' }, el('table', { class: 'bt btts-round' },
+      el('thead', {}, el('tr', {}, ...['This round', ...KEYS.map(([, l]) => l), 'BTTS?'].map((x) => el('th', { text: x })))),
+      el('tbody', {}, ...roundRows))));
+}
+
 function twoLine(a, aClass, b, bClass, extra) {
   return el('td', { class: cls('l two', extra), rowspan: 2 }, el('div', { class: aClass, text: a }), el('div', { class: bClass, text: b }));
 }
@@ -424,6 +492,7 @@ function renderChart(c) {
     el('div', { class: 'table-wrap' }, el('table', { class: 'match', 'data-lock': 5 }, head, ...bodies)),
     el('details', { class: 'notes' }, el('summary', { text: 'Notes & sources' }),
       el('p', { class: 'foot', text: c.foot1 }), el('p', { class: 'foot', text: c.foot2 })),
+    bttsPanel(c.btts),
     backtestPanel(c.model),
   );
   $('chart').hidden = false;
