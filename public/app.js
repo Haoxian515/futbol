@@ -343,7 +343,7 @@ function backtestPanel(m) {
     td(f3(r.btts.model), cls('num', best([r.btts.model, r.btts.base], r.btts.model))), td(f3(r.btts.base), 'num muted')));
   return el('details', { class: 'notes backtest' }, el('summary', { text: 'Model accuracy (backtest)' }),
     el('p', { class: 'foot', text: `Each game predicted from games on earlier dates only, then scored against the result. Numbers are Brier scores: lower is better; `
-      + `"odds" = bookmakers' closing prices with the margin removed, "base" = last season's frequencies. Teams are rated on ${m.params.np ? 'non-penalty' : 'all'} goals. Settings K=${m.params.K}, rho=${m.params.rho} were chosen on the `
+      + `"odds" = bookmakers' closing prices with the margin removed, "base" = last season's frequencies. Teams are rated on ${m.params.np ? 'non-penalty' : 'all'} goals. Settings K=${m.params.K}, rho=${m.params.rho}${m.params.shrink != null ? `, shrink=${m.params.shrink}` : ''} were chosen on the `
       + `${b.tuneSeasons.join(' and ')} "tuning" seasons; "test" seasons were not used to choose them. Source: ${b.source}.` }),
     el('div', { class: 'bt-wrap' }, el('table', { class: 'bt' }, el('thead', {}, head), el('tbody', {}, ...rows))));
 }
