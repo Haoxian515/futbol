@@ -400,12 +400,12 @@ function bttsPanel(b) {
       td(both == null ? '—' : both ? 'Yes' : 'No', cls(both == null ? 'muted' : both ? 'good b' : 'bad b')));
   });
   return el('details', { class: 'notes btts', open: bttsOpen() }, el('summary', { text: `BTTS correlation (history) — both teams scored in ${pct(b.base)} of ${b.games} games, ${b.seasons}` }),
-    el('p', { class: 'foot', text: 'Each past league game is described by what was known before kickoff (earlier games only); bars = how often both teams then scored, with the number of games. '
+    el('details', { class: 'bt-help' }, el('summary', { text: 'How to read this' }), el('p', { class: 'foot', text: 'Each past game is described by what was known before kickoff (earlier games only); bars = how often both teams then scored, with the number of games. '
       + 'r = correlation with BTTS (0 = none, ±1 = perfect; |r| < 0.1 is weak). Green / red = 5+ pts above / below the base rate on '
-      + `${b.minBucket}+ games. LAST ${b.formN || 5} = BTTS games in each club's last ${b.formN || 5} league games (within 12 months); H2H = BTTS share of every league meeting since ${b.h2hFrom} (3+ meetings); `
+      + `${b.minBucket}+ games. LAST ${b.formN || 5} = BTTS games in each club's last ${b.formN || 5} ${b.formDesc || 'league games'} (within 12 months); H2H = BTTS share of every ${b.h2hDesc || 'league meeting'} since ${b.h2hFrom} (${b.h2hMin || 3}+ meetings); `
       + `SCORED 1+ = games with a goal in the last ${b.formN || 5}; NP GF/G = non-penalty goals per game over the last ${b.formN || 5}; NP GF GAP / GD GAP = difference between the two sides' `
       + 'non-penalty goals per game / goal difference per game (a mismatch); H2H GF–GA = goals per game for / against the home side over all those meetings (all goals); '
-      + `BOTH 1+ = model chance each team scores, multiplied; xG = the model's expected goals. Heat maps: cells shaded by distance from the base rate; grey = under ${b.minBucket} games. Source: ${b.source}.` }),
+      + `BOTH 1+ = model chance each team scores, multiplied; xG = the model's expected goals. Heat maps: cells shaded by distance from the base rate; grey = under ${b.minBucket} games. Source: ${b.source}.` })),
     el('div', { class: 'bt-wrap' }, el('table', { class: 'bt btts-feat' },
       el('thead', {}, el('tr', {}, el('th', { text: 'Before kickoff' }), el('th', { text: 'r' }), el('th', { text: 'Games' }),
         el('th', { text: 'BTTS rate by bucket (rate · games)', colspan: maxB }))),

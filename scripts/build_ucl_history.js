@@ -1,6 +1,6 @@
 'use strict';
 // Build data/ucl/history.json: compact Champions League history (every match with score, round,
-// matchday, penalty goals; each season's league-/group-phase table) from UEFA's feeds, for the
+// matchday, penalty goals; each season's league-/group-phase table; each club's country) from UEFA's feeds, for the
 // finished seasons the UCL chart uses (raw feed pages are ~8 MB per season; this file is small).
 //
 //   node scripts/build_ucl_history.js        (re-run once a season finishes)
@@ -21,6 +21,7 @@ const { Fetcher } = require('../lib/fetch');
     out.seasons[e] = {
       matches: ms.filter((m) => m.done).map((m) => [m.date, m.home, m.away, m.hg, m.ag, m.hp, m.ap, m.phase ? 1 : 0, m.md, m.round]),
       table: Object.fromEntries([...table].map(([t, r]) => [t, [r.group, r.rank, r.W, r.D, r.L]])),
+      countries: Object.fromEntries(ms.flatMap((m) => [[m.home, m.hc], [m.away, m.ac]]).filter(([, c]) => c)),
     };
     console.log(e, out.seasons[e].matches.length, 'matches,', table.size, 'table rows');
   }

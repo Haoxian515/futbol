@@ -269,6 +269,9 @@ main > .error, main > .filter, main > .branch-hint { flex: none; }
 .notes { margin-top: 8px; font-size: 12px; }
 .notes summary, .log summary { cursor: pointer; font-weight: 700; color: var(--sub); font-size: 12px; }
 .notes[open] { max-height: 30vh; overflow: auto; }
+/* an open panel shrinks (and scrolls inside) rather than overflowing; the match table keeps a minimum height */
+.notes[open] { flex: 0 1 auto; min-height: 90px; }
+.chart > .table-wrap { min-height: 150px; }
 .log { margin-top: 8px; padding: 6px 14px; }
 .log[open] { max-height: 40vh; overflow: auto; }
 
@@ -320,3 +323,6 @@ table.bt td.l { text-align: left; }
 table.heat td { min-width: 58px; border: 1px solid var(--rule); line-height: 1.15; }
 table.heat th { border: none; }
 .bt-n { font-size: 9.5px; color: var(--sub); }
+
+.bt-help > summary { font-size: 11px; color: var(--sub); cursor: pointer; margin: 2px 0 4px; }
+@media (max-width: 700px) { .btts[open] { max-height: 55vh; } }
