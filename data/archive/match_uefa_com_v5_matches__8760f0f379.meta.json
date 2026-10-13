@@ -1,0 +1,6 @@
+{
+ "url": "https://match.uefa.com/v5/matches?competitionId=2014&seasonYear=2023&limit=100&offset=100&order=ASC",
+ "status": 200,
+ "fetched_at": 1791871442.836,
+ "fetched_at_iso": "2026-10-13T06:04:02"
+}
