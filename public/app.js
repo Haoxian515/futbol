@@ -367,7 +367,8 @@ function bttsPanel(b) {
     td(f.label, 'l'), td(r(f.r), cls('num', Math.abs(f.r || 0) >= 0.1 && 'b')), td(String(f.n), 'num muted'),
     ...f.buckets.map((k) => el('td', {}, el('div', { class: 'bt-lab', text: k.label }), bar(k.rate, k.n))),
     ...Array.from({ length: maxB - f.buckets.length }, () => td(''))));
-  const KEYS = [['l5', 'LAST 5 BTTS H+A'], ['s1min', 'SCORED 1+ L5 H/A'], ['np5min', 'NP GF/G L5 H–A'], ['np5delta', 'NP GF GAP'], ['gddelta', 'GD GAP'],
+  const N = b.formN || 5;
+  const KEYS = [['l5', `LAST ${N} BTTS H+A`], ['s1min', `SCORED 1+ L${N} H/A`], ['np5min', `NP GF/G L${N} H–A`], ['np5delta', 'NP GF GAP'], ['gddelta', 'GD GAP'],
     ['h2h', 'H2H BTTS'], ['h2hmin', 'H2H GF–GA /G'], ['one', 'BOTH 1+'], ['xgmin', 'LOWER xG'], ['xgsum', 'TOTAL xG'], ['model', 'MODEL BTTS']];
   const f2 = (v) => (v == null ? '—' : v.toFixed(1));
   const SHOW = {
@@ -401,9 +402,9 @@ function bttsPanel(b) {
   return el('details', { class: 'notes btts', open: bttsOpen() }, el('summary', { text: `BTTS correlation (history) — both teams scored in ${pct(b.base)} of ${b.games} games, ${b.seasons}` }),
     el('p', { class: 'foot', text: 'Each past league game is described by what was known before kickoff (earlier games only); bars = how often both teams then scored, with the number of games. '
       + 'r = correlation with BTTS (0 = none, ±1 = perfect; |r| < 0.1 is weak). Green / red = 5+ pts above / below the base rate on '
-      + `${b.minBucket}+ games. LAST 5 = BTTS games in each club's last 5 league games; H2H = BTTS share of the last 5 league meetings since ${b.h2hFrom} (3+ meetings); `
-      + 'SCORED 1+ = games with a goal in the last 5; NP GF/G = non-penalty goals per game over the last 5; NP GF GAP / GD GAP = difference between the two sides\' '
-      + 'non-penalty goals per game / goal difference per game (a mismatch); H2H GF–GA = goals per game for / against the home side in the last 5 meetings (all goals); '
+      + `${b.minBucket}+ games. LAST ${b.formN || 5} = BTTS games in each club's last ${b.formN || 5} league games (within 12 months); H2H = BTTS share of every league meeting since ${b.h2hFrom} (3+ meetings); `
+      + `SCORED 1+ = games with a goal in the last ${b.formN || 5}; NP GF/G = non-penalty goals per game over the last ${b.formN || 5}; NP GF GAP / GD GAP = difference between the two sides' `
+      + 'non-penalty goals per game / goal difference per game (a mismatch); H2H GF–GA = goals per game for / against the home side over all those meetings (all goals); '
       + `BOTH 1+ = model chance each team scores, multiplied; xG = the model's expected goals. Heat maps: cells shaded by distance from the base rate; grey = under ${b.minBucket} games. Source: ${b.source}.` }),
     el('div', { class: 'bt-wrap' }, el('table', { class: 'bt btts-feat' },
       el('thead', {}, el('tr', {}, el('th', { text: 'Before kickoff' }), el('th', { text: 'r' }), el('th', { text: 'Games' }),
