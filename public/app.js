@@ -35,7 +35,16 @@ function showError(msg) { $('error').textContent = msg; $('error').hidden = fals
 function hideError() { $('error').hidden = true; }
 
 // ------------------------------------------------------------------ controls
+async function showBranch() {
+  try {
+    const v = await api('/api/version');
+    $('branchHint').textContent = `Branch: ${v.branch}${v.commit ? ` · ${v.commit}` : ''}`;
+    $('branchHint').hidden = false;
+  } catch { /* hint is optional */ }
+}
+
 async function init() {
+  showBranch();
   try {
     const leagues = await api('/api/leagues');
     $('league').replaceChildren(...leagues.map((l) => el('option', { value: l.key, text: l.name })));
@@ -132,7 +141,7 @@ $('ctlChange').addEventListener('click', () => document.querySelector('.controls
 // Notes and the run log share the space under the table: opening one folds the other.
 document.addEventListener('toggle', (ev) => {
   const d = ev.target;
-  if (!d.open || !(d.id === 'log' || d.classList.contains('notes'))) return;
+  if (!d.open || !(d.id === 'log' || d.classList.contains('notes'))) return; // .backtest is also .notes
   for (const o of document.querySelectorAll('details.notes[open], details#log[open]')) if (o !== d) o.open = false;
 }, true);
 $('league').addEventListener('change', () => loadRounds(null, null));
@@ -256,6 +265,89 @@ function last5Cells(list) {
   return [games, recCell(r.join('-'), false)];
 }
 
+// ------------------------------------------------------------------ model (Poisson) column
+const pct = (x) => (x == null ? '—' : `${Math.round(100 * x)}%`);
+// Which figures came true on a finished game (outlined): win/draw, team 1+ / 2+, BTTS, over 2.5
+function hits(r) {
+  if (!r) return {};
+  return {
+    pH: r.hg > r.ag, pD: r.hg === r.ag, pA: r.hg < r.ag, h1: r.hg >= 1, h2: r.hg >= 2, a1: r.ag >= 1, a2: r.ag >= 2,
+    btts: r.hg > 0 && r.ag > 0, o25: r.hg + r.ag > 2,
+  };
+}
+const SIDE = { H: ['pH', 'h1', 'h2'], A: ['pA', 'a1', 'a2'] };
+
+// per team: xG, win %, P(scores 1+), P(scores 2+); `hit` outlines the cell that matched the result
+function modelTeamCells(p, side, result) {
+  if (!p) return [td('—', 'num muted sep'), td('—', 'num muted'), td('—', 'num muted'), td('—', 'num muted')];
+  const [xg, win, g1, g2] = side === 'H' ? [p.lh, p.pH, p.h1, p.h2] : [p.la, p.pA, p.a1, p.a2];
+  const H = hits(result);
+  const [kw, k1, k2] = SIDE[side];
+  const hit = H[kw];
+  const n = side === 'H' ? p.hN : p.aN;
+  const promoted = side === 'H' ? p.hPromoted : p.aPromoted;
+  return [
+    el('td', { class: 'num sep', title: `expected goals; strength from last season blended with ${n} game(s) this season${promoted ? ' (promoted: starts at last season\'s bottom-three level)' : ''}`, text: xg.toFixed(2) }),
+    td(pct(win), cls('num b', win >= 0.5 && 'good', hit && 'm-hit')),
+    td(pct(g1), cls('num', H[k1] && 'm-hit')), td(pct(g2), cls('num', H[k2] && 'm-hit')),
+  ];
+}
+// per fixture (rowspan 2): draw, both teams score, over 2.5
+function modelFixtureCells(p, result) {
+  if (!p) return [td('—', 'num muted', 2), td('—', 'num muted', 2), td('—', 'num muted', 2)];
+  const H = hits(result);
+  return [td(pct(p.pD), cls('num b', H.pD && 'm-hit'), 2), td(pct(p.btts), cls('num', H.btts && 'm-hit'), 2), td(pct(p.o25), cls('num', H.o25 && 'm-hit'), 2)];
+}
+
+// KALSHI / POLYMARKET cells: same figures as the model; amber when ≥5 points from the model
+const DIFF = 0.05;
+function marketCell(m, key, model, H, rowspan, extra) {
+  const v = m ? m[key] : null;
+  if (v == null) return td('—', cls('num muted', extra), rowspan);
+  const mv = model ? model[key] : null;
+  const far = mv != null && Math.abs(v - mv) >= DIFF;
+  const when = m.asOf === 'live' ? 'live price' : 'last price before kickoff';
+  const title = `${m.source} ${when}: ${pct(v)}${mv != null ? ` · model ${pct(mv)} (${v > mv ? '+' : ''}${Math.round(100 * (v - mv))} pts)` : ''}`;
+  return el('td', {
+    class: cls('num', extra, key === 'pH' || key === 'pA' || key === 'pD' ? 'b' : '', far && 'm-diff', H[key] && 'm-hit'), rowspan, title, text: pct(v),
+  });
+}
+function marketTeamCells(m, side, model, result) {
+  const H = hits(result);
+  const [kw, k1, k2] = SIDE[side];
+  return [marketCell(m, kw, model, H, null, 'sep'), marketCell(m, k1, model, H), marketCell(m, k2, model, H)];
+}
+function marketFixtureCells(m, model, result) {
+  const H = hits(result);
+  return ['pD', 'btts', 'o25'].map((k) => marketCell(m, k, model, H, 2));
+}
+const MARKETS = [['kalshi', 'KALSHI'], ['poly', 'POLYMARKET']];
+
+// Backtest panel: per season, model vs bookmakers (closing odds) vs base rate; lower Brier = better
+function backtestPanel(m) {
+  if (!m || !m.backtest) return null;
+  const b = m.backtest;
+  const f3 = (x) => (x == null ? '—' : x.toFixed(3));
+  const best = (vals, v) => (v != null && v === Math.min(...vals.filter((x) => x != null)) ? 'b good' : '');
+  const head = el('tr', {}, ...['Season', '', 'Games', 'W/D/L model', 'odds', 'base', 'Top pick model', 'odds',
+    'O2.5 model', 'odds', 'base', 'BTTS model', 'base'].map((x) => el('th', { text: x })));
+  const rows = b.seasons.map((r) => el('tr', {},
+    td(r.season, 'l'), td(r.role, 'l muted'), td(String(r.games), 'num'),
+    td(f3(r.brier.model), cls('num', best([r.brier.model, r.brier.market, r.brier.base], r.brier.model))),
+    td(f3(r.brier.market), cls('num', best([r.brier.model, r.brier.market, r.brier.base], r.brier.market))),
+    td(f3(r.brier.base), 'num muted'),
+    td(pct(r.topPick.model), 'num'), td(pct(r.topPick.market), 'num'),
+    td(f3(r.over25.model), cls('num', best([r.over25.model, r.over25.market, r.over25.base], r.over25.model))),
+    td(f3(r.over25.market), cls('num', best([r.over25.model, r.over25.market, r.over25.base], r.over25.market))),
+    td(f3(r.over25.base), 'num muted'),
+    td(f3(r.btts.model), cls('num', best([r.btts.model, r.btts.base], r.btts.model))), td(f3(r.btts.base), 'num muted')));
+  return el('details', { class: 'notes backtest' }, el('summary', { text: 'Model accuracy (backtest)' }),
+    el('p', { class: 'foot', text: `Each game predicted from games on earlier dates only, then scored against the result. Numbers are Brier scores: lower is better; `
+      + `"odds" = bookmakers' closing prices with the margin removed, "base" = last season's frequencies. Teams are rated on ${m.params.np ? 'non-penalty' : 'all'} goals. Settings K=${m.params.K}, rho=${m.params.rho} were chosen on the `
+      + `${b.tuneSeasons.join(' and ')} "tuning" seasons; "test" seasons were not used to choose them. Source: ${b.source}.` }),
+    el('div', { class: 'bt-wrap' }, el('table', { class: 'bt' }, el('thead', {}, head), el('tbody', {}, ...rows))));
+}
+
 function twoLine(a, aClass, b, bClass, extra) {
   return el('td', { class: cls('l two', extra), rowspan: 2 }, el('div', { class: aClass, text: a }), el('div', { class: bClass, text: b }));
 }
@@ -275,10 +367,15 @@ function renderChart(c) {
       group(c.histTitle, c.histLabels.length, 'sep'),
       group('SEASON RECORD  W-D-L', c.recLabels.length, 'sep'),
       th('FT / WIN%', { colspan: 2, class: 'sep' }), group('H2H LAST 5', 2, 'sep'), group('LAST 5', 2, 'sep'), th('WEATHER', { class: 'l sep' }), th('IMPORTANCE', { class: 'l sep' }),
+      ...(c.model ? [group('MODEL (Poisson)', 7, 'sep'), ...MARKETS.map(([, name]) => group(name, 6, 'sep'))] : []),
       ...(c.extraLabels || []).map((x) => th(x, { class: 'l sep' }))),
     el('tr', { class: 'sub' }, ...subs(c.standLabels), ...subs(c.histLabels), ...subs(c.recLabels),
       el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'GF-GA' }),
-      el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'W-D-L' })));
+      el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'W-D-L' }),
+      ...(c.model ? ['xG', 'WIN', '1+', '2+', 'DRAW', 'BTTS', 'O2.5'].map((x, k) => el('th', { class: cls(k === 0 && 'sep'), text: x })) : []),
+      ...(c.model ? MARKETS.flatMap(() => ['WIN', '1+', '2+', 'DRAW', 'BTTS', 'O2.5'].map((x, k) => el('th', {
+        class: cls(k === 0 && 'sep'), text: x, title: 'mid of bid/ask; live before kickoff, last price before kickoff once started; amber = ≥5 pts from the model',
+      }))) : [])));
 
   const bodies = c.fixtures.map((fx, i) => el('tbody', {
     class: cls('fx', fx.done ? 'done' : i % 2 === 1 && 'band'), 'data-teams': fx.teams.map((t) => t.team.toLowerCase()).join('|'),
@@ -309,10 +406,15 @@ function renderChart(c) {
           ...last5Cells(t.last5),
           twoLine(fx.wx[0], cls('wx1', WXC[fx.wx[2]]), fx.wx[1], 'wx2', 'sep'),
           twoLine(IMP[fx.imp[0]][0], cls('imp1', IMP[fx.imp[0]][1]), fx.imp[1], 'imp2', 'sep'),
+          ...(c.model ? [...modelTeamCells(fx.pred, 'H', fx.result), ...modelFixtureCells(fx.pred, fx.result),
+            ...MARKETS.flatMap(([k]) => [...marketTeamCells(fx[k], 'H', fx.pred, fx.result), ...marketFixtureCells(fx[k], fx.pred, fx.result)])] : []),
           ...(fx.extra || []).map((x) => td(x, 'l b sep', 2)),
         );
       }
-      if (ti === 1) cells.push(...h2hCells(t.h2h, c.histLabels[0]), ...last5Cells(t.last5));
+      if (ti === 1) {
+        cells.push(...h2hCells(t.h2h, c.histLabels[0]), ...last5Cells(t.last5),
+          ...(c.model ? [...modelTeamCells(fx.pred, 'A', fx.result), ...MARKETS.flatMap(([k]) => marketTeamCells(fx[k], 'A', fx.pred, fx.result))] : []));
+      }
       return el('tr', {}, cells);
     })));
 
@@ -322,6 +424,7 @@ function renderChart(c) {
     el('div', { class: 'table-wrap' }, el('table', { class: 'match', 'data-lock': 5 }, head, ...bodies)),
     el('details', { class: 'notes' }, el('summary', { text: 'Notes & sources' }),
       el('p', { class: 'foot', text: c.foot1 }), el('p', { class: 'foot', text: c.foot2 })),
+    backtestPanel(c.model),
   );
   $('chart').hidden = false;
   document.title = c.title;
