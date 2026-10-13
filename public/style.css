@@ -300,3 +300,17 @@ table.bt td.l { text-align: left; }
 
 /* KALSHI / POLYMARKET: amber = ≥5 pts away from the model */
 .match td.m-diff { background: #fdf0d5; }
+
+/* BTTS correlation panel */
+.btts[open] { max-height: 48vh; }
+.btts table.bt td { vertical-align: top; }
+.bt-lab { font-size: 10px; color: var(--sub); text-align: left; }
+.bt-bar { position: relative; width: 96px; height: 16px; background: var(--rule); border-radius: 3px; overflow: hidden; }
+.bt-fill { position: absolute; inset: 0 auto 0 0; background: #9aa7b4; opacity: .45; }
+.bt-bar.good .bt-fill { background: var(--good); }
+.bt-bar.bad .bt-fill { background: var(--bad); }
+.bt-txt { position: relative; font-size: 10.5px; line-height: 16px; padding-left: 4px; font-weight: 600; }
+.bt-bar.good .bt-txt { color: var(--good); }
+.bt-bar.bad .bt-txt { color: var(--bad); }
+.bt-val { font-weight: 600; }
+.bt-hist { font-size: 10.5px; color: var(--sub); }

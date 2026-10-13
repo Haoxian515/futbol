@@ -1,0 +1,6 @@
+{
+ "url": "https://archive-api.open-meteo.com/v1/archive?latitude=39.47391&longitude=-0.37966&timezone=Europe/Madrid&start_date=2023-10-18&end_date=2023-10-24&hourly=temperature_2m",
+ "status": 200,
+ "fetched_at": 1791872043.042,
+ "fetched_at_iso": "2026-10-13T06:14:03"
+}
