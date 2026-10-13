@@ -35,7 +35,16 @@ function showError(msg) { $('error').textContent = msg; $('error').hidden = fals
 function hideError() { $('error').hidden = true; }
 
 // ------------------------------------------------------------------ controls
+async function showBranch() {
+  try {
+    const v = await api('/api/version');
+    $('branchHint').textContent = `Branch: ${v.branch}${v.commit ? ` · ${v.commit}` : ''}`;
+    $('branchHint').hidden = false;
+  } catch { /* hint is optional */ }
+}
+
 async function init() {
+  showBranch();
   try {
     const leagues = await api('/api/leagues');
     $('league').replaceChildren(...leagues.map((l) => el('option', { value: l.key, text: l.name })));

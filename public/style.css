@@ -259,7 +259,8 @@ html, body { height: 100%; }
 body { display: flex; flex-direction: column; height: 100vh; height: 100dvh; overflow: hidden; }
 .controls { position: static; flex: none; }
 main { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; padding: 12px 24px 10px; }
-main > .error, main > .filter { flex: none; }
+main > .error, main > .filter, main > .branch-hint { flex: none; }
+.branch-hint { margin: -6px 0 10px; font-size: 11px; color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
 .chart { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
 .chart > h1, .chart > .subtitle { flex: none; }
 .chart h1 { font-size: 20px; }
