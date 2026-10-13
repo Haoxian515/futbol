@@ -6,7 +6,7 @@
   "functions": {
     "api/*.js": {
       "includeFiles": "data/**",
-      "maxDuration": 60
+      "maxDuration": 300
     }
   }
 }
