@@ -326,3 +326,7 @@ table.heat th { border: none; }
 
 .bt-help > summary { font-size: 11px; color: var(--sub); cursor: pointer; margin: 2px 0 4px; }
 @media (max-width: 700px) { .btts[open] { max-height: 55vh; } }
+
+/* LAST 10: non-penalty goals for-against (accent, like the np lines under GF/G); * = some games lack a penalty record */
+.np-gfga { color: var(--accent); font-weight: 600; }
+.np-gfga.partial { font-weight: 400; }

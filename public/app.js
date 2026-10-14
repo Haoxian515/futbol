@@ -253,16 +253,38 @@ function absentCells(absent) {
   return [cell(absent.inj, 'injured'), cell(absent.susp, 'suspended')];
 }
 
-// LAST 5: newest first, plus W-D-L over those games
+// LAST 10: newest first, plus W-D-L, goals for-against, and goals with penalties excluded
+const LAST10_SUBS = () => [
+  el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'W-D-L' }), el('th', { text: 'GF-GA' }),
+  el('th', { text: 'NP GF-GA', title: 'goals for-against with penalty goals excluded' }),
+];
 function last5Cells(list) {
-  if (!list || !list.length) return [td('—', 'l muted sep'), td('—', 'num muted')];
+  if (!list || !list.length) return [td('—', 'l muted sep'), td('—', 'num muted'), td('—', 'num muted'), td('—', 'num muted')];
   const games = el('td', { class: 'l h2h sep' }, list.map((g) => el('span', {
-    class: cls('h2h-g', RES[g.o]), title: `${g.date} · ${g.ha === 'H' ? 'home' : g.ha === 'N' ? 'neutral' : 'away'} v ${g.opp}${g.comp ? ` · ${g.comp}` : ''}`,
+    class: cls('h2h-g', RES[g.o]),
+    title: `${g.date} · ${g.ha === 'H' ? 'home' : g.ha === 'N' ? 'neutral' : 'away'} v ${g.opp}${g.comp ? ` · ${g.comp}` : ''}`
+      + `${g.pf ? ` · ${g.pf} pen scored` : ''}${g.pa ? ` · ${g.pa} pen conceded` : ''}`,
     text: `${g.o} ${g.gf}-${g.ga}`,
   })));
   const r = [0, 0, 0];
-  for (const g of list) r['WDL'.indexOf(g.o)] += 1;
-  return [games, recCell(r.join('-'), false)];
+  let gf = 0; let ga = 0; let pf = 0; let pa = 0; let known = 0;
+  for (const g of list) {
+    r['WDL'.indexOf(g.o)] += 1;
+    gf += g.gf; ga += g.ga;
+    if (g.pf != null && g.pa != null) { pf += g.pf; pa += g.pa; known += 1; }
+  }
+  const n = list.length;
+  const gCell = el('td', { class: 'num', title: `${n} games: ${(gf / n).toFixed(2)} for, ${(ga / n).toFixed(2)} against per game` }, `${gf}-${ga}`);
+  // non-penalty: penalties removed where the game has a record; * = some games have none
+  const npCell = known
+    ? el('td', {
+      class: cls('num', 'np-gfga', known < n && 'partial'),
+      title: `penalty goals excluded: ${pf} scored, ${pa} conceded from the spot`
+        + `${known < n ? ` · ${n - known} of ${n} games have no penalty record (counted with all goals)` : ''}`
+        + ` · ${((gf - pf) / n).toFixed(2)} for, ${((ga - pa) / n).toFixed(2)} against per game`,
+    }, `${gf - pf}-${ga - pa}${known < n ? '*' : ''}`)
+    : td('—', 'num muted');
+  return [games, recCell(r.join('-'), false), gCell, npCell];
 }
 
 // ------------------------------------------------------------------ model (Poisson) column
@@ -439,13 +461,13 @@ function renderChart(c) {
       th('GF/G'), th('GA/G'), th('GF/GA'), th('TOT/G'), th(c.lastLabel),
       group(c.histTitle, c.histLabels.length, 'sep'),
       group('SEASON RECORD  W-D-L', c.recLabels.length, 'sep'),
-      th('FT / WIN%', { colspan: 2, class: 'sep' }), group('H2H LAST 5', 2, 'sep'), group('LAST 5', 2, 'sep'), th('WEATHER', { class: 'l sep' }), th('IMPORTANCE', { class: 'l sep' }),
+      th('FT / WIN%', { colspan: 2, class: 'sep' }), group('H2H LAST 5', 2, 'sep'), group('LAST 10', 4, 'sep'), th('WEATHER', { class: 'l sep' }), th('IMPORTANCE', { class: 'l sep' }),
       ...(c.domesticLabels ? [group('DOMESTIC', c.domesticLabels.length, 'sep')] : []),
       ...(c.model ? [group('MODEL (Poisson)', 7, 'sep'), ...MARKETS.map(([, name]) => group(name, 6, 'sep'))] : []),
       ...(c.extraLabels || []).map((x) => th(x, { class: 'l sep' }))),
     el('tr', { class: 'sub' }, ...subs(c.standLabels), ...subs(c.histLabels), ...subs(c.recLabels),
       el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'GF-GA' }),
-      el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'W-D-L' }),
+      ...LAST10_SUBS(),
       ...(c.domesticLabels || []).map((x, k) => el('th', { class: cls(k === 0 && 'sep'), text: x })),
       ...(c.model ? ['xG', 'WIN', '1+', '2+', 'DRAW', 'BTTS', 'O2.5'].map((x, k) => el('th', { class: cls(k === 0 && 'sep'), text: x })) : []),
       ...(c.model ? MARKETS.flatMap(() => ['WIN', '1+', '2+', 'DRAW', 'BTTS', 'O2.5'].map((x, k) => el('th', {
@@ -517,10 +539,10 @@ function renderIntl(c) {
       th('TEAM', { class: 'l' }), th('H/A/N'), th('INJURED', { class: 'l' }), th('SUSP.', { class: 'l' }),
       th('GF/G', { class: 'sep' }), th('GA/G'), th('12-MO W-D-L'),
       th('FT', { colspan: 2, class: 'sep' }), el('th', { colspan: 2, class: 'group sep', text: 'H2H LAST 5' }),
-      el('th', { colspan: 2, class: 'group sep', text: 'LAST 5' }),
+      el('th', { colspan: 4, class: 'group sep', text: 'LAST 10' }),
       th('WEATHER', { class: 'l sep' }), th('IMPORTANCE', { class: 'l sep' })),
     el('tr', { class: 'sub' }, el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'GF-GA' }),
-      el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'W-D-L' })));
+      ...LAST10_SUBS()));
 
   const since = 'records began';
   const bodies = c.fixtures.map((fx, i) => el('tbody', {
