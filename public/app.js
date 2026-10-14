@@ -253,13 +253,13 @@ function absentCells(absent) {
   return [cell(absent.inj, 'injured'), cell(absent.susp, 'suspended')];
 }
 
-// LAST 10: newest first, plus W-D-L, goals for-against, and goals with penalties excluded
+// LAST 10: newest first, plus W-D-L and goals for-against (np line underneath: penalties excluded)
 const LAST10_SUBS = () => [
-  el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'W-D-L' }), el('th', { text: 'GF-GA' }),
-  el('th', { text: 'NP GF-GA', title: 'goals for-against with penalty goals excluded' }),
+  el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'W-D-L' }),
+  el('th', { text: 'GF-GA', title: 'goals for-against over the 10 games; np line = with penalty goals excluded, then penalties scored-conceded' }),
 ];
 function last5Cells(list) {
-  if (!list || !list.length) return [td('—', 'l muted sep'), td('—', 'num muted'), td('—', 'num muted'), td('—', 'num muted')];
+  if (!list || !list.length) return [td('—', 'l muted sep'), td('—', 'num muted'), td('—', 'num muted')];
   const games = el('td', { class: 'l h2h sep' }, list.map((g) => el('span', {
     class: cls('h2h-g', RES[g.o]),
     title: `${g.date} · ${g.ha === 'H' ? 'home' : g.ha === 'N' ? 'neutral' : 'away'} v ${g.opp}${g.comp ? ` · ${g.comp}` : ''}`
@@ -274,17 +274,21 @@ function last5Cells(list) {
     if (g.pf != null && g.pa != null) { pf += g.pf; pa += g.pa; known += 1; }
   }
   const n = list.length;
-  const gCell = el('td', { class: 'num', title: `${n} games: ${(gf / n).toFixed(2)} for, ${(ga / n).toFixed(2)} against per game` }, `${gf}-${ga}`);
-  // non-penalty: penalties removed where the game has a record; * = some games have none
-  const npCell = known
+  const per = (x) => (x / n).toFixed(2);
+  // like GF/G: goals on top, a small non-penalty line under them (penalties removed where the game
+  // has a record; (k/n) = only k of the n games have one, the rest count with all goals)
+  const part = known < n;
+  const gCell = known
     ? el('td', {
-      class: cls('num', 'np-gfga', known < n && 'partial'),
-      title: `penalty goals excluded: ${pf} scored, ${pa} conceded from the spot`
-        + `${known < n ? ` · ${n - known} of ${n} games have no penalty record (counted with all goals)` : ''}`
-        + ` · ${((gf - pf) / n).toFixed(2)} for, ${((ga - pa) / n).toFixed(2)} against per game`,
-    }, `${gf - pf}-${ga - pa}${known < n ? '*' : ''}`)
-    : td('—', 'num muted');
-  return [games, recCell(r.join('-'), false), gCell, npCell];
+      class: 'num gp',
+      title: `${n} games: ${gf}-${ga} (${per(gf)} for, ${per(ga)} against per game); `
+        + `${part ? `of the ${known} games with penalty records, ` : ''}${pf} penalties scored and ${pa} conceded; `
+        + `excluding them ${gf - pf}-${ga - pa} (${per(gf - pf)} for, ${per(ga - pa)} against per game)`,
+    }, el('div', { text: `${gf}-${ga}` }), el('div', {
+      class: cls('np', pf + pa > 0 && 'np-has'), text: `np ${gf - pf}-${ga - pa} · ${pf}-${pa}P${part ? ` (${known}/${n})` : ''}`,
+    }))
+    : el('td', { class: 'num', title: `${n} games: ${per(gf)} for, ${per(ga)} against per game; no penalty records` }, `${gf}-${ga}`);
+  return [games, recCell(r.join('-'), false), gCell];
 }
 
 // ------------------------------------------------------------------ model (Poisson) column
@@ -461,7 +465,7 @@ function renderChart(c) {
       th('GF/G'), th('GA/G'), th('GF/GA'), th('TOT/G'), th(c.lastLabel),
       group(c.histTitle, c.histLabels.length, 'sep'),
       group('SEASON RECORD  W-D-L', c.recLabels.length, 'sep'),
-      th('FT / WIN%', { colspan: 2, class: 'sep' }), group('H2H LAST 5', 2, 'sep'), group('LAST 10', 4, 'sep'), th('WEATHER', { class: 'l sep' }), th('IMPORTANCE', { class: 'l sep' }),
+      th('FT / WIN%', { colspan: 2, class: 'sep' }), group('H2H LAST 5', 2, 'sep'), group('LAST 10', 3, 'sep'), th('WEATHER', { class: 'l sep' }), th('IMPORTANCE', { class: 'l sep' }),
       ...(c.domesticLabels ? [group('DOMESTIC', c.domesticLabels.length, 'sep')] : []),
       ...(c.model ? [group('MODEL (Poisson)', 7, 'sep'), ...MARKETS.map(([, name]) => group(name, 6, 'sep'))] : []),
       ...(c.extraLabels || []).map((x) => th(x, { class: 'l sep' }))),
@@ -539,7 +543,7 @@ function renderIntl(c) {
       th('TEAM', { class: 'l' }), th('H/A/N'), th('INJURED', { class: 'l' }), th('SUSP.', { class: 'l' }),
       th('GF/G', { class: 'sep' }), th('GA/G'), th('12-MO W-D-L'),
       th('FT', { colspan: 2, class: 'sep' }), el('th', { colspan: 2, class: 'group sep', text: 'H2H LAST 5' }),
-      el('th', { colspan: 4, class: 'group sep', text: 'LAST 10' }),
+      el('th', { colspan: 3, class: 'group sep', text: 'LAST 10' }),
       th('WEATHER', { class: 'l sep' }), th('IMPORTANCE', { class: 'l sep' })),
     el('tr', { class: 'sub' }, el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'GF-GA' }),
       ...LAST10_SUBS()));
