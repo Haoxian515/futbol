@@ -138,12 +138,6 @@ async function buildChart() {
 
 $('controls').addEventListener('submit', (ev) => { ev.preventDefault(); buildChart(); });
 $('ctlChange').addEventListener('click', () => document.querySelector('.controls').classList.remove('collapsed'));
-// Notes and the run log share the space under the table: opening one folds the other.
-document.addEventListener('toggle', (ev) => {
-  const d = ev.target;
-  if (!d.open || !(d.id === 'log' || d.classList.contains('notes'))) return; // .backtest is also .notes
-  for (const o of document.querySelectorAll('details.notes[open], details#log[open]')) if (o !== d) o.open = false;
-}, true);
 $('league').addEventListener('change', () => loadRounds(null, null));
 $('round').addEventListener('change', buildChart);
 $('historyRound').addEventListener('change', buildChart);
@@ -629,8 +623,24 @@ function lockLayout() {
   const top1 = table.tHead.rows[0].getBoundingClientRect().height;
   for (const th of table.tHead.rows[0].cells) th.style.top = '0px';
   if (table.tHead.rows[1]) for (const th of table.tHead.rows[1].cells) th.style.top = `${top1}px`;
+  followHead();
 }
 window.addEventListener('resize', lockLayout);
+
+// The page scrolls (the table shows every row), so the table's box only scrolls sideways — and a
+// box that scrolls sideways can't keep a sticky header in view while the page moves. Instead the
+// header rows are shifted down by however far the table's top has scrolled above the window,
+// stopping just before its last rows.
+function followHead() {
+  const table = $('chart').querySelector('table.match');
+  if (!table || !table.tHead) return;
+  const wrap = table.parentElement;
+  const r = wrap.getBoundingClientRect();
+  const hh = table.tHead.getBoundingClientRect().height;
+  const off = Math.max(0, Math.min(-r.top, r.height - hh - 60));
+  for (const row of table.tHead.rows) for (const th of row.cells) th.style.transform = off ? `translateY(${off}px)` : '';
+}
+window.addEventListener('scroll', followHead, { passive: true });
 
 // Team filter: hides fixtures whose teams don't match (all chart types).
 function applyFilter() {
