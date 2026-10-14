@@ -112,7 +112,6 @@ async function buildChart() {
     const data = await api(`/api/chart?${qs}`);
     renderChart(data.chart);
     $('filterBox').hidden = false;
-    $('fitBtn').hidden = false;
     applyFilter();
     renderLog(data.log);
     const n = data.meta.network;
@@ -145,15 +144,6 @@ document.addEventListener('toggle', (ev) => {
   if (!d.open || !(d.id === 'log' || d.classList.contains('notes'))) return; // .backtest is also .notes
   for (const o of document.querySelectorAll('details.notes[open], details#log[open]')) if (o !== d) o.open = false;
 }, true);
-// opening or closing a panel under the table changes its box: re-fit
-document.addEventListener('toggle', (ev) => {
-  if (ev.target.id === 'log' || (ev.target.classList && ev.target.classList.contains('notes'))) requestAnimationFrame(lockLayout);
-}, true);
-$('fitBtn').addEventListener('click', () => {
-  fitOn = !fitOn;
-  try { localStorage.setItem('fitHeight', fitOn ? '1' : '0'); } catch { /* per-viewer convenience only */ }
-  lockLayout();
-});
 $('league').addEventListener('change', () => loadRounds(null, null));
 $('round').addEventListener('change', buildChart);
 $('historyRound').addEventListener('change', buildChart);
@@ -599,51 +589,15 @@ function renderIntl(c) {
 // data-lock columns (DAY DATE TIME [VENUE] TEAM H/A) stick to its left edge. Cells are mapped to
 // logical columns through their rowspans/colspans, and the offsets are measured from the header,
 // so this re-runs whenever column widths can change (render, filter, resize).
-// Fit to screen: when the match table is taller than its box, shrink it (CSS zoom) so the whole
-// round fits without scrolling down — never below FIT_MIN, so text stays readable (a very long
-// table still scrolls past that). Toggle next to the team filter; the choice is remembered.
-const FIT_MIN = () => (window.innerWidth < 700 ? 0.8 : 0.55);
-let fitOn = (() => { try { return localStorage.getItem('fitHeight') !== '0'; } catch { return true; } })();
-function fitTable() {
-  const table = $('chart').querySelector('table.match');
-  if (!table) return;
-  table.style.zoom = '';
-  table.classList.remove('compact');
-  const btn = $('fitBtn');
-  if (btn) { btn.setAttribute('aria-pressed', String(fitOn)); btn.classList.toggle('on', fitOn); }
-  if (!fitOn) return;
-  const wrap = table.parentElement;
-  const avail = wrap.clientHeight - 2;
-  if (!(table.offsetHeight > avail && avail > 0)) return;
-  // too tall: first tighten the rows (same text size), then shrink whatever is still over
-  table.classList.add('compact');
-  const natural = table.offsetHeight;
-  if (natural <= avail) return;
-  let z = Math.max(FIT_MIN(), avail / natural);
-  table.style.zoom = z.toFixed(3);
-  // shrinking changes how cells wrap, so the first guess can be a little off: refine a few times
-  for (let i = 0; i < 4 && z > FIT_MIN() && wrap.scrollHeight > wrap.clientHeight + 1; i++) {
-    z = Math.max(FIT_MIN(), z * (wrap.clientHeight - 2) / wrap.scrollHeight);
-    table.style.zoom = z.toFixed(3);
-  }
-}
-
 function lockLayout() {
-  fitTable();
-  lockPanes();
-}
-
-function lockPanes() {
   const table = $('chart').querySelector('table.match[data-lock]');
   if (!table) return;
   const n = +table.dataset.lock;
-  // on-screen sizes are scaled by the fit zoom; sticky offsets inside the table are not
-  const k = parseFloat(table.style.zoom) || 1;
   const heads = [...table.tHead.rows[0].cells].slice(0, n);
-  const widths = heads.map((th) => th.getBoundingClientRect().width / k);
+  const widths = heads.map((th) => th.getBoundingClientRect().width);
   // narrow screens (phones): locking all n would leave no room to scroll, so keep only TEAM and H/A
   const all = widths.reduce((a, w) => a + w, 0);
-  const narrow = table.parentElement.clientWidth < 2 * all * k;
+  const narrow = table.parentElement.clientWidth < 2 * all;
   const locked = narrow ? [n - 2, n - 1] : [...Array(n).keys()];
   const left = {};
   let x = 0;
@@ -672,22 +626,11 @@ function lockPanes() {
   grid([...table.tHead.rows]);
   for (const tb of table.tBodies) grid([...tb.rows]);
 
-  const top1 = table.tHead.rows[0].getBoundingClientRect().height / k;
+  const top1 = table.tHead.rows[0].getBoundingClientRect().height;
   for (const th of table.tHead.rows[0].cells) th.style.top = '0px';
   if (table.tHead.rows[1]) for (const th of table.tHead.rows[1].cells) th.style.top = `${top1}px`;
 }
 window.addEventListener('resize', lockLayout);
-// the space for the table changes when anything around it does (the run log appearing, the
-// filter row, header collapsing, window size): re-fit then. The chart area's size doesn't depend
-// on the table (it fills what main has left), so re-fitting can't loop.
-if (window.ResizeObserver) {
-  let pending = false;
-  new ResizeObserver(() => {
-    if (pending) return;
-    pending = true;
-    requestAnimationFrame(() => { pending = false; lockLayout(); });
-  }).observe($('chart'));
-}
 
 // Team filter: hides fixtures whose teams don't match (all chart types).
 function applyFilter() {

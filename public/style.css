@@ -260,7 +260,7 @@ body { display: flex; flex-direction: column; height: 100vh; height: 100dvh; ove
 .controls { position: static; flex: none; }
 main { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; padding: 12px 24px 10px; }
 main > .error, main > .filter, main > .branch-hint { flex: none; }
-.branch-hint { margin: 2px 0 8px; font-size: 11px; color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.branch-hint { margin: -6px 0 10px; font-size: 11px; color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
 .chart { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
 .chart > h1, .chart > .subtitle { flex: none; }
 .chart h1 { font-size: 20px; }
@@ -326,14 +326,3 @@ table.heat th { border: none; }
 
 .bt-help > summary { font-size: 11px; color: var(--sub); cursor: pointer; margin: 2px 0 4px; }
 @media (max-width: 700px) { .btts[open] { max-height: 55vh; } }
-
-/* Fit to screen toggle, beside the team filter */
-.filter-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; }
-main > .filter-row { flex: none; }
-.filter-row .filter { margin-bottom: 0; }
-.fit-btn { font: inherit; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding: 4px 10px; border-radius: 4px;
-  border: 1px solid var(--rule); background: transparent; color: var(--sub); cursor: pointer; }
-.fit-btn.on { border-color: var(--accent); color: var(--accent); }
-/* fit to screen: tighter rows before any shrinking */
-.match.compact td { height: 22px; padding-top: 1px; padding-bottom: 1px; }
-.match.compact th { padding-top: 3px; padding-bottom: 2px; }
