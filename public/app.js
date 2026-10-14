@@ -420,6 +420,11 @@ function twoLine(a, aClass, b, bClass, extra) {
   return el('td', { class: cls('l two', extra), rowspan: 2 }, el('div', { class: aClass, text: a }), el('div', { class: bClass, text: b }));
 }
 
+// DOMESTIC group (Champions League): one cell per value, hover for the detail
+const domCells = (t, c) => (c.domesticLabels ? (t.domestic || []).map((d, k) => el('td', {
+  class: cls('num', k === 0 && 'sep', d.text === '—' && 'muted', d.tone), title: d.title, text: d.text,
+})) : []);
+
 function renderChart(c) {
   if (c.kind === 'intl') return renderIntl(c);
   const th = (text, props = {}) => el('th', { rowspan: 2, ...props, text });
@@ -435,11 +440,13 @@ function renderChart(c) {
       group(c.histTitle, c.histLabels.length, 'sep'),
       group('SEASON RECORD  W-D-L', c.recLabels.length, 'sep'),
       th('FT / WIN%', { colspan: 2, class: 'sep' }), group('H2H LAST 5', 2, 'sep'), group('LAST 5', 2, 'sep'), th('WEATHER', { class: 'l sep' }), th('IMPORTANCE', { class: 'l sep' }),
+      ...(c.domesticLabels ? [group('DOMESTIC', c.domesticLabels.length, 'sep')] : []),
       ...(c.model ? [group('MODEL (Poisson)', 7, 'sep'), ...MARKETS.map(([, name]) => group(name, 6, 'sep'))] : []),
       ...(c.extraLabels || []).map((x) => th(x, { class: 'l sep' }))),
     el('tr', { class: 'sub' }, ...subs(c.standLabels), ...subs(c.histLabels), ...subs(c.recLabels),
       el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'GF-GA' }),
       el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'W-D-L' }),
+      ...(c.domesticLabels || []).map((x, k) => el('th', { class: cls(k === 0 && 'sep'), text: x })),
       ...(c.model ? ['xG', 'WIN', '1+', '2+', 'DRAW', 'BTTS', 'O2.5'].map((x, k) => el('th', { class: cls(k === 0 && 'sep'), text: x })) : []),
       ...(c.model ? MARKETS.flatMap(() => ['WIN', '1+', '2+', 'DRAW', 'BTTS', 'O2.5'].map((x, k) => el('th', {
         class: cls(k === 0 && 'sep'), text: x, title: 'mid of bid/ask; live before kickoff, last price before kickoff once started; amber = ≥5 pts from the model',
@@ -474,13 +481,14 @@ function renderChart(c) {
           ...last5Cells(t.last5),
           twoLine(fx.wx[0], cls('wx1', WXC[fx.wx[2]]), fx.wx[1], 'wx2', 'sep'),
           twoLine(IMP[fx.imp[0]][0], cls('imp1', IMP[fx.imp[0]][1]), fx.imp[1], 'imp2', 'sep'),
+          ...domCells(t, c),
           ...(c.model ? [...modelTeamCells(fx.pred, 'H', fx.result), ...modelFixtureCells(fx.pred, fx.result),
             ...MARKETS.flatMap(([k]) => [...marketTeamCells(fx[k], 'H', fx.pred, fx.result), ...marketFixtureCells(fx[k], fx.pred, fx.result)])] : []),
           ...(fx.extra || []).map((x) => td(x, 'l b sep', 2)),
         );
       }
       if (ti === 1) {
-        cells.push(...h2hCells(t.h2h, c.histLabels[0]), ...last5Cells(t.last5),
+        cells.push(...h2hCells(t.h2h, c.histLabels[0]), ...last5Cells(t.last5), ...domCells(t, c),
           ...(c.model ? [...modelTeamCells(fx.pred, 'A', fx.result), ...MARKETS.flatMap(([k]) => marketTeamCells(fx[k], 'A', fx.pred, fx.result))] : []));
       }
       return el('tr', {}, cells);
