@@ -105,10 +105,9 @@ main { padding: 18px 24px 48px; }
 .chart h1 { margin: 4px 0; font-size: 24px; font-weight: 700; }
 .subtitle { margin: 0 0 14px; font-size: 12px; color: var(--sub); }
 .table-wrap {
-  /* the only vertical scroller on the page (see the app shell below) */
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow: auto;
+  /* full height (the page scrolls, not the table); wide tables scroll sideways inside it */
+  overflow-x: auto;
+  overflow-y: hidden;
   position: relative;
 }
 
@@ -251,32 +250,25 @@ table.match {
 #controls select { max-width: 100%; min-width: 0; flex: 0 1 auto; }
 
 /* ---------------------------------------------------------------- app shell
-   The page itself never scrolls: controls on top, the chart fills the rest of the window, and
-   only the table's box scrolls (both ways). Notes and the run log fold away under it and scroll
-   inside themselves when opened. */
+   The page scrolls; the table never scrolls up and down on its own (it shows every row), only
+   sideways when it is wider than the window, with DAY…H/A frozen. Its header rows follow the page
+   as you scroll down (app.js followHead). Notes, the model/BTTS panels and the run log open in
+   place under it. */
 [hidden] { display: none !important; }
-html, body { height: 100%; }
-body { display: flex; flex-direction: column; height: 100vh; height: 100dvh; overflow: hidden; }
-.controls { position: static; flex: none; }
-main { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; padding: 12px 24px 10px; }
-main > .error, main > .filter, main > .branch-hint { flex: none; }
+.controls { position: static; }
+main { padding: 12px 24px 24px; }
 .branch-hint { margin: -6px 0 10px; font-size: 11px; color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
-.chart { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
-.chart > h1, .chart > .subtitle { flex: none; }
 .chart h1 { font-size: 20px; }
 .subtitle { margin-bottom: 8px; }
-.notes, .log { flex: none; }
 .notes { margin-top: 8px; font-size: 12px; }
 .notes summary, .log summary { cursor: pointer; font-weight: 700; color: var(--sub); font-size: 12px; }
-.notes[open] { max-height: 30vh; overflow: auto; }
 .log { margin-top: 8px; padding: 6px 14px; }
-.log[open] { max-height: 40vh; overflow: auto; }
 
 /* phones: after a build the controls fold into one line ("Premier League · Matchweek 6  Change") */
 .ctl-summary { display: none; align-items: center; justify-content: space-between; gap: 10px; font-weight: 600; }
 .ctl-summary button { font: inherit; font-size: 12px; padding: 4px 10px; }
 @media (max-width: 700px) {
-  main { padding: 8px 12px 8px; }
+  main { padding: 8px 12px 16px; }
   .controls { padding: 8px 12px; }
   .controls.collapsed .ctl-summary { display: flex; }
   .controls.collapsed #controls { display: none; }
@@ -291,7 +283,6 @@ main > .error, main > .filter, main > .branch-hint { flex: none; }
 
 /* MODEL column + backtest panel */
 .match td.m-hit { outline: 2px solid var(--good); outline-offset: -3px; border-radius: 3px; }
-.backtest[open] { max-height: 45vh; }
 .bt-wrap { overflow-x: auto; }
 table.bt { border-collapse: collapse; font-size: 11.5px; font-variant-numeric: tabular-nums; margin: 6px 0 4px; }
 table.bt th { font-size: 10px; color: var(--sub); padding: 3px 8px; text-align: center; white-space: nowrap; border-bottom: 1px solid var(--rule); }
@@ -302,7 +293,6 @@ table.bt td.l { text-align: left; }
 .match td.m-diff { background: #fdf0d5; }
 
 /* BTTS correlation panel */
-.btts[open] { max-height: 48vh; }
 .btts table.bt td { vertical-align: top; }
 .bt-lab { font-size: 10px; color: var(--sub); text-align: left; }
 .bt-bar { position: relative; width: 96px; height: 16px; background: var(--rule); border-radius: 3px; overflow: hidden; }
@@ -320,3 +310,26 @@ table.bt td.l { text-align: left; }
 table.heat td { min-width: 58px; border: 1px solid var(--rule); line-height: 1.15; }
 table.heat th { border: none; }
 .bt-n { font-size: 9.5px; color: var(--sub); }
+
+.bt-help > summary { font-size: 11px; color: var(--sub); cursor: pointer; margin: 2px 0 4px; }
+
+/* "Next up" strip under the controls */
+.upcoming { display: flex; align-items: center; gap: 10px; padding: 6px 24px; border-bottom: 1px solid var(--rule); background: var(--band); }
+.up-title { flex: none; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--sub); }
+.up-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.up-chip { display: inline-flex; align-items: baseline; gap: 6px; font: inherit; font-size: 12px; padding: 3px 9px; border-radius: 12px;
+  border: 1px solid var(--rule); background: #fff; color: inherit; cursor: pointer; white-space: nowrap; }
+.up-chip:hover { border-color: var(--accent); }
+.up-date { font-weight: 700; color: var(--sub); font-variant-numeric: tabular-nums; }
+.up-chip.soon .up-date { color: var(--accent); }
+.up-name { font-weight: 600; }
+.up-round { color: var(--sub); font-size: 11px; }
+@media (max-width: 700px) {
+  .upcoming { padding: 6px 12px; }
+  .up-list { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+}
+
+/* BTTS correlation: always shown under the match table */
+.btts { margin-top: 16px; font-size: 12px; }
+.btts-h { margin: 0 0 4px; font-size: 15px; font-weight: 700; }
+.btts-sub { font-size: 12px; font-weight: 400; color: var(--sub); }

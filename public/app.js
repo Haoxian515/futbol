@@ -56,6 +56,31 @@ async function init() {
   }
 }
 
+// "Next up" strip under the controls: each competition's next match (date + round), soonest
+// first; click one to chart that round.
+async function loadUpcoming() {
+  let data;
+  try { data = await api('/api/upcoming'); } catch { return; } // optional strip
+  if (!data.items || !data.items.length) return;
+  const tomorrow = new Date(`${data.today}T12:00:00Z`);
+  tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+  // today / tomorrow: date shown in blue
+  const rel = (d) => d === data.today || d === tomorrow.toISOString().slice(0, 10);
+  $('upList').replaceChildren(...data.items.map((u) => el('button', {
+    type: 'button', class: cls('up-chip', rel(u.date) && 'soon'), title: `${u.name} — ${u.roundWord} ${u.round}, next match ${u.day} ${u.label}`,
+  },
+  el('span', { class: 'up-date', text: `${u.day} ${u.label}` }),
+  el('span', { class: 'up-name', text: u.name.replace(/^UEFA /, '') }),
+  el('span', { class: 'up-round', text: `${u.roundWord} ${u.round}` }))));
+  [...$('upList').children].forEach((b, i) => b.addEventListener('click', async () => {
+    const u = data.items[i];
+    $('league').value = u.key;
+    await loadRounds(u.round, null);
+    buildChart();
+  }));
+  $('upcoming').hidden = false;
+}
+
 async function loadRounds(preferredRound, preferredHistory) {
   const sel = $('round');
   sel.disabled = true;
@@ -138,12 +163,6 @@ async function buildChart() {
 
 $('controls').addEventListener('submit', (ev) => { ev.preventDefault(); buildChart(); });
 $('ctlChange').addEventListener('click', () => document.querySelector('.controls').classList.remove('collapsed'));
-// Notes and the run log share the space under the table: opening one folds the other.
-document.addEventListener('toggle', (ev) => {
-  const d = ev.target;
-  if (!d.open || !(d.id === 'log' || d.classList.contains('notes'))) return; // .backtest is also .notes
-  for (const o of document.querySelectorAll('details.notes[open], details#log[open]')) if (o !== d) o.open = false;
-}, true);
 $('league').addEventListener('change', () => loadRounds(null, null));
 $('round').addEventListener('change', buildChart);
 $('historyRound').addEventListener('change', buildChart);
@@ -253,16 +272,42 @@ function absentCells(absent) {
   return [cell(absent.inj, 'injured'), cell(absent.susp, 'suspended')];
 }
 
-// LAST 5: newest first, plus W-D-L over those games
+// LAST 10: newest first, plus W-D-L and goals for-against (np line underneath: penalties excluded)
+const LAST10_SUBS = () => [
+  el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'W-D-L' }),
+  el('th', { text: 'GF-GA', title: 'goals for-against over the 10 games; np line = with penalty goals excluded, then penalties scored-conceded' }),
+];
 function last5Cells(list) {
-  if (!list || !list.length) return [td('—', 'l muted sep'), td('—', 'num muted')];
+  if (!list || !list.length) return [td('—', 'l muted sep'), td('—', 'num muted'), td('—', 'num muted')];
   const games = el('td', { class: 'l h2h sep' }, list.map((g) => el('span', {
-    class: cls('h2h-g', RES[g.o]), title: `${g.date} · ${g.ha === 'H' ? 'home' : g.ha === 'N' ? 'neutral' : 'away'} v ${g.opp}${g.comp ? ` · ${g.comp}` : ''}`,
+    class: cls('h2h-g', RES[g.o]),
+    title: `${g.date} · ${g.ha === 'H' ? 'home' : g.ha === 'N' ? 'neutral' : 'away'} v ${g.opp}${g.comp ? ` · ${g.comp}` : ''}`
+      + `${g.pf ? ` · ${g.pf} pen scored` : ''}${g.pa ? ` · ${g.pa} pen conceded` : ''}`,
     text: `${g.o} ${g.gf}-${g.ga}`,
   })));
   const r = [0, 0, 0];
-  for (const g of list) r['WDL'.indexOf(g.o)] += 1;
-  return [games, recCell(r.join('-'), false)];
+  let gf = 0; let ga = 0; let pf = 0; let pa = 0; let known = 0;
+  for (const g of list) {
+    r['WDL'.indexOf(g.o)] += 1;
+    gf += g.gf; ga += g.ga;
+    if (g.pf != null && g.pa != null) { pf += g.pf; pa += g.pa; known += 1; }
+  }
+  const n = list.length;
+  const per = (x) => (x / n).toFixed(2);
+  // like GF/G: goals on top, a small non-penalty line under them (penalties removed where the game
+  // has a record; (k/n) = only k of the n games have one, the rest count with all goals)
+  const part = known < n;
+  const gCell = known
+    ? el('td', {
+      class: 'num gp',
+      title: `${n} games: ${gf}-${ga} (${per(gf)} for, ${per(ga)} against per game); `
+        + `${part ? `of the ${known} games with penalty records, ` : ''}${pf} penalties scored and ${pa} conceded; `
+        + `excluding them ${gf - pf}-${ga - pa} (${per(gf - pf)} for, ${per(ga - pa)} against per game)`,
+    }, el('div', { text: `${gf}-${ga}` }), el('div', {
+      class: cls('np', pf + pa > 0 && 'np-has'), text: `np ${gf - pf}-${ga - pa} · ${pf}-${pa}P${part ? ` (${known}/${n})` : ''}`,
+    }))
+    : el('td', { class: 'num', title: `${n} games: ${per(gf)} for, ${per(ga)} against per game; no penalty records` }, `${gf}-${ga}`);
+  return [games, recCell(r.join('-'), false), gCell];
 }
 
 // ------------------------------------------------------------------ model (Poisson) column
@@ -350,11 +395,6 @@ function backtestPanel(m) {
 
 // BTTS correlation panel: historic BTTS rate by what was known before kickoff, and where this
 // round's fixtures fall. A bucket is coloured when it is 5+ pts off the base rate on enough games.
-const bttsOpen = () => { try { return localStorage.getItem('bttsOpen') === '1'; } catch { return false; } };
-document.addEventListener('toggle', (ev) => {
-  if (!ev.target.classList || !ev.target.classList.contains('btts')) return;
-  try { localStorage.setItem('bttsOpen', ev.target.open ? '1' : '0'); } catch { /* per-viewer convenience only */ }
-}, true);
 function bttsPanel(b) {
   if (!b || !b.features) return null;
   const tone = (rate, n) => (rate == null || n < b.minBucket ? '' : rate >= b.base + 0.05 ? 'good' : rate <= b.base - 0.05 ? 'bad' : '');
@@ -399,13 +439,16 @@ function bttsPanel(b) {
       }),
       td(both == null ? '—' : both ? 'Yes' : 'No', cls(both == null ? 'muted' : both ? 'good b' : 'bad b')));
   });
-  return el('details', { class: 'notes btts', open: bttsOpen() }, el('summary', { text: `BTTS correlation (history) — both teams scored in ${pct(b.base)} of ${b.games} games, ${b.seasons}` }),
-    el('p', { class: 'foot', text: 'Each past league game is described by what was known before kickoff (earlier games only); bars = how often both teams then scored, with the number of games. '
+  // always shown, right under the match table
+  return el('section', { class: 'btts' },
+    el('h2', { class: 'btts-h' }, 'BTTS correlation (history)',
+      el('span', { class: 'btts-sub', text: ` — both teams scored in ${pct(b.base)} of ${b.games} games, ${b.seasons}` })),
+    el('details', { class: 'bt-help' }, el('summary', { text: 'How to read this' }), el('p', { class: 'foot', text: 'Each past game is described by what was known before kickoff (earlier games only); bars = how often both teams then scored, with the number of games. '
       + 'r = correlation with BTTS (0 = none, ±1 = perfect; |r| < 0.1 is weak). Green / red = 5+ pts above / below the base rate on '
-      + `${b.minBucket}+ games. LAST ${b.formN || 5} = BTTS games in each club's last ${b.formN || 5} league games (within 12 months); H2H = BTTS share of every league meeting since ${b.h2hFrom} (3+ meetings); `
+      + `${b.minBucket}+ games. LAST ${b.formN || 5} = BTTS games in each club's last ${b.formN || 5} ${b.formDesc || 'league games'} (within 12 months); H2H = BTTS share of every ${b.h2hDesc || 'league meeting'} since ${b.h2hFrom} (${b.h2hMin || 3}+ meetings); `
       + `SCORED 1+ = games with a goal in the last ${b.formN || 5}; NP GF/G = non-penalty goals per game over the last ${b.formN || 5}; NP GF GAP / GD GAP = difference between the two sides' `
       + 'non-penalty goals per game / goal difference per game (a mismatch); H2H GF–GA = goals per game for / against the home side over all those meetings (all goals); '
-      + `BOTH 1+ = model chance each team scores, multiplied; xG = the model's expected goals. Heat maps: cells shaded by distance from the base rate; grey = under ${b.minBucket} games. Source: ${b.source}.` }),
+      + `BOTH 1+ = model chance each team scores, multiplied; xG = the model's expected goals. Heat maps: cells shaded by distance from the base rate; grey = under ${b.minBucket} games. Source: ${b.source}.` })),
     el('div', { class: 'bt-wrap' }, el('table', { class: 'bt btts-feat' },
       el('thead', {}, el('tr', {}, el('th', { text: 'Before kickoff' }), el('th', { text: 'r' }), el('th', { text: 'Games' }),
         el('th', { text: 'BTTS rate by bucket (rate · games)', colspan: maxB }))),
@@ -419,6 +462,11 @@ function bttsPanel(b) {
 function twoLine(a, aClass, b, bClass, extra) {
   return el('td', { class: cls('l two', extra), rowspan: 2 }, el('div', { class: aClass, text: a }), el('div', { class: bClass, text: b }));
 }
+
+// DOMESTIC group (Champions League): one cell per value, hover for the detail
+const domCells = (t, c) => (c.domesticLabels ? (t.domestic || []).map((d, k) => el('td', {
+  class: cls('num', k === 0 && 'sep', d.text === '—' && 'muted', d.tone), title: d.title, text: d.text,
+})) : []);
 
 function renderChart(c) {
   if (c.kind === 'intl') return renderIntl(c);
@@ -434,12 +482,14 @@ function renderChart(c) {
       th('GF/G'), th('GA/G'), th('GF/GA'), th('TOT/G'), th(c.lastLabel),
       group(c.histTitle, c.histLabels.length, 'sep'),
       group('SEASON RECORD  W-D-L', c.recLabels.length, 'sep'),
-      th('FT / WIN%', { colspan: 2, class: 'sep' }), group('H2H LAST 5', 2, 'sep'), group('LAST 5', 2, 'sep'), th('WEATHER', { class: 'l sep' }), th('IMPORTANCE', { class: 'l sep' }),
+      th('FT / WIN%', { colspan: 2, class: 'sep' }), group('H2H LAST 5', 2, 'sep'), group('LAST 10', 3, 'sep'), th('WEATHER', { class: 'l sep' }), th('IMPORTANCE', { class: 'l sep' }),
+      ...(c.domesticLabels ? [group('DOMESTIC', c.domesticLabels.length, 'sep')] : []),
       ...(c.model ? [group('MODEL (Poisson)', 7, 'sep'), ...MARKETS.map(([, name]) => group(name, 6, 'sep'))] : []),
       ...(c.extraLabels || []).map((x) => th(x, { class: 'l sep' }))),
     el('tr', { class: 'sub' }, ...subs(c.standLabels), ...subs(c.histLabels), ...subs(c.recLabels),
       el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'GF-GA' }),
-      el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'W-D-L' }),
+      ...LAST10_SUBS(),
+      ...(c.domesticLabels || []).map((x, k) => el('th', { class: cls(k === 0 && 'sep'), text: x })),
       ...(c.model ? ['xG', 'WIN', '1+', '2+', 'DRAW', 'BTTS', 'O2.5'].map((x, k) => el('th', { class: cls(k === 0 && 'sep'), text: x })) : []),
       ...(c.model ? MARKETS.flatMap(() => ['WIN', '1+', '2+', 'DRAW', 'BTTS', 'O2.5'].map((x, k) => el('th', {
         class: cls(k === 0 && 'sep'), text: x, title: 'mid of bid/ask; live before kickoff, last price before kickoff once started; amber = ≥5 pts from the model',
@@ -474,13 +524,14 @@ function renderChart(c) {
           ...last5Cells(t.last5),
           twoLine(fx.wx[0], cls('wx1', WXC[fx.wx[2]]), fx.wx[1], 'wx2', 'sep'),
           twoLine(IMP[fx.imp[0]][0], cls('imp1', IMP[fx.imp[0]][1]), fx.imp[1], 'imp2', 'sep'),
+          ...domCells(t, c),
           ...(c.model ? [...modelTeamCells(fx.pred, 'H', fx.result), ...modelFixtureCells(fx.pred, fx.result),
             ...MARKETS.flatMap(([k]) => [...marketTeamCells(fx[k], 'H', fx.pred, fx.result), ...marketFixtureCells(fx[k], fx.pred, fx.result)])] : []),
           ...(fx.extra || []).map((x) => td(x, 'l b sep', 2)),
         );
       }
       if (ti === 1) {
-        cells.push(...h2hCells(t.h2h, c.histLabels[0]), ...last5Cells(t.last5),
+        cells.push(...h2hCells(t.h2h, c.histLabels[0]), ...last5Cells(t.last5), ...domCells(t, c),
           ...(c.model ? [...modelTeamCells(fx.pred, 'A', fx.result), ...MARKETS.flatMap(([k]) => marketTeamCells(fx[k], 'A', fx.pred, fx.result))] : []));
       }
       return el('tr', {}, cells);
@@ -490,9 +541,9 @@ function renderChart(c) {
     el('h1', { text: c.title }),
     el('p', { class: 'subtitle', text: c.sub }),
     el('div', { class: 'table-wrap' }, el('table', { class: 'match', 'data-lock': 5 }, head, ...bodies)),
+    bttsPanel(c.btts),
     el('details', { class: 'notes' }, el('summary', { text: 'Notes & sources' }),
       el('p', { class: 'foot', text: c.foot1 }), el('p', { class: 'foot', text: c.foot2 })),
-    bttsPanel(c.btts),
     backtestPanel(c.model),
   );
   $('chart').hidden = false;
@@ -509,10 +560,10 @@ function renderIntl(c) {
       th('TEAM', { class: 'l' }), th('H/A/N'), th('INJURED', { class: 'l' }), th('SUSP.', { class: 'l' }),
       th('GF/G', { class: 'sep' }), th('GA/G'), th('12-MO W-D-L'),
       th('FT', { colspan: 2, class: 'sep' }), el('th', { colspan: 2, class: 'group sep', text: 'H2H LAST 5' }),
-      el('th', { colspan: 2, class: 'group sep', text: 'LAST 5' }),
+      el('th', { colspan: 3, class: 'group sep', text: 'LAST 10' }),
       th('WEATHER', { class: 'l sep' }), th('IMPORTANCE', { class: 'l sep' })),
     el('tr', { class: 'sub' }, el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'GF-GA' }),
-      el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'W-D-L' })));
+      ...LAST10_SUBS()));
 
   const since = 'records began';
   const bodies = c.fixtures.map((fx, i) => el('tbody', {
@@ -595,8 +646,24 @@ function lockLayout() {
   const top1 = table.tHead.rows[0].getBoundingClientRect().height;
   for (const th of table.tHead.rows[0].cells) th.style.top = '0px';
   if (table.tHead.rows[1]) for (const th of table.tHead.rows[1].cells) th.style.top = `${top1}px`;
+  followHead();
 }
 window.addEventListener('resize', lockLayout);
+
+// The page scrolls (the table shows every row), so the table's box only scrolls sideways — and a
+// box that scrolls sideways can't keep a sticky header in view while the page moves. Instead the
+// header rows are shifted down by however far the table's top has scrolled above the window,
+// stopping just before its last rows.
+function followHead() {
+  const table = $('chart').querySelector('table.match');
+  if (!table || !table.tHead) return;
+  const wrap = table.parentElement;
+  const r = wrap.getBoundingClientRect();
+  const hh = table.tHead.getBoundingClientRect().height;
+  const off = Math.max(0, Math.min(-r.top, r.height - hh - 60));
+  for (const row of table.tHead.rows) for (const th of row.cells) th.style.transform = off ? `translateY(${off}px)` : '';
+}
+window.addEventListener('scroll', followHead, { passive: true });
 
 // Team filter: hides fixtures whose teams don't match (all chart types).
 function applyFilter() {
@@ -633,3 +700,4 @@ function renderLog(log) {
 }
 
 init();
+loadUpcoming();
