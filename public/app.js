@@ -56,6 +56,30 @@ async function init() {
   }
 }
 
+// "Next up" strip under the controls: each competition's next match (date + round), soonest
+// first; click one to chart that round.
+async function loadUpcoming() {
+  let data;
+  try { data = await api('/api/upcoming'); } catch { return; } // optional strip
+  if (!data.items || !data.items.length) return;
+  const tomorrow = new Date(`${data.today}T12:00:00Z`);
+  tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+  const rel = (d) => (d === data.today ? 'Today' : d === tomorrow.toISOString().slice(0, 10) ? 'Tomorrow' : null);
+  $('upList').replaceChildren(...data.items.map((u) => el('button', {
+    type: 'button', class: cls('up-chip', rel(u.date) && 'soon'), title: `${u.name} — ${u.roundWord} ${u.round}, next match ${u.day} ${u.label}`,
+  },
+  el('span', { class: 'up-date', text: rel(u.date) || `${u.day} ${u.label}` }),
+  el('span', { class: 'up-name', text: u.name.replace(/^UEFA /, '') }),
+  el('span', { class: 'up-round', text: `${u.roundWord} ${u.round}` }))));
+  [...$('upList').children].forEach((b, i) => b.addEventListener('click', async () => {
+    const u = data.items[i];
+    $('league').value = u.key;
+    await loadRounds(u.round, null);
+    buildChart();
+  }));
+  $('upcoming').hidden = false;
+}
+
 async function loadRounds(preferredRound, preferredHistory) {
   const sel = $('round');
   sel.disabled = true;
@@ -677,3 +701,4 @@ function renderLog(log) {
 }
 
 init();
+loadUpcoming();

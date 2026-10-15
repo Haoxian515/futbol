@@ -312,3 +312,19 @@ table.heat th { border: none; }
 .bt-n { font-size: 9.5px; color: var(--sub); }
 
 .bt-help > summary { font-size: 11px; color: var(--sub); cursor: pointer; margin: 2px 0 4px; }
+
+/* "Next up" strip under the controls */
+.upcoming { display: flex; align-items: center; gap: 10px; padding: 6px 24px; border-bottom: 1px solid var(--rule); background: var(--band); }
+.up-title { flex: none; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--sub); }
+.up-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.up-chip { display: inline-flex; align-items: baseline; gap: 6px; font: inherit; font-size: 12px; padding: 3px 9px; border-radius: 12px;
+  border: 1px solid var(--rule); background: #fff; color: inherit; cursor: pointer; white-space: nowrap; }
+.up-chip:hover { border-color: var(--accent); }
+.up-date { font-weight: 700; color: var(--sub); font-variant-numeric: tabular-nums; }
+.up-chip.soon .up-date { color: var(--accent); }
+.up-name { font-weight: 600; }
+.up-round { color: var(--sub); font-size: 11px; }
+@media (max-width: 700px) {
+  .upcoming { padding: 6px 12px; }
+  .up-list { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+}
