@@ -395,11 +395,6 @@ function backtestPanel(m) {
 
 // BTTS correlation panel: historic BTTS rate by what was known before kickoff, and where this
 // round's fixtures fall. A bucket is coloured when it is 5+ pts off the base rate on enough games.
-const bttsOpen = () => { try { return localStorage.getItem('bttsOpen') === '1'; } catch { return false; } };
-document.addEventListener('toggle', (ev) => {
-  if (!ev.target.classList || !ev.target.classList.contains('btts')) return;
-  try { localStorage.setItem('bttsOpen', ev.target.open ? '1' : '0'); } catch { /* per-viewer convenience only */ }
-}, true);
 function bttsPanel(b) {
   if (!b || !b.features) return null;
   const tone = (rate, n) => (rate == null || n < b.minBucket ? '' : rate >= b.base + 0.05 ? 'good' : rate <= b.base - 0.05 ? 'bad' : '');
@@ -444,7 +439,10 @@ function bttsPanel(b) {
       }),
       td(both == null ? '—' : both ? 'Yes' : 'No', cls(both == null ? 'muted' : both ? 'good b' : 'bad b')));
   });
-  return el('details', { class: 'notes btts', open: bttsOpen() }, el('summary', { text: `BTTS correlation (history) — both teams scored in ${pct(b.base)} of ${b.games} games, ${b.seasons}` }),
+  // always shown, right under the match table
+  return el('section', { class: 'btts' },
+    el('h2', { class: 'btts-h' }, 'BTTS correlation (history)',
+      el('span', { class: 'btts-sub', text: ` — both teams scored in ${pct(b.base)} of ${b.games} games, ${b.seasons}` })),
     el('details', { class: 'bt-help' }, el('summary', { text: 'How to read this' }), el('p', { class: 'foot', text: 'Each past game is described by what was known before kickoff (earlier games only); bars = how often both teams then scored, with the number of games. '
       + 'r = correlation with BTTS (0 = none, ±1 = perfect; |r| < 0.1 is weak). Green / red = 5+ pts above / below the base rate on '
       + `${b.minBucket}+ games. LAST ${b.formN || 5} = BTTS games in each club's last ${b.formN || 5} ${b.formDesc || 'league games'} (within 12 months); H2H = BTTS share of every ${b.h2hDesc || 'league meeting'} since ${b.h2hFrom} (${b.h2hMin || 3}+ meetings); `
@@ -543,9 +541,9 @@ function renderChart(c) {
     el('h1', { text: c.title }),
     el('p', { class: 'subtitle', text: c.sub }),
     el('div', { class: 'table-wrap' }, el('table', { class: 'match', 'data-lock': 5 }, head, ...bodies)),
+    bttsPanel(c.btts),
     el('details', { class: 'notes' }, el('summary', { text: 'Notes & sources' }),
       el('p', { class: 'foot', text: c.foot1 }), el('p', { class: 'foot', text: c.foot2 })),
-    bttsPanel(c.btts),
     backtestPanel(c.model),
   );
   $('chart').hidden = false;

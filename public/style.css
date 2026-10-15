@@ -328,3 +328,8 @@ table.heat th { border: none; }
   .upcoming { padding: 6px 12px; }
   .up-list { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
 }
+
+/* BTTS correlation: always shown under the match table */
+.btts { margin-top: 16px; font-size: 12px; }
+.btts-h { margin: 0 0 4px; font-size: 15px; font-weight: 700; }
+.btts-sub { font-size: 12px; font-weight: 400; color: var(--sub); }
