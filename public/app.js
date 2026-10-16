@@ -243,18 +243,6 @@ function resCell(res) {
   return td(`${fmt0(res.pct)}%`, cls('num big sep', res.pct >= 50 && 'good', res.pct >= 55 && 'b'));
 }
 
-function h2hCells(h, since) {
-  if (!h) return [td('—', 'l muted sep'), td('—', 'num muted')];
-  if (!h.games.length) return [td(`none since ${since}`, 'l muted h2h sep'), td('—', 'num muted')];
-  const games = el('td', { class: 'l h2h sep' }, h.games.map((g) => el('span', {
-    class: cls('h2h-g', RES[g.o]),
-    title: `${g.season}${g.date ? ` · ${g.date}` : ''} · ${g.ha === 'H' ? 'home' : 'away'}`,
-    text: `${g.o} ${g.gf}-${g.ga}`,
-  })));
-  const c = h.gf > h.ga ? 'good b' : h.gf < h.ga ? 'bad b' : '';
-  return [games, td(`${h.gf}-${h.ga}`, cls('num big', c))];
-}
-
 // INJURED / SUSP. cells (the repurposed STAR / STATUS columns): count + the two most-used players,
 // full list on hover. absent = { inj, susp } or null when there is no source / not applicable.
 function absentCells(absent) {
@@ -272,23 +260,30 @@ function absentCells(absent) {
   return [cell(absent.inj, 'injured'), cell(absent.susp, 'suspended')];
 }
 
-// LAST 10: newest first, plus W-D-L and goals for-against (np line underneath: penalties excluded)
-const LAST10_SUBS = () => [
+// H2H LAST 5 and LAST 10 share one set of columns: the games (newest first), W-D-L, goals
+// for-against with a small non-penalty line underneath, and how many of those games the club
+// scored 0 / 1 / 2 / 3+ goals in (out of the games shown).
+const GOAL_BINS = ['0', '1', '2', '3+'];
+const FORM_N_COLS = 3 + GOAL_BINS.length;
+const FORM_SUBS = (what) => [
   el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'W-D-L' }),
-  el('th', { text: 'GF-GA', title: 'goals for-against over the 10 games; np line = with penalty goals excluded, then penalties scored-conceded' }),
+  el('th', { text: 'GF-GA', title: `goals for-against over the ${what}; np line = with penalty goals excluded, then penalties scored-conceded` }),
+  ...GOAL_BINS.map((b, k) => el('th', { class: cls('gbin', k === 0 && 'gbin-first'), text: `${b} G`, title: `${what} in which the club scored ${b} goal${b === '1' ? '' : 's'}` })),
 ];
-function last5Cells(list) {
-  if (!list || !list.length) return [td('—', 'l muted sep'), td('—', 'num muted'), td('—', 'num muted')];
+function formCells(list, { empty = '—', colorGoals = false } = {}) {
+  if (!list || !list.length) return [td(empty, 'l muted h2h sep'), ...Array.from({ length: FORM_N_COLS - 1 }, (_, k) => td('—', cls('num muted', k === 2 && 'gbin-first')))];
   const games = el('td', { class: 'l h2h sep' }, list.map((g) => el('span', {
     class: cls('h2h-g', RES[g.o]),
-    title: `${g.date} · ${g.ha === 'H' ? 'home' : g.ha === 'N' ? 'neutral' : 'away'} v ${g.opp}${g.comp ? ` · ${g.comp}` : ''}`
-      + `${g.pf ? ` · ${g.pf} pen scored` : ''}${g.pa ? ` · ${g.pa} pen conceded` : ''}`,
+    title: `${g.season ? `${g.season} · ` : ''}${g.date || ''} · ${g.ha === 'H' ? 'home' : g.ha === 'N' ? 'neutral' : 'away'}${g.opp ? ` v ${g.opp}` : ''}`
+      + `${g.comp ? ` · ${g.comp}` : ''}${g.pf ? ` · ${g.pf} pen scored` : ''}${g.pa ? ` · ${g.pa} pen conceded` : ''}`,
     text: `${g.o} ${g.gf}-${g.ga}`,
   })));
   const r = [0, 0, 0];
+  const bins = [0, 0, 0, 0];
   let gf = 0; let ga = 0; let pf = 0; let pa = 0; let known = 0;
   for (const g of list) {
     r['WDL'.indexOf(g.o)] += 1;
+    bins[Math.min(g.gf, 3)] += 1;
     gf += g.gf; ga += g.ga;
     if (g.pf != null && g.pa != null) { pf += g.pf; pa += g.pa; known += 1; }
   }
@@ -297,18 +292,27 @@ function last5Cells(list) {
   // like GF/G: goals on top, a small non-penalty line under them (penalties removed where the game
   // has a record; (k/n) = only k of the n games have one, the rest count with all goals)
   const part = known < n;
+  const tone = colorGoals ? (gf > ga ? 'good b' : gf < ga ? 'bad b' : '') : '';
   const gCell = known
     ? el('td', {
       class: 'num gp',
       title: `${n} games: ${gf}-${ga} (${per(gf)} for, ${per(ga)} against per game); `
         + `${part ? `of the ${known} games with penalty records, ` : ''}${pf} penalties scored and ${pa} conceded; `
         + `excluding them ${gf - pf}-${ga - pa} (${per(gf - pf)} for, ${per(ga - pa)} against per game)`,
-    }, el('div', { text: `${gf}-${ga}` }), el('div', {
+    }, el('div', { class: tone, text: `${gf}-${ga}` }), el('div', {
       class: cls('np', pf + pa > 0 && 'np-has'), text: `np ${gf - pf}-${ga - pa} · ${pf}-${pa}P${part ? ` (${known}/${n})` : ''}`,
     }))
-    : el('td', { class: 'num', title: `${n} games: ${per(gf)} for, ${per(ga)} against per game; no penalty records` }, `${gf}-${ga}`);
-  return [games, recCell(r.join('-'), false), gCell];
+    : el('td', { class: cls('num', tone), title: `${n} games: ${per(gf)} for, ${per(ga)} against per game; no penalty records` }, `${gf}-${ga}`);
+  // goals-scored counts: the most common count in bold, zeros faded
+  const top = Math.max(...bins);
+  const binCells = bins.map((k, i) => el('td', {
+    class: cls('num gbin', i === 0 && 'gbin-first', k === 0 ? 'muted' : k === top && 'b'),
+    title: `scored ${GOAL_BINS[i]} goal${GOAL_BINS[i] === '1' ? '' : 's'} in ${k} of ${n} games (${Math.round((100 * k) / n)}%)`,
+  }, `${k}/${n}`));
+  return [games, recCell(r.join('-'), false), gCell, ...binCells];
 }
+const h2hCells = (h, since) => formCells(h && h.games, { empty: h ? `none since ${since}` : '—', colorGoals: true });
+const last5Cells = (list) => formCells(list);
 
 // ------------------------------------------------------------------ model (Poisson) column
 const pct = (x) => (x == null ? '—' : `${Math.round(100 * x)}%`);
@@ -482,13 +486,12 @@ function renderChart(c) {
       th('GF/G'), th('GA/G'), th('GF/GA'), th('TOT/G'), th(c.lastLabel),
       group(c.histTitle, c.histLabels.length, 'sep'),
       group('SEASON RECORD  W-D-L', c.recLabels.length, 'sep'),
-      th('FT / WIN%', { colspan: 2, class: 'sep' }), group('H2H LAST 5', 2, 'sep'), group('LAST 10', 3, 'sep'), th('WEATHER', { class: 'l sep' }), th('IMPORTANCE', { class: 'l sep' }),
+      th('FT / WIN%', { colspan: 2, class: 'sep' }), group('H2H LAST 5', FORM_N_COLS, 'sep'), group('LAST 10', FORM_N_COLS, 'sep'), th('WEATHER', { class: 'l sep' }), th('IMPORTANCE', { class: 'l sep' }),
       ...(c.domesticLabels ? [group('DOMESTIC', c.domesticLabels.length, 'sep')] : []),
       ...(c.model ? [group('MODEL (Poisson)', 7, 'sep'), ...MARKETS.map(([, name]) => group(name, 6, 'sep'))] : []),
       ...(c.extraLabels || []).map((x) => th(x, { class: 'l sep' }))),
     el('tr', { class: 'sub' }, ...subs(c.standLabels), ...subs(c.histLabels), ...subs(c.recLabels),
-      el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'GF-GA' }),
-      ...LAST10_SUBS(),
+      ...FORM_SUBS('meetings'), ...FORM_SUBS('10 games'),
       ...(c.domesticLabels || []).map((x, k) => el('th', { class: cls(k === 0 && 'sep'), text: x })),
       ...(c.model ? ['xG', 'WIN', '1+', '2+', 'DRAW', 'BTTS', 'O2.5'].map((x, k) => el('th', { class: cls(k === 0 && 'sep'), text: x })) : []),
       ...(c.model ? MARKETS.flatMap(() => ['WIN', '1+', '2+', 'DRAW', 'BTTS', 'O2.5'].map((x, k) => el('th', {
@@ -559,11 +562,10 @@ function renderIntl(c) {
       th('DAY', { class: 'l' }), th('DATE', { class: 'l' }), th('TIME (PT)', { class: 'l' }), th('VENUE', { class: 'l' }),
       th('TEAM', { class: 'l' }), th('H/A/N'), th('INJURED', { class: 'l' }), th('SUSP.', { class: 'l' }),
       th('GF/G', { class: 'sep' }), th('GA/G'), th('12-MO W-D-L'),
-      th('FT', { colspan: 2, class: 'sep' }), el('th', { colspan: 2, class: 'group sep', text: 'H2H LAST 5' }),
-      el('th', { colspan: 3, class: 'group sep', text: 'LAST 10' }),
+      th('FT', { colspan: 2, class: 'sep' }), el('th', { colspan: FORM_N_COLS, class: 'group sep', text: 'H2H LAST 5' }),
+      el('th', { colspan: FORM_N_COLS, class: 'group sep', text: 'LAST 10' }),
       th('WEATHER', { class: 'l sep' }), th('IMPORTANCE', { class: 'l sep' })),
-    el('tr', { class: 'sub' }, el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'GF-GA' }),
-      ...LAST10_SUBS()));
+    el('tr', { class: 'sub' }, ...FORM_SUBS('meetings'), ...FORM_SUBS('10 games')));
 
   const since = 'records began';
   const bodies = c.fixtures.map((fx, i) => el('tbody', {
