@@ -27,7 +27,14 @@
 7. Weather only from a real forecast ≤7 days out (Open-Meteo, kickoff
    hour, stadium coords); otherwise "TBC".
 8. Live standings overrule running tallies for NOW records and positions.
-9. Renderer (chart.py -> src/render.py) is deterministic code, never an
+9. HISTORY IS STORED, NOT RE-PULLED: anything finished (past seasons, played games' penalties,
+   pre-kickoff market prices, past weather, settled rounds' market listings) is fetched with a
+   TTL >= HISTORIC_TTL (lib/fetch.js) so it lands in data/archive and is never downloaded again;
+   heavy history goes to compact committed stores instead (data/ucl/history.json, data/h2h/,
+   data/penalties/, data/markets/). Commit new data/archive + store files with the change.
+   scripts/archive_audit.js lists what finished rounds still download; scripts/warm_archive.js
+   fills the archive.
+10. Renderer (chart.py -> src/render.py) is deterministic code, never an
    agent. Blocked until checks/gates.py passes for the round. chart.py runs
    the whole loop itself: fetch (network) -> verify (offline) -> gates ->
    render, and exits 3 without drawing anything if a gate fails.

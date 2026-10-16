@@ -1,0 +1,6 @@
+{
+ "url": "https://archive-api.open-meteo.com/v1/archive?latitude=45.8138556&longitude=9.072375&timezone=auto&start_date=2026-09-10&end_date=2026-09-10&hourly=temperature_2m,weathercode,precipitation",
+ "status": 200,
+ "fetched_at": 1792138109.274,
+ "fetched_at_iso": "2026-10-16T08:08:29"
+}
