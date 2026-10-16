@@ -337,3 +337,5 @@ table.heat th { border: none; }
 /* H2H / LAST 10: games with 0 / 1 / 2 / 3+ goals scored */
 .match td.gbin, .match th.gbin { padding-left: 3px; padding-right: 3px; font-size: 11px; font-variant-numeric: tabular-nums; }
 .match td.gbin-first, .match th.gbin-first { border-left: 1px dotted var(--rule); padding-left: 6px; }
+.bt-th2 { font-size: 9px; font-weight: 400; color: var(--muted); text-transform: none; letter-spacing: 0; }
+.btts-round .bt-val { white-space: nowrap; }
