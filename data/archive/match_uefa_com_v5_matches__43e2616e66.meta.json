@@ -1,6 +1,0 @@
-{
- "url": "https://match.uefa.com/v5/matches?competitionId=1&seasonYear=2024&limit=100&offset=100&order=ASC",
- "status": 200,
- "fetched_at": 1791908120.223,
- "fetched_at_iso": "2026-10-13T16:15:20"
-}

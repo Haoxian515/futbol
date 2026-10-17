@@ -6,7 +6,8 @@
    ever filled from model memory. The verifier agent has no network access
    by design — it can only bless or reject cached data.
 2. COMPLETE-ROUND RULE: a round chart contains every fixture of the round
-   (PL/La Liga 10, UCL league phase 18, Ligue 1 9, NL League A 8). The
+   (PL/La Liga/Serie A 10, Ligue 1/Bundesliga 9, UCL/UEL league phase 18,
+   NL League A 8). The
    FIXTURE CALENDAR is the authority for what exists; odds feeds only
    decorate. Missing odds/times/forecasts = "—", never omitted rows.
    Moved/catch-up games appear in their labeled round with FT score.

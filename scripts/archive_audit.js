@@ -18,11 +18,13 @@ process.env.FUTBOL_NO_ARCHIVE = '1'; // read the archive, don't add to it
 const { Fetcher } = require('../lib/fetch');
 const model = require('../lib/model');
 const ucl = require('../lib/ucl');
+const uel = require('../lib/uel');
 const nations = require('../lib/nations');
 
 const comps = [
   ...Object.keys(model.LEAGUES).map((k) => [k, (f) => model.listRounds(k, f), (n, f) => model.build(k, n, null, f, new model.RunLog())]),
   ['ucl', (f) => ucl.listRounds(f), (n, f) => ucl.build(n, null, f, new model.RunLog())],
+  ['uel', (f) => uel.listRounds(f), (n, f) => uel.build(n, null, f, new model.RunLog())],
   ...nations.LETTERS.map((lg) => [nations.info(lg).key, (f) => nations.listRounds(lg, f), (n, f) => nations.build(lg, n, null, f, new model.RunLog())]),
 ];
 
