@@ -1,6 +1,0 @@
-{
- "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/fra.1/scoreboard?dates=20241121",
- "status": 200,
- "fetched_at": 1791872745.366,
- "fetched_at_iso": "2026-10-13T06:25:45"
-}

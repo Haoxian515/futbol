@@ -9,6 +9,7 @@ const path = require('path');
 const { Fetcher, ARCHIVE_DIR } = require('../lib/fetch');
 const model = require('../lib/model');
 const ucl = require('../lib/ucl');
+const uel = require('../lib/uel');
 const nations = require('../lib/nations');
 
 const count = () => (fs.existsSync(ARCHIVE_DIR) ? fs.readdirSync(ARCHIVE_DIR).filter((f) => f.endsWith('.meta.json')).length : 0);
@@ -16,6 +17,7 @@ const count = () => (fs.existsSync(ARCHIVE_DIR) ? fs.readdirSync(ARCHIVE_DIR).fi
 const comps = [
   ...Object.keys(model.LEAGUES).map((k) => [k, (f) => model.listRounds(k, f), (n, f, log) => model.build(k, n, null, f, log)]),
   ['ucl', (f) => ucl.listRounds(f), (n, f, log) => ucl.build(n, null, f, log)],
+  ['uel', (f) => uel.listRounds(f), (n, f, log) => uel.build(n, null, f, log)],
   ...nations.LETTERS.map((lg) => [nations.info(lg).key, (f) => nations.listRounds(lg, f), (n, f, log) => nations.build(lg, n, null, f, log)]),
 ];
 

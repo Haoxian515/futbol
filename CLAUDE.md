@@ -6,7 +6,8 @@
    ever filled from model memory. The verifier agent has no network access
    by design — it can only bless or reject cached data.
 2. COMPLETE-ROUND RULE: a round chart contains every fixture of the round
-   (PL/La Liga 10, UCL league phase 18, Ligue 1 9, NL League A 8). The
+   (PL/La Liga/Serie A 10, Ligue 1/Bundesliga 9, UCL/UEL league phase 18,
+   NL League A 8). The
    FIXTURE CALENDAR is the authority for what exists; odds feeds only
    decorate. Missing odds/times/forecasts = "—", never omitted rows.
    Moved/catch-up games appear in their labeled round with FT score.
@@ -17,7 +18,8 @@
 5. FULL COLUMN SET, never drop a column:
    DAY|DATE|TIME (PT)|TEAM|H/A|INJURED|SUSP.|STANDING('26,'24,'25,NOW)|GF/G|
    GA/G|GF/GA|TOT/G|LAST|MATCH-N HIST '23-'26|SEASON RECORD '23-'26+NOW|
-   FT/WIN%|H2H LAST 5|LAST 10 (results, W-D-L, GF-GA with non-penalty line)|WEATHER|IMPORTANCE. League extra_columns append
+   FT/WIN%|H2H LAST 5 and LAST 10 (each: results, W-D-L, GF-GA with non-penalty line, games
+   with 0/1/2/3+ goals scored)|WEATHER|IMPORTANCE. League extra_columns append
    after the core set.
 6. INJURED / SUSP. (formerly STAR / STATUS, repurposed by the owner) come
    only from a dated injuries & suspensions source (SportsGambler league
@@ -26,7 +28,14 @@
 7. Weather only from a real forecast ≤7 days out (Open-Meteo, kickoff
    hour, stadium coords); otherwise "TBC".
 8. Live standings overrule running tallies for NOW records and positions.
-9. Renderer (chart.py -> src/render.py) is deterministic code, never an
+9. HISTORY IS STORED, NOT RE-PULLED: anything finished (past seasons, played games' penalties,
+   pre-kickoff market prices, past weather, settled rounds' market listings) is fetched with a
+   TTL >= HISTORIC_TTL (lib/fetch.js) so it lands in data/archive and is never downloaded again;
+   heavy history goes to compact committed stores instead (data/ucl/history.json, data/h2h/,
+   data/penalties/, data/markets/). Commit new data/archive + store files with the change.
+   scripts/archive_audit.js lists what finished rounds still download; scripts/warm_archive.js
+   fills the archive.
+10. Renderer (chart.py -> src/render.py) is deterministic code, never an
    agent. Blocked until checks/gates.py passes for the round. chart.py runs
    the whole loop itself: fetch (network) -> verify (offline) -> gates ->
    render, and exits 3 without drawing anything if a gate fails.

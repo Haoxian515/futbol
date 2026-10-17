@@ -1,6 +1,0 @@
-{
- "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/esp.1/scoreboard?dates=20231204",
- "status": 200,
- "fetched_at": 1791872725.629,
- "fetched_at_iso": "2026-10-13T06:25:25"
-}

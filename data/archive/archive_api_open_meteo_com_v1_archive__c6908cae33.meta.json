@@ -1,0 +1,6 @@
+{
+ "url": "https://archive-api.open-meteo.com/v1/archive?latitude=48.37154&longitude=10.89851&timezone=Europe/Berlin&start_date=2026-09-12&end_date=2026-09-12&hourly=temperature_2m,weathercode,precipitation",
+ "status": 200,
+ "fetched_at": 1792220050.951,
+ "fetched_at_iso": "2026-10-17T06:54:10"
+}

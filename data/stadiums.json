@@ -238,5 +238,113 @@
   "lat": 52.9536,
   "lon": -1.15047,
   "geocoded": "Nottingham, England, GB"
+ },
+ "Augsburg": {
+  "city": "Augsburg",
+  "lat": 48.37154,
+  "lon": 10.89851,
+  "geocoded": "Augsburg, Bavaria, DE"
+ },
+ "Bayern München": {
+  "city": "Munich",
+  "lat": 48.13743,
+  "lon": 11.57549,
+  "geocoded": "Munich, Bavaria, DE"
+ },
+ "Borussia Dortmund": {
+  "city": "Dortmund",
+  "lat": 51.51494,
+  "lon": 7.466,
+  "geocoded": "Dortmund, North Rhine-Westphalia, DE"
+ },
+ "Freiburg": {
+  "city": "Freiburg",
+  "lat": 47.9959,
+  "lon": 7.85222,
+  "geocoded": "Freiburg im Breisgau, Baden-Wurttemberg, DE"
+ },
+ "Köln": {
+  "city": "Cologne",
+  "lat": 50.93333,
+  "lon": 6.95,
+  "geocoded": "Cologne, North Rhine-Westphalia, DE"
+ },
+ "Mainz": {
+  "city": "Mainz",
+  "lat": 49.98185,
+  "lon": 8.28008,
+  "geocoded": "Mainz, Rhineland-Palatinate, DE"
+ },
+ "RB Leipzig": {
+  "city": "Leipzig",
+  "lat": 51.33962,
+  "lon": 12.37129,
+  "geocoded": "Leipzig, Saxony, DE"
+ },
+ "SV Elversberg": {
+  "city": "Elversberg",
+  "lat": 49.31667,
+  "lon": 7.13333,
+  "geocoded": "Spiesen-Elversberg, Saarland, DE"
+ },
+ "Union Berlin": {
+  "city": "Berlin",
+  "lat": 52.52437,
+  "lon": 13.41053,
+  "geocoded": "Berlin, State of Berlin, DE"
+ },
+ "Bayer Leverkusen": {
+  "city": "Leverkusen",
+  "lat": 51.0303,
+  "lon": 6.98432,
+  "geocoded": "Leverkusen, North Rhine-Westphalia, DE"
+ },
+ "Borussia Mönchengladbach": {
+  "city": "Mönchengladbach",
+  "lat": 51.18539,
+  "lon": 6.44172,
+  "geocoded": "Mönchengladbach, North Rhine-Westphalia, DE"
+ },
+ "Eintracht Frankfurt": {
+  "city": "Frankfurt",
+  "lat": 50.11552,
+  "lon": 8.68417,
+  "geocoded": "Frankfurt am Main, Hesse, DE"
+ },
+ "Hamburg": {
+  "city": "Hamburg",
+  "lat": 53.55073,
+  "lon": 9.99302,
+  "geocoded": "Hamburg, Free and Hanseatic City of Hamburg, DE"
+ },
+ "Hoffenheim": {
+  "city": "Sinsheim",
+  "lat": 49.2529,
+  "lon": 8.87867,
+  "geocoded": "Sinsheim, Baden-Wurttemberg, DE"
+ },
+ "SC Paderborn": {
+  "city": "Paderborn",
+  "lat": 51.71905,
+  "lon": 8.75439,
+  "geocoded": "Paderborn, North Rhine-Westphalia, DE"
+ },
+ "Schalke 04": {
+  "city": "Gelsenkirchen",
+  "lat": 51.50508,
+  "lon": 7.09654,
+  "geocoded": "Gelsenkirchen, North Rhine-Westphalia, DE"
+ },
+ "Stuttgart": {
+  "city": "Stuttgart",
+  "lat": 48.78232,
+  "lon": 9.17702,
+  "geocoded": "Stuttgart, Baden-Wurttemberg, DE"
+ },
+ "Werder Bremen": {
+  "city": "Bremen",
+  "lat": 53.07582,
+  "lon": 8.80717,
+  "geocoded": "Bremen, Free Hanseatic City of Bremen, DE"
  }
 }

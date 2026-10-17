@@ -1,0 +1,6 @@
+{
+ "url": "https://api.elections.kalshi.com/trade-api/v2/markets?series_ticker=KXUELGAME&min_close_ts=1791996300&max_close_ts=1792522800&limit=200",
+ "status": 200,
+ "fetched_at": 1792220182.582,
+ "fetched_at_iso": "2026-10-17T06:56:22"
+}
