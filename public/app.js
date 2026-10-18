@@ -315,6 +315,27 @@ function formCells(list, { empty = '—', colorGoals = false } = {}) {
 const h2hCells = (h, since) => formCells(h && h.games, { empty: h ? `none since ${since}` : '—', colorGoals: true });
 const last5Cells = (list) => formCells(list);
 
+// H2H LAST 5 stacked over LAST 10 in one set of columns: each cell holds the H2H part on top and
+// the LAST 10 part below, so the matching figures (W-D-L, GF-GA, 0 G … 3+ G) line up vertically.
+// The cell keeps the column's layout classes; each part keeps its own colour classes and tooltip.
+function stackedFormCells(h2h, since, last10) {
+  const top = h2hCells(h2h, since);
+  const bottom = last5Cells(last10);
+  return top.map((a, i) => {
+    const b = bottom[i];
+    const part = (t, which) => {
+      const d = el('div', { class: cls('stk-part', which, t.className.replace(/\bsep\b/, '')), title: t.title || null });
+      // one inner line per part so every part centres the same way (the games column gets its tag)
+      const line = el('div', { class: 'stk-line' });
+      if (i === 0) line.append(el('span', { class: 'stk-tag', text: which === 'stk-h2h' ? 'H2H' : 'L10' }));
+      if (t.childNodes.length && [...t.childNodes].some((n) => n.nodeType === 1 && n.tagName === 'DIV')) d.append(...t.childNodes);
+      else { line.append(...t.childNodes); d.append(line); }
+      return d;
+    };
+    return el('td', { class: cls(a.className, 'stk') }, part(a, 'stk-h2h'), part(b, 'stk-l10'));
+  });
+}
+
 // ------------------------------------------------------------------ model (Poisson) column
 const pct = (x) => (x == null ? '—' : `${Math.round(100 * x)}%`);
 // Which figures came true on a finished game (outlined): win/draw, team 1+ / 2+, BTTS, over 2.5
@@ -509,12 +530,12 @@ function renderChart(c) {
       th('GF/G'), th('GA/G'), th('GF/GA'), th('TOT/G'), th(c.lastLabel),
       group(c.histTitle, c.histLabels.length, 'sep'),
       group('SEASON RECORD  W-D-L', c.recLabels.length, 'sep'),
-      th('FT / WIN%', { colspan: 2, class: 'sep' }), group('H2H LAST 5', FORM_N_COLS, 'sep'), group('LAST 10', FORM_N_COLS, 'sep'), th('WEATHER', { class: 'l sep' }), th('IMPORTANCE', { class: 'l sep' }),
+      th('FT / WIN%', { colspan: 2, class: 'sep' }), group('H2H LAST 5 (top) · LAST 10 (below)', FORM_N_COLS, 'sep'), th('WEATHER', { class: 'l sep' }), th('IMPORTANCE', { class: 'l sep' }),
       ...(c.domesticLabels ? [group('DOMESTIC', c.domesticLabels.length, 'sep')] : []),
       ...(c.model ? [group('MODEL (Poisson)', 7, 'sep'), ...MARKETS.map(([, name]) => group(name, 6, 'sep'))] : []),
       ...(c.extraLabels || []).map((x) => th(x, { class: 'l sep' }))),
     el('tr', { class: 'sub' }, ...subs(c.standLabels), ...subs(c.histLabels), ...subs(c.recLabels),
-      ...FORM_SUBS('meetings'), ...FORM_SUBS('10 games'),
+      ...FORM_SUBS('games'),
       ...(c.domesticLabels || []).map((x, k) => el('th', { class: cls(k === 0 && 'sep'), text: x })),
       ...(c.model ? ['xG', 'WIN', '1+', '2+', 'DRAW', 'BTTS', 'O2.5'].map((x, k) => el('th', { class: cls(k === 0 && 'sep'), text: x })) : []),
       ...(c.model ? MARKETS.flatMap(() => ['WIN', '1+', '2+', 'DRAW', 'BTTS', 'O2.5'].map((x, k) => el('th', {
@@ -546,8 +567,7 @@ function renderChart(c) {
       if (ti === 0) {
         cells.push(
           el('td', { class: 'ft-tag', rowspan: 2 }, fx.done ? el('span', { text: 'FT' }) : null),
-          ...h2hCells(t.h2h, c.histLabels[0]),
-          ...last5Cells(t.last5),
+          ...stackedFormCells(t.h2h, c.histLabels[0], t.last5),
           twoLine(fx.wx[0], cls('wx1', WXC[fx.wx[2]]), fx.wx[1], 'wx2', 'sep'),
           twoLine(IMP[fx.imp[0]][0], cls('imp1', IMP[fx.imp[0]][1]), fx.imp[1], 'imp2', 'sep'),
           ...domCells(t, c),
@@ -557,7 +577,7 @@ function renderChart(c) {
         );
       }
       if (ti === 1) {
-        cells.push(...h2hCells(t.h2h, c.histLabels[0]), ...last5Cells(t.last5), ...domCells(t, c),
+        cells.push(...stackedFormCells(t.h2h, c.histLabels[0], t.last5), ...domCells(t, c),
           ...(c.model ? [...modelTeamCells(fx.pred, 'A', fx.result), ...MARKETS.flatMap(([k]) => marketTeamCells(fx[k], 'A', fx.pred, fx.result))] : []));
       }
       return el('tr', {}, cells);
@@ -585,10 +605,9 @@ function renderIntl(c) {
       th('DAY', { class: 'l' }), th('DATE', { class: 'l' }), th('TIME (PT)', { class: 'l' }), th('VENUE', { class: 'l' }),
       th('TEAM', { class: 'l' }), th('H/A/N'), th('INJURED', { class: 'l' }), th('SUSP.', { class: 'l' }),
       th('GF/G', { class: 'sep' }), th('GA/G'), th('12-MO W-D-L'),
-      th('FT', { colspan: 2, class: 'sep' }), el('th', { colspan: FORM_N_COLS, class: 'group sep', text: 'H2H LAST 5' }),
-      el('th', { colspan: FORM_N_COLS, class: 'group sep', text: 'LAST 10' }),
+      th('FT', { colspan: 2, class: 'sep' }), el('th', { colspan: FORM_N_COLS, class: 'group sep', text: 'H2H LAST 5 (top) · LAST 10 (below)' }),
       th('WEATHER', { class: 'l sep' }), th('IMPORTANCE', { class: 'l sep' })),
-    el('tr', { class: 'sub' }, ...FORM_SUBS('meetings'), ...FORM_SUBS('10 games')));
+    el('tr', { class: 'sub' }, ...FORM_SUBS('games')));
 
   const since = 'records began';
   const bodies = c.fixtures.map((fx, i) => el('tbody', {
@@ -608,7 +627,7 @@ function renderIntl(c) {
       resCell(t.res),
     );
     if (ti === 0) cells.push(el('td', { class: 'ft-tag', rowspan: 2 }, el('span', { text: 'FT' })));
-    cells.push(...h2hCells(t.h2h, since), ...last5Cells(t.last5));
+    cells.push(...stackedFormCells(t.h2h, since, t.last5));
     if (ti === 0) {
       cells.push(td('—', 'l muted sep', 2), td('—', 'l muted sep', 2));
     }
