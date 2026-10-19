@@ -344,6 +344,8 @@ table.heat th { border: none; }
 .match td.stk { vertical-align: middle; padding-top: 2px; padding-bottom: 2px; }
 .stk-part { line-height: 1.15; padding: 2px 0; min-height: 30px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; }
 .stk-line { white-space: nowrap; }
-.stk-part.stk-l10 { border-top: 1px dotted var(--rule); }
+.stk-part + .stk-part { border-top: 1px dotted var(--rule); }
+.stk-part.stk-h2h { border-top: 1px solid var(--rule); }
 .stk-tag { display: inline-block; min-width: 26px; margin-right: 4px; font-size: 9px; font-weight: 700; letter-spacing: .04em; color: var(--muted); }
 .stk-h2h .stk-tag { color: var(--accent); }
+.stk-tag { min-width: 34px; }
