@@ -362,3 +362,4 @@ table.heat th { border: none; }
 .drv-sig { white-space: nowrap; }
 .drv-round td { white-space: nowrap; }
 .np.moved { white-space: normal; max-width: 120px; }
+.ss-week td { background: var(--head, #f3f5f7); font-weight: 700; font-size: 12px; padding-top: 6px; }

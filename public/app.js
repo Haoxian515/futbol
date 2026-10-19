@@ -486,6 +486,58 @@ function driversPanel(d) {
       el('tbody', {}, ...rows))));
 }
 
+// This season so far: BTTS this season by the model's 1+ bands and season goal deltas, and every
+// played game from round 1 to the charted one (newest round first)
+function seasonPanel(s) {
+  if (!s || !s.features || !s.matches.length) return null;
+  const { tone, featTable, grid, histCell } = btKit(s);
+  const p0 = (v) => (v == null ? '—' : `${Math.round(v * 100)}%`);
+  const lmh = (x, k) => {
+    const c = x.cells[k];
+    if (!c) return td('—', 'muted');
+    const band = c.bucket.split(' ')[0];
+    const cell = histCell(c, `${p0(x[k])} `);
+    cell.firstChild.append(el('span', { class: cls('drv-band', `drv-${band.toLowerCase()}`), text: band }));
+    return cell;
+  };
+  const gfga = (t) => (t.gp ? `${t.gf}-${t.ga} (${t.gp})` : '—');
+  const rows = [];
+  const byRound = new Map();
+  for (const m of s.matches) { if (!byRound.has(m.round)) byRound.set(m.round, []); byRound.get(m.round).push(m); }
+  for (const [n, ms] of [...byRound].sort((p, q) => q[0] - p[0])) {
+    const hits = ms.filter((m) => m.result.hg > 0 && m.result.ag > 0).length;
+    rows.push(el('tr', { class: 'ss-week' }, el('td', { colspan: 11, class: 'l' }, `${s.roundWord} ${n}`,
+      el('span', { class: 'btts-sub', text: ` — BTTS in ${hits} of ${ms.length}` }))));
+    for (const m of ms) {
+      const both = m.result.hg > 0 && m.result.ag > 0;
+      rows.push(el('tr', {},
+        m.moved ? el('td', { class: 'l' }, el('div', { text: m.label }), el('div', { class: 'np np-has moved', text: m.moved })) : td(m.label, 'l'),
+        lmh(m, 'h1'), lmh(m, 'a1'), histCell(m.cells.d1, m.cells.d1 && m.cells.d1.text),
+        td(gfga(m.hs), 'num'), td(gfga(m.as), 'num'),
+        histCell(m.cells.sgd, m.cells.sgd && m.cells.sgd.text), histCell(m.cells.sgf, m.cells.sgf && m.cells.sgf.text),
+        histCell(m.cells.sga, m.cells.sga && m.cells.sga.text),
+        td(`${m.result.hg}-${m.result.ag}`, 'num'), td(both ? 'Yes' : 'No', cls('b', both ? 'good' : 'bad'))));
+    }
+  }
+  const H = [
+    ['HOME 1+', 'model · band'], ['AWAY 1+', 'model · band'], ['1+ Δ', 'home − away, pts'],
+    ['HOME GF-GA', 'season (games)'], ['AWAY GF-GA', 'season (games)'],
+    ['GD/G Δ', 'home − away'], ['GF/G Δ', 'home − away'], ['GA/G Δ', 'home − away'], ['SCORE', 'FT'], ['BTTS?', 'result'],
+  ];
+  return el('section', { class: 'btts drv season' },
+    el('h2', { class: 'btts-h' }, `This season so far — ${s.roundWord} 1 to ${s.upTo}`,
+      el('span', { class: 'btts-sub', text: ` — both teams scored in ${pct(s.base)} of ${s.games} games played, ${s.season}` })),
+    el('details', { class: 'bt-help' }, el('summary', { text: 'How to read this' }), el('p', { class: 'foot', text: 'This season\'s played games only. '
+      + 'MODEL 1+ = the Poisson model\'s chance that a side scores at least once, as the MODEL column had it before kickoff (Low <60%, Medium 60–74%, High 75%+); 1+ Δ = home minus away, in points. '
+      + 'GF-GA = each side\'s season goals for and against before that game (games played in brackets); GD/G, GF/G, GA/G Δ = home minus away, per game. '
+      + `The BTTS line under a value = this season's BTTS rate in the same band (the game itself included). Green / red = 5+ pts above / below this season's rate on ${s.minBucket}+ games — small samples, so read it as a tally, not a forecast.` })),
+    el('div', { class: 'drv-row' }, featTable(s.features), ...(s.grids || []).map(grid)),
+    el('div', { class: 'bt-wrap' }, el('table', { class: 'bt btts-round drv-round ss-table' },
+      el('thead', {}, el('tr', {}, el('th', { class: 'l' }, 'Match', el('div', { class: 'bt-th2', text: 'BTTS line = this season, same band' })),
+        ...H.map(([l, l2]) => el('th', {}, l, el('div', { class: 'bt-th2', text: l2 }))))),
+      el('tbody', {}, ...rows))));
+}
+
 // shared by the BTTS panels: b = a study summary { base, minBucket, features, grids }
 function btKit(b) {
   const tone = (rate, n) => (rate == null || n < b.minBucket ? '' : rate >= b.base + 0.05 ? 'good' : rate <= b.base - 0.05 ? 'bad' : '');
@@ -681,6 +733,7 @@ function renderChart(c) {
     el('p', { class: 'subtitle', text: c.sub }),
     el('div', { class: 'table-wrap' }, el('table', { class: 'match', 'data-lock': 5 }, head, ...bodies)),
     driversPanel(c.btts && c.btts.drivers),
+    seasonPanel(c.btts && c.btts.season),
     bttsPanel(c.btts),
     el('details', { class: 'notes' }, el('summary', { text: 'Notes & sources' }),
       el('p', { class: 'foot', text: c.foot1 }), el('p', { class: 'foot', text: c.foot2 })),
