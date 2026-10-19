@@ -361,3 +361,4 @@ table.heat th { border: none; }
 .drv-high { background: rgba(26,127,78,.15); color: #1a7f4e; }
 .drv-sig { white-space: nowrap; }
 .drv-round td { white-space: nowrap; }
+.np.moved { white-space: normal; max-width: 120px; }

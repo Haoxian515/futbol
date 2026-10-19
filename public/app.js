@@ -86,10 +86,15 @@ async function loadRounds(preferredRound, preferredHistory) {
   sel.disabled = true;
   $('build').disabled = true;
   setStatus('Loading rounds…');
+  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   try {
     const data = await api(`/api/rounds?league=${encodeURIComponent($('league').value)}`);
     sel.replaceChildren(...data.rounds.map((r) => {
-      const state = r.played === r.total ? 'final' : r.played ? `${r.played}/${r.total} played` : 'upcoming';
+      // a round whose only unplayed games were rescheduled reads as final, with the moved dates
+      const later = (r.movedOpen || []).map((d) => (d ? `${MONTHS[+d.slice(5, 7) - 1]} ${+d.slice(8, 10)}` : 'TBC'));
+      const state = r.played === r.total ? 'final'
+        : r.open === 0 && later.length ? `final · ${later.length} rescheduled to ${later.join(', ')}`
+          : r.played ? `${r.played}/${r.total} played` : 'upcoming';
       return el('option', { value: r.n, text: `${data.roundWord} ${r.n} · ${r.range} · ${state}` });
     }));
     const want = String(preferredRound ?? '');
@@ -448,7 +453,7 @@ function driversPanel(d) {
     const up = tones.filter((t) => t === 'good').length;
     const down = tones.filter((t) => t === 'bad').length;
     return el('tr', {},
-      td(x.label, 'l'),
+      x.moved ? el('td', { class: 'l' }, el('div', { text: x.label }), el('div', { class: 'np np-has moved', text: x.moved })) : td(x.label, 'l'),
       lmh(x, 'h1'), lmh(x, 'a1'), histCell(x.cells.d1, x.cells.d1 && x.cells.d1.text),
       histCell(x.cells.gdh, gd(x, 'h')), histCell(x.cells.gda, gd(x, 'a')), histCell(x.cells.gdgap, x.cells.gdgap && x.cells.gdgap.text),
       histCell(x.cells.c0, cnt(x, 0)), histCell(x.cells.c1, cnt(x, 1)), histCell(x.cells.c2, cnt(x, 2)), histCell(x.cells.c3, cnt(x, 3)),
@@ -588,6 +593,13 @@ function bttsPanel(b) {
       el('tbody', {}, ...roundRows))));
 }
 
+// DATE, with a blue note under a rescheduled game ("rescheduled · round Sep 15–17")
+function dateCell(fx) {
+  if (!fx.moved) return td(fx.date, 'l', 2);
+  return el('td', { class: 'l', rowspan: 2, title: 'dated outside its round — rescheduled (weather, cup clash, ...)' },
+    el('div', { text: fx.date }), el('div', { class: 'np np-has moved', text: fx.moved }));
+}
+
 function twoLine(a, aClass, b, bClass, extra) {
   return el('td', { class: cls('l two', extra), rowspan: 2 }, el('div', { class: aClass, text: a }), el('div', { class: bClass, text: b }));
 }
@@ -629,7 +641,7 @@ function renderChart(c) {
     fx.teams.map((t, ti) => {
       const cells = [];
       if (ti === 0) {
-        cells.push(dayCell(fx.day), td(fx.date, 'l', 2), td(fx.time, cls('l', fx.time === '—' && 'muted'), 2));
+        cells.push(dayCell(fx.day), dateCell(fx), td(fx.time, cls('l', fx.time === '—' && 'muted'), 2));
       }
       cells.push(
         td(t.team, cls('l team', ['1', '2'].includes(t.standing[0]) && 'b')),
@@ -697,7 +709,7 @@ function renderIntl(c) {
   }, fx.teams.map((t, ti) => {
     const cells = [];
     if (ti === 0) {
-      cells.push(dayCell(fx.day), td(fx.date, 'l', 2), td(fx.time, 'l muted', 2), td(fx.venue, 'l', 2));
+      cells.push(dayCell(fx.day), dateCell(fx), td(fx.time, 'l muted', 2), td(fx.venue, 'l', 2));
     }
     cells.push(
       td(t.team, 'l team'),
