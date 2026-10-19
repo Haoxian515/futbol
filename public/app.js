@@ -464,7 +464,8 @@ function driversPanel(d) {
   ];
   return el('section', { class: 'btts drv' },
     el('h2', { class: 'btts-h' }, 'BTTS drivers (history, test)',
-      el('span', { class: 'btts-sub', text: ` — both teams scored in ${pct(d.base)} of ${d.games} past games` })),
+      el('span', { class: 'btts-sub', text: ` — both teams scored in ${pct(d.base)} of ${d.games} past games`
+        + `${d.roundShift ? `; fixtures below are ${d.roundLabel}, the last round with every result in` : ''}` })),
     el('details', { class: 'bt-help' }, el('summary', { text: 'How to read this' }), el('p', { class: 'foot', text: 'Every past game is placed in a band by what was known before kickoff, and the bars show how often both teams then scored (rate · games). '
       + 'Green / red = 5+ pts above / below the base rate on ' + `${d.minBucket}+ games; r = correlation with BTTS. `
       + 'MODEL 1+ = the Poisson model\'s chance that a side scores at least once (Low <60%, Medium 60–74%, High 75%+); 1+ Δ = home minus away, in points. '
@@ -474,7 +475,8 @@ function driversPanel(d) {
     part('Last 10 GF−GA', 'Goal difference over each side\'s last 10, the gap between the two, and how tight the better defence is.', ['gdh', 'gda', 'gdgap', 'gamin'], 'gd'),
     part('Last 10 by goals scored', 'How many of the last 10 each side scored 0, 1, 2, 3+ in.', ['c0max', 'c0', 'c1', 'c2', 'c3'], 'c0'),
     el('div', { class: 'bt-wrap' }, el('table', { class: 'bt btts-round drv-round' },
-      el('thead', {}, el('tr', {}, el('th', { class: 'l' }, 'This round', el('div', { class: 'bt-th2', text: 'BTTS line = past games like it' })),
+      el('thead', {}, el('tr', {}, el('th', { class: 'l' }, d.roundLabel || 'This round',
+        el('div', { class: 'bt-th2', text: d.roundShift ? 'last complete round' : 'BTTS line = past games like it' })),
         ...H.map(([l, l2]) => el('th', {}, l, el('div', { class: 'bt-th2', text: l2 }))))),
       el('tbody', {}, ...rows))));
 }
@@ -666,8 +668,8 @@ function renderChart(c) {
     el('h1', { text: c.title }),
     el('p', { class: 'subtitle', text: c.sub }),
     el('div', { class: 'table-wrap' }, el('table', { class: 'match', 'data-lock': 5 }, head, ...bodies)),
-    bttsPanel(c.btts),
     driversPanel(c.btts && c.btts.drivers),
+    bttsPanel(c.btts),
     el('details', { class: 'notes' }, el('summary', { text: 'Notes & sources' }),
       el('p', { class: 'foot', text: c.foot1 }), el('p', { class: 'foot', text: c.foot2 })),
     backtestPanel(c.model),
