@@ -349,3 +349,15 @@ table.heat th { border: none; }
 .stk-tag { display: inline-block; min-width: 26px; margin-right: 4px; font-size: 9px; font-weight: 700; letter-spacing: .04em; color: var(--muted); }
 .stk-h2h .stk-tag { color: var(--accent); }
 .stk-tag { min-width: 34px; }
+
+/* BTTS drivers (test) */
+.drv-part { margin: 10px 0 4px; }
+.drv-h { margin: 6px 0 2px; font-size: 13px; font-weight: 700; }
+.drv-note { margin: 0 0 4px; color: var(--sub); font-size: 11px; }
+.drv-row { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start; }
+.drv-band { display: inline-block; margin-left: 4px; padding: 0 4px; border-radius: 3px; font-size: 10px; font-weight: 700; }
+.drv-low { background: rgba(192,57,43,.15); color: #c0392b; }
+.drv-medium { background: rgba(212,140,20,.18); color: #a46a00; }
+.drv-high { background: rgba(26,127,78,.15); color: #1a7f4e; }
+.drv-sig { white-space: nowrap; }
+.drv-round td { white-space: nowrap; }

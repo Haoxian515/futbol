@@ -421,20 +421,111 @@ function backtestPanel(m) {
     el('div', { class: 'bt-wrap' }, el('table', { class: 'bt' }, el('thead', {}, head), el('tbody', {}, ...rows))));
 }
 
-// BTTS correlation panel: historic BTTS rate by what was known before kickoff, and where this
-// round's fixtures fall. A bucket is coloured when it is 5+ pts off the base rate on enough games.
-function bttsPanel(b) {
-  if (!b || !b.features) return null;
+// BTTS drivers panel (test): BTTS rate of past games by the model's 1+ chances (low / medium / high
+// bands and the home − away delta), last-10 GF−GA, and last-10 games by goals scored (0G … 3+G)
+function driversPanel(d) {
+  if (!d || !d.features) return null;
+  const { tone, featTable, grid, histCell, result } = btKit(d);
+  const F = new Map(d.features.map((f) => [f.key, f]));
+  const G = new Map((d.grids || []).map((g) => [g.key, g]));
+  const part = (title, note, keys, gridKey) => el('div', { class: 'drv-part' },
+    el('h3', { class: 'drv-h', text: title }), el('p', { class: 'drv-note', text: note }),
+    el('div', { class: 'drv-row' }, featTable(keys.map((k) => F.get(k)).filter(Boolean)), G.get(gridKey) ? grid(G.get(gridKey)) : null));
+  const p0 = (v) => (v == null ? '—' : `${Math.round(v * 100)}%`);
+  const sg = (v) => (v == null ? '—' : `${v > 0 ? '+' : ''}${v}`);
+  const band = (c) => (c ? c.bucket.split(' ')[0] : '');
+  const lmh = (x, k) => {
+    const c = x.cells[k];
+    if (!c) return td('—', 'muted');
+    const cell = histCell(c, `${p0(x.v[k])} `);
+    cell.firstChild.append(el('span', { class: cls('drv-band', `drv-${band(c).toLowerCase()}`), text: band(c) }));
+    return cell;
+  };
+  const gd = (x, s) => (x.v[`gf${s}`] == null ? '—' : `${x.v[`gf${s}`]}-${x.v[`ga${s}`]} (${sg(x.v[`gd${s}`])})`);
+  const cnt = (x, n) => (x.v[`c${n}h`] == null ? '—' : `${p0(x.v[`c${n}h`] / 10)} · ${p0(x.v[`c${n}a`] / 10)}`);
+  const rows = d.round.map((x) => {
+    const tones = Object.values(x.cells).filter(Boolean).map((c) => tone(c.rate, c.n));
+    const up = tones.filter((t) => t === 'good').length;
+    const down = tones.filter((t) => t === 'bad').length;
+    return el('tr', {},
+      td(x.label, 'l'),
+      lmh(x, 'h1'), lmh(x, 'a1'), histCell(x.cells.d1, x.cells.d1 && x.cells.d1.text),
+      histCell(x.cells.gdh, gd(x, 'h')), histCell(x.cells.gda, gd(x, 'a')), histCell(x.cells.gdgap, x.cells.gdgap && x.cells.gdgap.text),
+      histCell(x.cells.c0, cnt(x, 0)), histCell(x.cells.c1, cnt(x, 1)), histCell(x.cells.c2, cnt(x, 2)), histCell(x.cells.c3, cnt(x, 3)),
+      el('td', { class: 'drv-sig', title: 'columns whose band ended BTTS 5+ pts above (▲) / below (▼) the base rate' },
+        el('span', { class: 'good b', text: `▲${up}` }), ' ', el('span', { class: 'bad b', text: `▼${down}` })),
+      result(x));
+  });
+  const H = [
+    ['HOME 1+', 'model · band'], ['AWAY 1+', 'model · band'], ['1+ Δ', 'home − away, pts'],
+    ['HOME GF-GA', 'last 10 (GD)'], ['AWAY GF-GA', 'last 10 (GD)'], ['GD GAP', 'between the two'],
+    ['0 G', 'home · away'], ['1 G', 'home · away'], ['2 G', 'home · away'], ['3+ G', 'home · away'],
+    ['SIGNALS', '▲ above · ▼ below'], ['BTTS?', 'result'],
+  ];
+  return el('section', { class: 'btts drv' },
+    el('h2', { class: 'btts-h' }, 'BTTS drivers (history, test)',
+      el('span', { class: 'btts-sub', text: ` — both teams scored in ${pct(d.base)} of ${d.games} past games` })),
+    el('details', { class: 'bt-help' }, el('summary', { text: 'How to read this' }), el('p', { class: 'foot', text: 'Every past game is placed in a band by what was known before kickoff, and the bars show how often both teams then scored (rate · games). '
+      + 'Green / red = 5+ pts above / below the base rate on ' + `${d.minBucket}+ games; r = correlation with BTTS. `
+      + 'MODEL 1+ = the Poisson model\'s chance that a side scores at least once (Low <60%, Medium 60–74%, High 75%+); 1+ Δ = home minus away, in points. '
+      + 'GF-GA = goals for and against over the side\'s last 10 league games, GD in brackets. 0 G … 3+ G = share of those 10 games in which the side scored 0, 1, 2, 3+; '
+      + 'the BTTS line under a pair uses both sides added (of 20 games). SIGNALS counts this fixture\'s green and red columns.' })),
+    part('Model 1+ (goal +1)', 'Each side\'s chance to score, in bands, and the gap between them.', ['h1', 'a1', 'min1', 'd1'], 'lmh'),
+    part('Last 10 GF−GA', 'Goal difference over each side\'s last 10, the gap between the two, and how tight the better defence is.', ['gdh', 'gda', 'gdgap', 'gamin'], 'gd'),
+    part('Last 10 by goals scored', 'How many of the last 10 each side scored 0, 1, 2, 3+ in.', ['c0max', 'c0', 'c1', 'c2', 'c3'], 'c0'),
+    el('div', { class: 'bt-wrap' }, el('table', { class: 'bt btts-round drv-round' },
+      el('thead', {}, el('tr', {}, el('th', { class: 'l' }, 'This round', el('div', { class: 'bt-th2', text: 'BTTS line = past games like it' })),
+        ...H.map(([l, l2]) => el('th', {}, l, el('div', { class: 'bt-th2', text: l2 }))))),
+      el('tbody', {}, ...rows))));
+}
+
+// shared by the BTTS panels: b = a study summary { base, minBucket, features, grids }
+function btKit(b) {
   const tone = (rate, n) => (rate == null || n < b.minBucket ? '' : rate >= b.base + 0.05 ? 'good' : rate <= b.base - 0.05 ? 'bad' : '');
   const bar = (rate, n) => el('div', { class: cls('bt-bar', tone(rate, n)), title: `${n} games` },
     el('span', { class: 'bt-fill', style: `width:${Math.round(100 * (rate || 0))}%` }),
     el('span', { class: 'bt-txt', text: rate == null ? '—' : `${pct(rate)} · ${n}` }));
   const r = (x) => (x == null ? '—' : (x >= 0 ? '+' : '') + x.toFixed(3));
-  const maxB = Math.max(...b.features.map((f) => f.buckets.length));
-  const featRows = b.features.map((f) => el('tr', {},
-    td(f.label, 'l'), td(r(f.r), cls('num', Math.abs(f.r || 0) >= 0.1 && 'b')), td(String(f.n), 'num muted'),
-    ...f.buckets.map((k) => el('td', {}, el('div', { class: 'bt-lab', text: k.label }), bar(k.rate, k.n))),
-    ...Array.from({ length: maxB - f.buckets.length }, () => td(''))));
+  // feature table: one row per feature, BTTS rate per bucket
+  const featTable = (features, extra) => {
+    const maxB = Math.max(...features.map((f) => f.buckets.length));
+    return el('div', { class: 'bt-wrap' }, el('table', { class: cls('bt btts-feat', extra) },
+      el('thead', {}, el('tr', {}, el('th', { text: 'Before kickoff' }), el('th', { text: 'r' }), el('th', { text: 'Games' }),
+        el('th', { text: 'BTTS rate by bucket (rate · games)', colspan: maxB }))),
+      el('tbody', {}, ...features.map((f) => el('tr', {},
+        td(f.label, 'l'), td(r(f.r), cls('num', Math.abs(f.r || 0) >= 0.1 && 'b')), td(String(f.n), 'num muted'),
+        ...f.buckets.map((k) => el('td', {}, el('div', { class: 'bt-lab', text: k.label }), bar(k.rate, k.n))),
+        ...Array.from({ length: maxB - f.buckets.length }, () => td('')))))));
+  };
+  // heat map: home buckets (rows) × away buckets (columns); shade = distance from the base rate
+  const heat = (rate, n) => {
+    if (rate == null || n < b.minBucket) return '';
+    const d = Math.max(-0.15, Math.min(0.15, rate - b.base)) / 0.15;
+    return d >= 0 ? `background: rgba(26,127,78,${(0.6 * d).toFixed(2)})` : `background: rgba(192,57,43,${(-0.6 * d).toFixed(2)})`;
+  };
+  const grid = (g) => el('div', { class: 'bt-grid' }, el('div', { class: 'bt-grid-t', text: g.label }),
+    el('table', { class: 'bt heat' },
+      el('thead', {}, el('tr', {}, el('th', { text: 'home ↓ / away →' }), ...g.labels.map((l) => el('th', { text: l })))),
+      el('tbody', {}, ...g.cells.map((row, i) => el('tr', {}, el('th', { text: g.labels[i] }),
+        ...row.map((c) => el('td', { class: cls(c.n < b.minBucket && 'muted'), style: heat(c.rate, c.n), title: `${c.n} games` },
+          el('div', { class: 'b', text: pct(c.rate) }), el('div', { class: 'bt-n', text: String(c.n) }))))))));
+  // a round cell: the value, and under it how often past games in the same bucket ended BTTS
+  const histCell = (c, text, extra) => (c
+    ? el('td', { class: extra, title: `bucket ${c.bucket}: BTTS ${pct(c.rate)} of ${c.n} games` },
+      el('div', { class: 'bt-val', text }), el('div', { class: cls('bt-hist', tone(c.rate, c.n)), text: `BTTS ${pct(c.rate)}` }))
+    : td('—', 'muted'));
+  const result = (x) => {
+    const both = x.result ? (x.result.hg > 0 && x.result.ag > 0) : null;
+    return td(both == null ? '—' : `${both ? 'Yes' : 'No'} · ${x.result.hg}-${x.result.ag}`, cls(both == null ? 'muted' : both ? 'good b' : 'bad b'));
+  };
+  return { tone, featTable, grid, histCell, result };
+}
+
+// BTTS correlation panel: historic BTTS rate by what was known before kickoff, and where this
+// round's fixtures fall. A bucket is coloured when it is 5+ pts off the base rate on enough games.
+function bttsPanel(b) {
+  if (!b || !b.features) return null;
+  const { tone, featTable, grid } = btKit(b);
   const N = b.formN || 5;
   // [key, header, second header line, help]; one format per kind of value: counts "6/10 · 9/10"
   // (home · away), per-game rates "1.40 · 2.00", single figures "0.60", chances "61%"
@@ -461,18 +552,7 @@ function bttsPanel(b) {
     h2h: (x, c) => { const [k, n] = c.text.split('/').map(Number); return `${k}/${n} · ${Math.round((100 * k) / n)}%`; },
     h2hmin: (x) => pair(r2(x.h2hgf), r2(x.h2hga)),
   };
-  // heat map: home buckets (rows) × away buckets (columns); shade = distance from the base rate
-  const heat = (rate, n) => {
-    if (rate == null || n < b.minBucket) return '';
-    const d = Math.max(-0.15, Math.min(0.15, rate - b.base)) / 0.15;
-    return d >= 0 ? `background: rgba(26,127,78,${(0.6 * d).toFixed(2)})` : `background: rgba(192,57,43,${(-0.6 * d).toFixed(2)})`;
-  };
-  const grids = (b.grids || []).map((g) => el('div', { class: 'bt-grid' }, el('div', { class: 'bt-grid-t', text: g.label }),
-    el('table', { class: 'bt heat' },
-      el('thead', {}, el('tr', {}, el('th', { text: 'home ↓ / away →' }), ...g.labels.map((l) => el('th', { text: l })))),
-      el('tbody', {}, ...g.cells.map((row, i) => el('tr', {}, el('th', { text: g.labels[i] }),
-        ...row.map((c) => el('td', { class: cls(c.n < b.minBucket && 'muted'), style: heat(c.rate, c.n), title: `${c.n} games` },
-          el('div', { class: 'b', text: pct(c.rate) }), el('div', { class: 'bt-n', text: String(c.n) })))))))));
+  const grids = (b.grids || []).map(grid);
   const roundRows = b.round.map((x) => {
     const both = x.result ? (x.result.hg > 0 && x.result.ag > 0) : null;
     return el('tr', {},
@@ -497,10 +577,7 @@ function bttsPanel(b) {
       + 'non-penalty goals per game / goal difference per game (a mismatch); H2H GF/G = goals per game of the home club · away club over those meetings (all goals); '
       + 'in This round, two values in a cell are home · away, and the BTTS line under each value = how often both teams scored in past games in the same band; '
       + `BOTH 1+ = model chance each team scores, multiplied; xG = the model's expected goals. Heat maps: cells shaded by distance from the base rate; grey = under ${b.minBucket} games. Source: ${b.source}.` })),
-    el('div', { class: 'bt-wrap' }, el('table', { class: 'bt btts-feat' },
-      el('thead', {}, el('tr', {}, el('th', { text: 'Before kickoff' }), el('th', { text: 'r' }), el('th', { text: 'Games' }),
-        el('th', { text: 'BTTS rate by bucket (rate · games)', colspan: maxB }))),
-      el('tbody', {}, ...featRows))),
+    featTable(b.features),
     el('div', { class: 'bt-grids' }, ...grids),
     el('div', { class: 'bt-wrap' }, el('table', { class: 'bt btts-round' },
       el('thead', {}, el('tr', {}, el('th', { class: 'l' }, 'This round', el('div', { class: 'bt-th2', text: 'BTTS line = past games like it' })),
@@ -590,6 +667,7 @@ function renderChart(c) {
     el('p', { class: 'subtitle', text: c.sub }),
     el('div', { class: 'table-wrap' }, el('table', { class: 'match', 'data-lock': 5 }, head, ...bodies)),
     bttsPanel(c.btts),
+    driversPanel(c.btts && c.btts.drivers),
     el('details', { class: 'notes' }, el('summary', { text: 'Notes & sources' }),
       el('p', { class: 'foot', text: c.foot1 }), el('p', { class: 'foot', text: c.foot2 })),
     backtestPanel(c.model),
