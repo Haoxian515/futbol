@@ -517,7 +517,7 @@ function spreadPanel(sp) {
     note.textContent = `${g.games} games, ${g.from}; BTTS in ${p0(g.base)} overall.`;
   };
   // 1+ delta (home − away): BTTS vs no-BTTS games, and the BTTS rate by delta band
-  const pts = (v) => (v == null ? '—' : `${v >= 0 ? '+' : '−'}${Math.abs(Math.round(v * 100))}`);
+  const pts = (v) => { if (v == null) return '—'; const r = Math.round(v * 100) + 0; return `${r >= 0 ? '+' : '−'}${Math.abs(r)}`; };
   const dBox = el('div', { class: 'sp-delta' });
   const drawDelta = (g) => {
     const D = g.delta;
