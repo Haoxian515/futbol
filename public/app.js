@@ -486,56 +486,60 @@ function driversPanel(d) {
       el('tbody', {}, ...rows))));
 }
 
-// This season so far: BTTS this season by the model's 1+ bands and season goal deltas, and every
-// played game from round 1 to the charted one (newest round first)
-function seasonPanel(s) {
-  if (!s || !s.features || !s.matches.length) return null;
-  const { tone, featTable, grid, histCell } = btKit(s);
+// BTTS spread: every game played, by the model's home 1+ chance (rows) × away 1+ chance (columns),
+// over all seasons or this season; this round's fixtures are outlined in their cells
+function spreadPanel(sp) {
+  if (!sp || !sp.all || !sp.all.games) return null;
+  const MIN = 10; // fewer games: shown grey, not shaded
   const p0 = (v) => (v == null ? '—' : `${Math.round(v * 100)}%`);
-  const lmh = (x, k) => {
-    const c = x.cells[k];
-    if (!c) return td('—', 'muted');
-    const band = c.bucket.split(' ')[0];
-    const cell = histCell(c, `${p0(x[k])} `);
-    cell.firstChild.append(el('span', { class: cls('drv-band', `drv-${band.toLowerCase()}`), text: band }));
-    return cell;
+  const box = el('div', { class: 'sp-box' });
+  const fxAt = (i, j) => sp.fixtures.filter((f) => f.pos && f.pos[0] === i && f.pos[1] === j);
+  const draw = (scope) => {
+    const g = sp[scope];
+    const heat = (c) => {
+      if (c.rate == null || c.n < MIN) return '';
+      const d = Math.max(-0.2, Math.min(0.2, c.rate - g.base)) / 0.2;
+      return d >= 0 ? `background: rgba(26,127,78,${(0.6 * d).toFixed(2)})` : `background: rgba(192,57,43,${(-0.6 * d).toFixed(2)})`;
+    };
+    const cell = (c, here, cl) => el('td', { class: cls(cl, c.n < MIN && 'muted', here.length && 'sp-here'), style: heat(c),
+      title: `${c.n} games${here.length ? ` · this round: ${here.map((f) => f.label).join(', ')}` : ''}` },
+    el('div', { class: 'b', text: p0(c.rate) }), el('div', { class: 'bt-n', text: c.n ? String(c.n) : '' }),
+    here.length ? el('div', { class: 'sp-tag', text: `◆ ${here.length}` }) : null);
+    box.replaceChildren(el('table', { class: 'bt heat sp' },
+      el('thead', {}, el('tr', {}, el('th', { text: 'home 1+ ↓ / away 1+ →' }), ...g.labels.map((l) => el('th', { text: l })), el('th', { class: 'sp-tot', text: 'all away' }))),
+      el('tbody', {},
+        ...g.cells.map((row, i) => el('tr', {}, el('th', { text: g.labels[i] }), ...row.map((c, j) => cell(c, fxAt(i, j))), cell(g.rows[i], [], 'sp-tot'))),
+        el('tr', {}, el('th', { class: 'sp-tot', text: 'all home' }), ...g.cols.map((c) => cell(c, [], 'sp-tot')),
+          cell({ n: g.games, rate: g.base }, [], 'sp-tot')))));
+    for (const b of tabs.children) b.classList.toggle('on', b.dataset.scope === scope);
+    note.textContent = `${g.games} games, ${g.from}; BTTS in ${p0(g.base)} overall.`;
   };
-  const gfga = (t) => (t.gp ? `${t.gf}-${t.ga} (${t.gp})` : '—');
-  const rows = [];
-  const byRound = new Map();
-  for (const m of s.matches) { if (!byRound.has(m.round)) byRound.set(m.round, []); byRound.get(m.round).push(m); }
-  for (const [n, ms] of [...byRound].sort((p, q) => q[0] - p[0])) {
-    const hits = ms.filter((m) => m.result.hg > 0 && m.result.ag > 0).length;
-    rows.push(el('tr', { class: 'ss-week' }, el('td', { colspan: 11, class: 'l' }, `${s.roundWord} ${n}`,
-      el('span', { class: 'btts-sub', text: ` — BTTS in ${hits} of ${ms.length}` }))));
-    for (const m of ms) {
-      const both = m.result.hg > 0 && m.result.ag > 0;
-      rows.push(el('tr', {},
-        m.moved ? el('td', { class: 'l' }, el('div', { text: m.label }), el('div', { class: 'np np-has moved', text: m.moved })) : td(m.label, 'l'),
-        lmh(m, 'h1'), lmh(m, 'a1'), histCell(m.cells.d1, m.cells.d1 && m.cells.d1.text),
-        td(gfga(m.hs), 'num'), td(gfga(m.as), 'num'),
-        histCell(m.cells.sgd, m.cells.sgd && m.cells.sgd.text), histCell(m.cells.sgf, m.cells.sgf && m.cells.sgf.text),
-        histCell(m.cells.sga, m.cells.sga && m.cells.sga.text),
-        td(`${m.result.hg}-${m.result.ag}`, 'num'), td(both ? 'Yes' : 'No', cls('b', both ? 'good' : 'bad'))));
-    }
-  }
-  const H = [
-    ['HOME 1+', 'model · band'], ['AWAY 1+', 'model · band'], ['1+ Δ', 'home − away, pts'],
-    ['HOME GF-GA', 'season (games)'], ['AWAY GF-GA', 'season (games)'],
-    ['GD/G Δ', 'home − away'], ['GF/G Δ', 'home − away'], ['GA/G Δ', 'home − away'], ['SCORE', 'FT'], ['BTTS?', 'result'],
-  ];
-  return el('section', { class: 'btts drv season' },
-    el('h2', { class: 'btts-h' }, `This season so far — ${s.roundWord} 1 to ${s.upTo}`,
-      el('span', { class: 'btts-sub', text: ` — both teams scored in ${pct(s.base)} of ${s.games} games played, ${s.season}` })),
-    el('details', { class: 'bt-help' }, el('summary', { text: 'How to read this' }), el('p', { class: 'foot', text: 'This season\'s played games only. '
-      + 'MODEL 1+ = the Poisson model\'s chance that a side scores at least once, as the MODEL column had it before kickoff (Low <60%, Medium 60–74%, High 75%+); 1+ Δ = home minus away, in points. '
-      + 'GF-GA = each side\'s season goals for and against before that game (games played in brackets); GD/G, GF/G, GA/G Δ = home minus away, per game. '
-      + `The BTTS line under a value = this season's BTTS rate in the same band (the game itself included). Green / red = 5+ pts above / below this season's rate on ${s.minBucket}+ games — small samples, so read it as a tally, not a forecast.` })),
-    el('div', { class: 'drv-row' }, featTable(s.features), ...(s.grids || []).map(grid)),
-    el('div', { class: 'bt-wrap' }, el('table', { class: 'bt btts-round drv-round ss-table' },
-      el('thead', {}, el('tr', {}, el('th', { class: 'l' }, 'Match', el('div', { class: 'bt-th2', text: 'BTTS line = this season, same band' })),
-        ...H.map(([l, l2]) => el('th', {}, l, el('div', { class: 'bt-th2', text: l2 }))))),
-      el('tbody', {}, ...rows))));
+  const tabs = el('div', { class: 'sp-tabs' }, ...[['all', 'All seasons'], ['season', 'This season']].map(([k, l]) =>
+    el('button', { type: 'button', 'data-scope': k, text: `${l} (${sp[k].games})` })));
+  tabs.addEventListener('click', (ev) => { const b = ev.target.closest('button'); if (b) draw(b.dataset.scope); });
+  const note = el('span', { class: 'btts-sub' });
+  const rate = (scope, f) => (f.pos ? sp[scope].cells[f.pos[0]][f.pos[1]] : null);
+  const fxRows = sp.fixtures.map((f) => {
+    const both = f.result ? f.result.hg > 0 && f.result.ag > 0 : null;
+    const r = (scope) => { const c = rate(scope, f); return c ? td(`${p0(c.rate)} · ${c.n}`, cls('num', c.n < MIN && 'muted')) : td('—', 'muted'); };
+    return el('tr', {}, td(f.label, 'l'), td(p0(f.h1), 'num'), td(p0(f.a1), 'num'),
+      td(f.pos ? `${sp.all.labels[f.pos[0]]} × ${sp.all.labels[f.pos[1]]}` : '—', 'num muted'), r('all'), r('season'),
+      td(both == null ? '—' : `${both ? 'Yes' : 'No'} · ${f.result.hg}-${f.result.ag}`, cls(both == null ? 'muted' : both ? 'good b' : 'bad b')));
+  });
+  const sec = el('section', { class: 'btts drv spread' },
+    el('h2', { class: 'btts-h' }, 'BTTS spread — home 1+ × away 1+', el('span', { class: 'btts-sub', text: ' — how often both teams scored, by the model\'s chance of each side scoring' })),
+    el('details', { class: 'bt-help' }, el('summary', { text: 'How to read this' }), el('p', { class: 'foot', text: 'Every game played, placed by the MODEL\'s chance (before kickoff) that the home side scores 1+ (rows) and the away side scores 1+ (columns), in 10-point steps: '
+      + '"70s" = 70–79%. Each cell = how often both teams then scored, and in how many games. Green / red = above / below the overall rate (darker = further); '
+      + `grey = under ${MIN} games. "all home" / "all away" = totals for the row / column. ◆ = this round's fixtures in that cell (listed below). `
+      + 'All seasons = league games since the second season with a model prior (backtest model, earlier games only); This season = played games so far, with the MODEL column\'s figures.' })),
+    el('div', { class: 'sp-head' }, tabs, note),
+    el('div', { class: 'drv-row' }, box,
+      el('div', { class: 'bt-wrap' }, el('table', { class: 'bt btts-round sp-fx' },
+        el('thead', {}, el('tr', {}, ...[['This round', ''], ['HOME 1+', 'model'], ['AWAY 1+', 'model'], ['CELL', 'home × away'], ['BTTS', 'all seasons'], ['BTTS', 'this season'], ['BTTS?', 'result']]
+          .map(([l, l2], i) => el('th', { class: i ? '' : 'l' }, l, el('div', { class: 'bt-th2', text: l2 }))))),
+        el('tbody', {}, ...fxRows)))));
+  draw('all');
+  return sec;
 }
 
 // shared by the BTTS panels: b = a study summary { base, minBucket, features, grids }
@@ -733,7 +737,7 @@ function renderChart(c) {
     el('p', { class: 'subtitle', text: c.sub }),
     el('div', { class: 'table-wrap' }, el('table', { class: 'match', 'data-lock': 5 }, head, ...bodies)),
     driversPanel(c.btts && c.btts.drivers),
-    seasonPanel(c.btts && c.btts.season),
+    spreadPanel(c.btts && c.btts.spread),
     bttsPanel(c.btts),
     el('details', { class: 'notes' }, el('summary', { text: 'Notes & sources' }),
       el('p', { class: 'foot', text: c.foot1 }), el('p', { class: 'foot', text: c.foot2 })),
