@@ -376,3 +376,4 @@ table.sp td.sp-here { outline: 2px solid var(--accent); outline-offset: -2px; }
 .sp-band { width: 104px; padding: 2px; }
 .sp-band.sp-here { outline: 2px solid var(--accent); outline-offset: 0; border-radius: 3px; }
 table.sp-prof td, table.sp-prof th { padding: 3px 8px; }
+table.heat td.sp-btts { box-shadow: inset 0 0 0 1px var(--good); }

@@ -521,6 +521,7 @@ function spreadPanel(sp) {
   const dBox = el('div', { class: 'sp-delta' });
   const drawDelta = (g) => {
     const D = g.delta;
+    const g2 = (v) => (v == null ? '—' : v.toFixed(2));
     const tone = (c) => (c.rate == null || c.n < MIN ? '' : c.rate >= g.base + 0.05 ? 'good' : c.rate <= g.base - 0.05 ? 'bad' : '');
     const prof = (name, x, klass) => el('tr', {}, td(name, cls('l b', klass)), td(String(x.n), 'num muted'),
       td(pts(x.median), 'num b'), td(pts(x.mean), 'num'), td(`${pts(x.p25)} to ${pts(x.p75)}`, 'num'), td(pts(x.absMedian).replace('+', ''), 'num'),
@@ -531,7 +532,6 @@ function spreadPanel(sp) {
       return D.btts.median != null && D.btts.median >= lo && D.btts.median < hi;
     });
     const G = g.goals;
-    const g2 = (v) => (v == null ? '—' : v.toFixed(2));
     const sg = (v) => { if (v == null) return '—'; const r = Math.round(v * 100) / 100 + 0; return `${r >= 0 ? '+' : '−'}${Math.abs(r).toFixed(2)}`; };
     const gRow = (name, x, klass) => el('tr', {}, td(name, cls('l b', klass)), td(String(x.n), 'num muted'),
       td(g2(x.hgf), 'num'), td(g2(x.hga), 'num'), td(g2(x.agf), 'num'), td(g2(x.aga), 'num'),
@@ -557,7 +557,36 @@ function spreadPanel(sp) {
       ...bandRow('BTTS rate by season GF/G delta, home − away (rate · games); outlined = the band holding the BTTS median', G.gfBands, G.btts.gfd.median),
       ...bandRow('BTTS rate by season GA/G delta, home − away (rate · games); outlined = the band holding the BTTS median', G.gaBands, G.btts.gad.median),
     ] : [];
+    // goals scored in these games, home and away
+    const S = g.scored;
+    const scoredBlock = S && S.all.n ? (() => {
+      const avgRow = (name, x, klass) => el('tr', {}, td(name, cls('l b', klass)), td(String(x.n), 'num muted'),
+        td(g2(x.home), 'num b'), td(g2(x.away), 'num b'), td(g2(x.total), 'num'));
+      const distRow = (name, d, one) => el('tr', {}, td(name, 'l b'), ...d.map((v) => td(p0(v), 'num')),
+        td(p0(one.actual), 'num b'), td(p0(one.model), 'num muted'));
+      const maxShare = Math.max(...S.grid.flat().map((c) => c.share || 0));
+      return [
+        el('div', { class: 'bt-grid-t', text: 'Goals scored in these games — home and away' }),
+        el('div', { class: 'drv-row' },
+          el('table', { class: 'bt sp-prof' },
+            el('thead', {}, el('tr', {}, ...['', 'Games', 'Home goals/G', 'Away goals/G', 'Total/G'].map((l, i) => el('th', { class: i ? '' : 'l', text: l })))),
+            el('tbody', {}, avgRow('All games', S.all), avgRow('BTTS', S.btts, 'good'), avgRow('No BTTS', S.not, 'bad'))),
+          el('table', { class: 'bt sp-prof' },
+            el('thead', {}, el('tr', {}, ...[['', ''], ['0', 'goals'], ['1', 'goal'], ['2', 'goals'], ['3+', 'goals'], ['Scored 1+', 'actual'], ['Model 1+', 'average']]
+              .map(([l, l2], i) => el('th', { class: i ? '' : 'l' }, l, l2 ? el('div', { class: 'bt-th2', text: l2 }) : null)))),
+            el('tbody', {}, distRow('Home side', S.homeDist, S.home1), distRow('Away side', S.awayDist, S.away1))),
+          el('div', { class: 'bt-grid' }, el('div', { class: 'bt-grid-t', text: 'Final score — home goals (rows) × away goals (columns), share of games; outlined = BTTS' }),
+            el('table', { class: 'bt heat' },
+              el('thead', {}, el('tr', {}, el('th', { text: 'home ↓ / away →' }), ...['0', '1', '2', '3+'].map((l) => el('th', { text: l })))),
+              el('tbody', {}, ...S.grid.map((row, h) => el('tr', {}, el('th', { text: h === 3 ? '3+' : String(h) }),
+                ...row.map((c, a) => el('td', {
+                  class: cls(h > 0 && a > 0 && 'sp-btts'), title: `${c.n} games`,
+                  style: c.share ? `background: rgba(43,95,217,${(0.45 * c.share / maxShare).toFixed(2)})` : '',
+                }, el('div', { class: 'b', text: p0(c.share) }), el('div', { class: 'bt-n', text: String(c.n) }))))))))),
+      ];
+    })() : [];
     dBox.replaceChildren(
+      ...scoredBlock,
       el('div', { class: 'bt-grid-t', text: '1+ delta (home − away, pts) — games that ended BTTS vs those that didn\'t' }),
       el('table', { class: 'bt sp-prof' },
         el('thead', {}, el('tr', {}, ...[['', ''], ['Games', ''], ['Median Δ', ''], ['Average Δ', ''], ['Middle half', '25th–75th pct'], ['Median gap', 'either way'], ['Median home 1+', ''], ['Median away 1+', '']]
@@ -602,7 +631,8 @@ function spreadPanel(sp) {
       + '1+ Δ = home 1+ minus away 1+ in points (home 80%, away 70% = +10). The delta table compares games that ended BTTS with those that didn\'t: median, average, the middle half of deltas, '
       + 'and the median gap either way; "vs BTTS median" = how far this fixture\'s delta sits from the BTTS games\' median in the selected scope. '
       + 'Season goals = each side\'s goals for / against per game that season before kickoff (games with both sides 3+ games played); GF/G Δ and GA/G Δ = home minus away, '
-      + 'compared the same way, with the BTTS rate by delta band.' })),
+      + 'compared the same way, with the BTTS rate by delta band. Goals scored = the final scores of these games: average home / away goals, how often each side scored 0, 1, 2, 3+ '
+      + '(and how often it scored at all, beside the model\'s average 1+ chance), and the share of games ending on each score.' })),
     el('div', { class: 'sp-head' }, tabs, note),
     el('div', { class: 'drv-row' }, box,
       el('div', { class: 'bt-wrap' }, el('table', { class: 'bt btts-round sp-fx' },
