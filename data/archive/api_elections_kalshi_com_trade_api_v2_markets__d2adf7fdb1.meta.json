@@ -1,0 +1,6 @@
+{
+ "url": "https://api.elections.kalshi.com/trade-api/v2/markets?series_ticker=KXBUNDESLIGAGAME&min_close_ts=1792089000&max_close_ts=1792769400&limit=200",
+ "status": 200,
+ "fetched_at": 1792368855.63,
+ "fetched_at_iso": "2026-10-19T00:14:15"
+}
