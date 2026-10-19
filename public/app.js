@@ -511,33 +511,70 @@ function spreadPanel(sp) {
         ...g.cells.map((row, i) => el('tr', {}, el('th', { text: g.labels[i] }), ...row.map((c, j) => cell(c, fxAt(i, j))), cell(g.rows[i], [], 'sp-tot'))),
         el('tr', {}, el('th', { class: 'sp-tot', text: 'all home' }), ...g.cols.map((c) => cell(c, [], 'sp-tot')),
           cell({ n: g.games, rate: g.base }, [], 'sp-tot')))));
+    drawDelta(g);
+    drawFx(scope);
     for (const b of tabs.children) b.classList.toggle('on', b.dataset.scope === scope);
     note.textContent = `${g.games} games, ${g.from}; BTTS in ${p0(g.base)} overall.`;
+  };
+  // 1+ delta (home − away): BTTS vs no-BTTS games, and the BTTS rate by delta band
+  const pts = (v) => (v == null ? '—' : `${v >= 0 ? '+' : '−'}${Math.abs(Math.round(v * 100))}`);
+  const dBox = el('div', { class: 'sp-delta' });
+  const drawDelta = (g) => {
+    const D = g.delta;
+    const prof = (name, x, klass) => el('tr', {}, td(name, cls('l b', klass)), td(String(x.n), 'num muted'),
+      td(pts(x.median), 'num b'), td(pts(x.mean), 'num'), td(`${pts(x.p25)} to ${pts(x.p75)}`, 'num'), td(pts(x.absMedian).replace('+', ''), 'num'),
+      td(p0(x.h1), 'num'), td(p0(x.a1), 'num'));
+    const hit = D.bands.findIndex((b, i) => {
+      const lo = [-Infinity, -0.295, -0.195, -0.095, -0.005, 0.095, 0.195, 0.295][i];
+      const hi = [-0.295, -0.195, -0.095, -0.005, 0.095, 0.195, 0.295, Infinity][i];
+      return D.btts.median != null && D.btts.median >= lo && D.btts.median < hi;
+    });
+    const tone = (c) => (c.rate == null || c.n < MIN ? '' : c.rate >= g.base + 0.05 ? 'good' : c.rate <= g.base - 0.05 ? 'bad' : '');
+    dBox.replaceChildren(
+      el('div', { class: 'bt-grid-t', text: '1+ delta (home − away, pts) — games that ended BTTS vs those that didn\'t' }),
+      el('table', { class: 'bt sp-prof' },
+        el('thead', {}, el('tr', {}, ...[['', ''], ['Games', ''], ['Median Δ', ''], ['Average Δ', ''], ['Middle half', '25th–75th pct'], ['Median gap', 'either way'], ['Median home 1+', ''], ['Median away 1+', '']]
+          .map(([l, l2], i) => el('th', { class: i ? '' : 'l' }, l, l2 ? el('div', { class: 'bt-th2', text: l2 }) : null)))),
+        el('tbody', {}, prof('BTTS', D.btts, 'good'), prof('No BTTS', D.not, 'bad'))),
+      el('div', { class: 'bt-grid-t', text: 'BTTS rate by 1+ delta (rate · games); outlined = the band holding the BTTS median' }),
+      el('div', { class: 'sp-bands' }, ...D.bands.map((b, i) => el('div', { class: cls('sp-band', i === hit && 'sp-here') },
+        el('div', { class: 'bt-lab', text: b.label }),
+        el('div', { class: cls('bt-bar', tone(b)), title: `${b.n} games` },
+          el('span', { class: 'bt-fill', style: `width:${Math.round(100 * (b.rate || 0))}%` }),
+          el('span', { class: 'bt-txt', text: b.rate == null ? '—' : `${p0(b.rate)} · ${b.n}` }))))));
   };
   const tabs = el('div', { class: 'sp-tabs' }, ...[['all', 'All seasons'], ['season', 'This season']].map(([k, l]) =>
     el('button', { type: 'button', 'data-scope': k, text: `${l} (${sp[k].games})` })));
   tabs.addEventListener('click', (ev) => { const b = ev.target.closest('button'); if (b) draw(b.dataset.scope); });
   const note = el('span', { class: 'btts-sub' });
   const rate = (scope, f) => (f.pos ? sp[scope].cells[f.pos[0]][f.pos[1]] : null);
-  const fxRows = sp.fixtures.map((f) => {
+  const fxBody = el('tbody');
+  const drawFx = (scope) => fxBody.replaceChildren(...sp.fixtures.map((f) => {
     const both = f.result ? f.result.hg > 0 && f.result.ag > 0 : null;
-    const r = (scope) => { const c = rate(scope, f); return c ? td(`${p0(c.rate)} · ${c.n}`, cls('num', c.n < MIN && 'muted')) : td('—', 'muted'); };
+    const r = (sc) => { const c = rate(sc, f); return c ? td(`${p0(c.rate)} · ${c.n}`, cls('num', c.n < MIN && 'muted')) : td('—', 'muted'); };
+    const d = f.h1 != null && f.a1 != null ? f.h1 - f.a1 : null;
+    const med = sp[scope].delta.btts.median;
     return el('tr', {}, td(f.label, 'l'), td(p0(f.h1), 'num'), td(p0(f.a1), 'num'),
+      td(pts(d), 'num b'), td(d == null || med == null ? '—' : pts(d - med), 'num muted'),
       td(f.pos ? `${sp.all.labels[f.pos[0]]} × ${sp.all.labels[f.pos[1]]}` : '—', 'num muted'), r('all'), r('season'),
       td(both == null ? '—' : `${both ? 'Yes' : 'No'} · ${f.result.hg}-${f.result.ag}`, cls(both == null ? 'muted' : both ? 'good b' : 'bad b')));
-  });
+  }));
   const sec = el('section', { class: 'btts drv spread' },
     el('h2', { class: 'btts-h' }, 'BTTS spread — home 1+ × away 1+', el('span', { class: 'btts-sub', text: ' — how often both teams scored, by the model\'s chance of each side scoring' })),
     el('details', { class: 'bt-help' }, el('summary', { text: 'How to read this' }), el('p', { class: 'foot', text: 'Every game played, placed by the MODEL\'s chance (before kickoff) that the home side scores 1+ (rows) and the away side scores 1+ (columns), in 10-point steps: '
       + '"70s" = 70–79%. Each cell = how often both teams then scored, and in how many games. Green / red = above / below the overall rate (darker = further); '
       + `grey = under ${MIN} games. "all home" / "all away" = totals for the row / column. ◆ = this round's fixtures in that cell (listed below). `
-      + 'All seasons = league games since the second season with a model prior (backtest model, earlier games only); This season = played games so far, with the MODEL column\'s figures.' })),
+      + 'All seasons = league games since the second season with a model prior (backtest model, earlier games only); This season = played games so far, with the MODEL column\'s figures. '
+      + '1+ Δ = home 1+ minus away 1+ in points (home 80%, away 70% = +10). The delta table compares games that ended BTTS with those that didn\'t: median, average, the middle half of deltas, '
+      + 'and the median gap either way; "vs BTTS median" = how far this fixture\'s delta sits from the BTTS games\' median in the selected scope.' })),
     el('div', { class: 'sp-head' }, tabs, note),
     el('div', { class: 'drv-row' }, box,
       el('div', { class: 'bt-wrap' }, el('table', { class: 'bt btts-round sp-fx' },
-        el('thead', {}, el('tr', {}, ...[['This round', ''], ['HOME 1+', 'model'], ['AWAY 1+', 'model'], ['CELL', 'home × away'], ['BTTS', 'all seasons'], ['BTTS', 'this season'], ['BTTS?', 'result']]
+        el('thead', {}, el('tr', {}, ...[['This round', ''], ['HOME 1+', 'model'], ['AWAY 1+', 'model'], ['1+ Δ', 'home − away'], ['vs BTTS median', 'Δ − median'],
+          ['CELL', 'home × away'], ['BTTS', 'all seasons'], ['BTTS', 'this season'], ['BTTS?', 'result']]
           .map(([l, l2], i) => el('th', { class: i ? '' : 'l' }, l, el('div', { class: 'bt-th2', text: l2 }))))),
-        el('tbody', {}, ...fxRows)))));
+        fxBody))),
+    dBox);
   draw('all');
   return sec;
 }
