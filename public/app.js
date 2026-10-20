@@ -448,7 +448,7 @@ function driversPanel(d) {
   };
   const gd = (x, s) => (x.v[`gf${s}`] == null ? '—' : `${x.v[`gf${s}`]}-${x.v[`ga${s}`]} (${sg(x.v[`gd${s}`])})`);
   const cnt = (x, n) => (x.v[`c${n}h`] == null ? '—' : `${p0(x.v[`c${n}h`] / 10)} · ${p0(x.v[`c${n}a`] / 10)}`);
-  const rows = d.round.map((x) => {
+  const rowsOf = (list) => list.map((x) => {
     const tones = Object.values(x.cells).filter(Boolean).map((c) => tone(c.rate, c.n));
     const up = tones.filter((t) => t === 'good').length;
     const down = tones.filter((t) => t === 'bad').length;
@@ -467,6 +467,10 @@ function driversPanel(d) {
     ['0 G', 'home · away'], ['1 G', 'home · away'], ['2 G', 'home · away'], ['3+ G', 'home · away'],
     ['SIGNALS', '▲ above · ▼ below'], ['BTTS?', 'result'],
   ];
+  const roundTable = (title, sub, list) => el('div', { class: 'bt-wrap' }, el('table', { class: 'bt btts-round drv-round' },
+    el('thead', {}, el('tr', {}, el('th', { class: 'l' }, title, el('div', { class: 'bt-th2', text: sub })),
+      ...H.map(([l, l2]) => el('th', {}, l, el('div', { class: 'bt-th2', text: l2 }))))),
+    el('tbody', {}, ...rowsOf(list))));
   return el('section', { class: 'btts drv' },
     el('h2', { class: 'btts-h' }, 'BTTS drivers (history, test)',
       el('span', { class: 'btts-sub', text: ` — both teams scored in ${pct(d.base)} of ${d.games} past games`
@@ -479,11 +483,13 @@ function driversPanel(d) {
     part('Model 1+ (goal +1)', 'Each side\'s chance to score, in bands, and the gap between them.', ['h1', 'a1', 'min1', 'd1'], 'lmh'),
     part('Last 10 GF−GA', 'Goal difference over each side\'s last 10, the gap between the two, and how tight the better defence is.', ['gdh', 'gda', 'gdgap', 'gamin'], 'gd'),
     part('Last 10 by goals scored', 'How many of the last 10 each side scored 0, 1, 2, 3+ in.', ['c0max', 'c0', 'c1', 'c2', 'c3'], 'c0'),
-    el('div', { class: 'bt-wrap' }, el('table', { class: 'bt btts-round drv-round' },
-      el('thead', {}, el('tr', {}, el('th', { class: 'l' }, d.roundLabel || 'This round',
-        el('div', { class: 'bt-th2', text: d.roundShift ? 'last complete round' : 'BTTS line = past games like it' })),
-        ...H.map(([l, l2]) => el('th', {}, l, el('div', { class: 'bt-th2', text: l2 }))))),
-      el('tbody', {}, ...rows))));
+    roundTable(d.roundLabel || 'This round', d.roundShift ? 'last complete round' : 'BTTS line = past games like it', d.round),
+    // the round under way: this week's fixtures in the same bands (results fill in as they're played)
+    d.roundShift && d.current && d.current.length
+      ? [el('h3', { class: 'drv-h', text: `${d.currentLabel} — this week's fixtures` }),
+        el('p', { class: 'drv-note', text: 'Where this week\'s games sit in the same bands, and how often past games there ended BTTS.' }),
+        roundTable(d.currentLabel, 'this week', d.current)]
+      : null);
 }
 
 // BTTS spread: every game played, by the model's home 1+ chance (rows) × away 1+ chance (columns),
