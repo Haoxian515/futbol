@@ -271,10 +271,11 @@ function absentCells(absent) {
 }
 
 // H2H LAST 5 and LAST 20 share one set of columns: the games (newest first), W-D-L, goals
-// for-against with a small non-penalty line underneath, and per goal count (0 / 1 / 2 / 3+) how
+// for-against with a small non-penalty line underneath, and per goal count (0 / 1 / 2 / 3 / 4+) how
 // many of those games the club scored that many in (top line, G) and conceded that many in (bottom
 // line, GA), each with its share — scored and conceded on the same vertical.
-const GOAL_BINS = ['0', '1', '2', '3+'];
+const GOAL_BINS = ['0', '1', '2', '3', '4+'];
+const TOP_BIN = GOAL_BINS.length - 1; // the last bin takes every higher count
 const SHOW_GAMES = 7; // games listed under NEWEST →; the figures beside them use every game
 const FORM_N_COLS = 3 + GOAL_BINS.length;
 const FORM_SUBS = (what) => [
@@ -300,13 +301,13 @@ function formCells(list, { empty = '—', colorGoals = false } = {}) {
     class: 'h2h-more', title: `${more.length} earlier games, in the figures: ${more.map((g) => `${g.o} ${g.gf}-${g.ga}`).join(', ')}`, text: `+${more.length}`,
   }) : null);
   const r = [0, 0, 0];
-  const bins = [0, 0, 0, 0];
-  const binsA = [0, 0, 0, 0];
+  const bins = GOAL_BINS.map(() => 0);
+  const binsA = GOAL_BINS.map(() => 0);
   let gf = 0; let ga = 0; let pf = 0; let pa = 0; let known = 0;
   for (const g of list) {
     r['WDL'.indexOf(g.o)] += 1;
-    bins[Math.min(g.gf, 3)] += 1;
-    binsA[Math.min(g.ga, 3)] += 1;
+    bins[Math.min(g.gf, TOP_BIN)] += 1;
+    binsA[Math.min(g.ga, TOP_BIN)] += 1;
     gf += g.gf; ga += g.ga;
     if (g.pf != null && g.pa != null) { pf += g.pf; pa += g.pa; known += 1; }
   }
@@ -344,7 +345,7 @@ const last5Cells = (list) => formCells(list);
 
 // Form block, one per fixture (spans both team rows), in one set of columns: the home club's
 // LAST 20, the away club's LAST 20, then their H2H LAST 5 (shared, so shown once, from the home
-// club's side). Matching figures (W-D-L, GF-GA, 0 / 1 / 2 / 3+ with G over GA) line up vertically; each part keeps its
+// club's side). Matching figures (W-D-L, GF-GA, 0 / 1 / 2 / 3 / 4+ with G over GA) line up vertically; each part keeps its
 // own colour classes and tooltip, the cell keeps the column's layout classes.
 function fixtureFormCells(fx, since) {
   const [home, away] = fx.teams;
