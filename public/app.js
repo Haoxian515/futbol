@@ -270,19 +270,22 @@ function absentCells(absent) {
   return [cell(absent.inj, 'injured'), cell(absent.susp, 'suspended')];
 }
 
-// H2H LAST 5 and LAST 10 share one set of columns: the games (newest first), W-D-L, goals
-// for-against with a small non-penalty line underneath, and how many of those games the club
-// scored 0 / 1 / 2 / 3+ goals in, then conceded 0 / 1 / 2 / 3+ in (out of the games shown).
+// H2H LAST 5 and LAST 20 share one set of columns: the games (newest first), W-D-L, goals
+// for-against with a small non-penalty line underneath, and per goal count (0 / 1 / 2 / 3+) how
+// many of those games the club scored that many in (top line, G) and conceded that many in (bottom
+// line, GA), each with its share — scored and conceded on the same vertical.
 const GOAL_BINS = ['0', '1', '2', '3+'];
-const FORM_N_COLS = 3 + 2 * GOAL_BINS.length;
+const FORM_N_COLS = 3 + GOAL_BINS.length;
 const FORM_SUBS = (what) => [
   el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'W-D-L' }),
   el('th', { text: 'GF-GA', title: `goals for-against over the ${what}; np line = with penalty goals excluded, then penalties scored-conceded` }),
-  ...GOAL_BINS.map((b, k) => el('th', { class: cls('gbin', k === 0 && 'gbin-first'), text: `${b} G`, title: `${what} in which the club scored ${b} goal${b === '1' ? '' : 's'}` })),
-  ...GOAL_BINS.map((b, k) => el('th', { class: cls('gbin', k === 0 && 'gbin-first'), text: `${b} GA`, title: `${what} in which the club conceded ${b} goal${b === '1' ? '' : 's'}` })),
+  ...GOAL_BINS.map((b, k) => el('th', {
+    class: cls('gbin', k === 0 && 'gbin-first'),
+    title: `${what} in which the club scored (G) / conceded (GA) ${b} goal${b === '1' ? '' : 's'}`,
+  }, el('div', { text: `${b} G` }), el('div', { class: 'gbin-ga', text: `${b} GA` }))),
 ];
 function formCells(list, { empty = '—', colorGoals = false } = {}) {
-  if (!list || !list.length) return [td(empty, 'l muted h2h sep'), ...Array.from({ length: FORM_N_COLS - 1 }, (_, k) => td('—', cls('num muted', (k === 2 || k === 6) && 'gbin-first')))];
+  if (!list || !list.length) return [td(empty, 'l muted h2h sep'), ...Array.from({ length: FORM_N_COLS - 1 }, (_, k) => td('—', cls('num muted', k === 2 && 'gbin-first')))];
   const games = el('td', { class: 'l h2h sep' }, list.map((g) => el('span', {
     class: cls('h2h-g', RES[g.o]),
     title: `${g.season ? `${g.season} · ` : ''}${g.date || ''} · ${g.ha === 'H' ? 'home' : g.ha === 'N' ? 'neutral' : 'away'}${g.opp ? ` v ${g.opp}` : ''}`
@@ -316,29 +319,31 @@ function formCells(list, { empty = '—', colorGoals = false } = {}) {
       class: cls('np', pf + pa > 0 && 'np-has'), text: `np ${gf - pf}-${ga - pa} · ${pf}-${pa}P${part ? ` (${known}/${n})` : ''}`,
     }))
     : el('td', { class: cls('num', tone), title: `${n} games: ${per(gf)} for, ${per(ga)} against per game; no penalty records` }, `${gf}-${ga}`);
-  // goals scored / conceded counts: the most common count in bold, zeros faded
-  const binCells = (bs, verb) => {
-    const top = Math.max(...bs);
-    return bs.map((k, i) => el('td', {
-      class: cls('num gp gbin', i === 0 && 'gbin-first'),
-      title: `${verb} ${GOAL_BINS[i]} goal${GOAL_BINS[i] === '1' ? '' : 's'} in ${k} of ${n} games (${Math.round((100 * k) / n)}%)`,
-    }, el('div', { class: k === 0 ? 'muted' : k === top ? 'b' : '', text: `${k}/${n}` }),
-    el('div', { class: cls('np', k > 0 && 'np-has'), text: `${Math.round((100 * k) / n)}%` })));
-  };
-  return [games, recCell(r.join('-'), false), gCell, ...binCells(bins, 'scored'), ...binCells(binsA, 'conceded')];
+  // per goal count: scored (G) on top, conceded (GA) under it, each "k/n pct"; the most common
+  // count of each in bold, zeros faded
+  const topG = Math.max(...bins);
+  const topA = Math.max(...binsA);
+  const pc = (k) => `${Math.round((100 * k) / n)}%`;
+  const line = (k, top, extra) => el('div', { class: cls('gb-line', extra) },
+    el('span', { class: k === 0 ? 'muted' : k === top ? 'b' : '', text: `${k}/${n}` }), el('span', { class: cls('np', k > 0 && 'np-has'), text: pc(k) }));
+  const binCells = GOAL_BINS.map((b, i) => el('td', {
+    class: cls('num gp gbin', i === 0 && 'gbin-first'),
+    title: `${b} goal${b === '1' ? '' : 's'}: scored in ${bins[i]} of ${n} games (${pc(bins[i])}), conceded in ${binsA[i]} (${pc(binsA[i])})`,
+  }, line(bins[i], topG), line(binsA[i], topA, 'gb-ga')));
+  return [games, recCell(r.join('-'), false), gCell, ...binCells];
 }
 const h2hCells = (h, since) => formCells(h && h.games, { empty: h ? `none since ${since}` : '—', colorGoals: true });
 const last5Cells = (list) => formCells(list);
 
 // Form block, one per fixture (spans both team rows), in one set of columns: the home club's
-// LAST 10, the away club's LAST 10, then their H2H LAST 5 (shared, so shown once, from the home
-// club's side). Matching figures (W-D-L, GF-GA, 0 G … 3+ G, 0 GA … 3+ GA) line up vertically; each part keeps its
+// LAST 20, the away club's LAST 20, then their H2H LAST 5 (shared, so shown once, from the home
+// club's side). Matching figures (W-D-L, GF-GA, 0 / 1 / 2 / 3+ with G over GA) line up vertically; each part keeps its
 // own colour classes and tooltip, the cell keeps the column's layout classes.
 function fixtureFormCells(fx, since) {
   const [home, away] = fx.teams;
   const parts = [
-    { cells: last5Cells(home.last5), tag: 'HOME', tip: `${home.team}: last 10`, cls: 'stk-l10' },
-    { cells: last5Cells(away.last5), tag: 'AWAY', tip: `${away.team}: last 10`, cls: 'stk-l10' },
+    { cells: last5Cells(home.last5), tag: 'HOME', tip: `${home.team}: last ${home.last5 ? home.last5.length : 20}`, cls: 'stk-l10' },
+    { cells: last5Cells(away.last5), tag: 'AWAY', tip: `${away.team}: last ${away.last5 ? away.last5.length : 20}`, cls: 'stk-l10' },
     { cells: h2hCells(home.h2h, since), tag: 'H2H', tip: `${home.team} v ${away.team}: last 5 meetings, from ${home.team}'s side`, cls: 'stk-h2h' },
   ];
   return parts[0].cells.map((first, i) => el('td', { class: cls(first.className, 'stk'), rowspan: 2 }, ...parts.map((p) => {
@@ -799,7 +804,7 @@ function renderChart(c) {
       th('GF/G'), th('GA/G'), th('GF/GA'), th('TOT/G'), th(c.lastLabel),
       group(c.histTitle, c.histLabels.length, 'sep'),
       group('SEASON RECORD  W-D-L', c.recLabels.length, 'sep'),
-      th('FT / WIN%', { colspan: 2, class: 'sep' }), group('LAST 10 (home, away) · H2H LAST 5', FORM_N_COLS, 'sep'), th('WEATHER', { class: 'l sep' }), th('IMPORTANCE', { class: 'l sep' }),
+      th('FT / WIN%', { colspan: 2, class: 'sep' }), group('LAST 20 (home, away) · H2H LAST 5', FORM_N_COLS, 'sep'), th('WEATHER', { class: 'l sep' }), th('IMPORTANCE', { class: 'l sep' }),
       ...(c.domesticLabels ? [group('DOMESTIC', c.domesticLabels.length, 'sep')] : []),
       ...(c.model ? [group('MODEL (Poisson)', 7, 'sep'), ...MARKETS.map(([, name]) => group(name, 6, 'sep'))] : []),
       ...(c.extraLabels || []).map((x) => th(x, { class: 'l sep' }))),
@@ -876,7 +881,7 @@ function renderIntl(c) {
       th('DAY', { class: 'l' }), th('DATE', { class: 'l' }), th('TIME (PT)', { class: 'l' }), th('VENUE', { class: 'l' }),
       th('TEAM', { class: 'l' }), th('H/A/N'), th('INJURED', { class: 'l' }), th('SUSP.', { class: 'l' }),
       th('GF/G', { class: 'sep' }), th('GA/G'), th('12-MO W-D-L'),
-      th('FT', { colspan: 2, class: 'sep' }), el('th', { colspan: FORM_N_COLS, class: 'group sep', text: 'LAST 10 (home, away) · H2H LAST 5' }),
+      th('FT', { colspan: 2, class: 'sep' }), el('th', { colspan: FORM_N_COLS, class: 'group sep', text: 'LAST 20 (home, away) · H2H LAST 5' }),
       th('WEATHER', { class: 'l sep' }), th('IMPORTANCE', { class: 'l sep' })),
     el('tr', { class: 'sub' }, ...FORM_SUBS('games')));
 

@@ -18,8 +18,8 @@
 5. FULL COLUMN SET, never drop a column:
    DAY|DATE|TIME (PT)|TEAM|H/A|INJURED|SUSP.|STANDING('26,'24,'25,NOW)|GF/G|
    GA/G|GF/GA|TOT/G|LAST|MATCH-N HIST '23-'26|SEASON RECORD '23-'26+NOW|
-   FT/WIN%|H2H LAST 5 and LAST 10 (each: results, W-D-L, GF-GA with non-penalty line, games
-   with 0/1/2/3+ goals scored, and with 0/1/2/3+ conceded)|WEATHER|IMPORTANCE. League extra_columns append
+   FT/WIN%|H2H LAST 5 and LAST 20 (each: results, W-D-L, GF-GA with non-penalty line, and per
+   goal count 0/1/2/3+ the games with that many scored over the games with that many conceded)|WEATHER|IMPORTANCE. League extra_columns append
    after the core set.
 6. INJURED / SUSP. (formerly STAR / STATUS, repurposed by the owner) come
    only from a dated injuries & suspensions source (SportsGambler league
