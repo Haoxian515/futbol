@@ -272,16 +272,17 @@ function absentCells(absent) {
 
 // H2H LAST 5 and LAST 10 share one set of columns: the games (newest first), W-D-L, goals
 // for-against with a small non-penalty line underneath, and how many of those games the club
-// scored 0 / 1 / 2 / 3+ goals in (out of the games shown).
+// scored 0 / 1 / 2 / 3+ goals in, then conceded 0 / 1 / 2 / 3+ in (out of the games shown).
 const GOAL_BINS = ['0', '1', '2', '3+'];
-const FORM_N_COLS = 3 + GOAL_BINS.length;
+const FORM_N_COLS = 3 + 2 * GOAL_BINS.length;
 const FORM_SUBS = (what) => [
   el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'W-D-L' }),
   el('th', { text: 'GF-GA', title: `goals for-against over the ${what}; np line = with penalty goals excluded, then penalties scored-conceded` }),
   ...GOAL_BINS.map((b, k) => el('th', { class: cls('gbin', k === 0 && 'gbin-first'), text: `${b} G`, title: `${what} in which the club scored ${b} goal${b === '1' ? '' : 's'}` })),
+  ...GOAL_BINS.map((b, k) => el('th', { class: cls('gbin', k === 0 && 'gbin-first'), text: `${b} GA`, title: `${what} in which the club conceded ${b} goal${b === '1' ? '' : 's'}` })),
 ];
 function formCells(list, { empty = '—', colorGoals = false } = {}) {
-  if (!list || !list.length) return [td(empty, 'l muted h2h sep'), ...Array.from({ length: FORM_N_COLS - 1 }, (_, k) => td('—', cls('num muted', k === 2 && 'gbin-first')))];
+  if (!list || !list.length) return [td(empty, 'l muted h2h sep'), ...Array.from({ length: FORM_N_COLS - 1 }, (_, k) => td('—', cls('num muted', (k === 2 || k === 6) && 'gbin-first')))];
   const games = el('td', { class: 'l h2h sep' }, list.map((g) => el('span', {
     class: cls('h2h-g', RES[g.o]),
     title: `${g.season ? `${g.season} · ` : ''}${g.date || ''} · ${g.ha === 'H' ? 'home' : g.ha === 'N' ? 'neutral' : 'away'}${g.opp ? ` v ${g.opp}` : ''}`
@@ -290,10 +291,12 @@ function formCells(list, { empty = '—', colorGoals = false } = {}) {
   })));
   const r = [0, 0, 0];
   const bins = [0, 0, 0, 0];
+  const binsA = [0, 0, 0, 0];
   let gf = 0; let ga = 0; let pf = 0; let pa = 0; let known = 0;
   for (const g of list) {
     r['WDL'.indexOf(g.o)] += 1;
     bins[Math.min(g.gf, 3)] += 1;
+    binsA[Math.min(g.ga, 3)] += 1;
     gf += g.gf; ga += g.ga;
     if (g.pf != null && g.pa != null) { pf += g.pf; pa += g.pa; known += 1; }
   }
@@ -313,21 +316,23 @@ function formCells(list, { empty = '—', colorGoals = false } = {}) {
       class: cls('np', pf + pa > 0 && 'np-has'), text: `np ${gf - pf}-${ga - pa} · ${pf}-${pa}P${part ? ` (${known}/${n})` : ''}`,
     }))
     : el('td', { class: cls('num', tone), title: `${n} games: ${per(gf)} for, ${per(ga)} against per game; no penalty records` }, `${gf}-${ga}`);
-  // goals-scored counts: the most common count in bold, zeros faded
-  const top = Math.max(...bins);
-  const binCells = bins.map((k, i) => el('td', {
-    class: cls('num gp gbin', i === 0 && 'gbin-first'),
-    title: `scored ${GOAL_BINS[i]} goal${GOAL_BINS[i] === '1' ? '' : 's'} in ${k} of ${n} games (${Math.round((100 * k) / n)}%)`,
-  }, el('div', { class: k === 0 ? 'muted' : k === top ? 'b' : '', text: `${k}/${n}` }),
-  el('div', { class: cls('np', k > 0 && 'np-has'), text: `${Math.round((100 * k) / n)}%` })));
-  return [games, recCell(r.join('-'), false), gCell, ...binCells];
+  // goals scored / conceded counts: the most common count in bold, zeros faded
+  const binCells = (bs, verb) => {
+    const top = Math.max(...bs);
+    return bs.map((k, i) => el('td', {
+      class: cls('num gp gbin', i === 0 && 'gbin-first'),
+      title: `${verb} ${GOAL_BINS[i]} goal${GOAL_BINS[i] === '1' ? '' : 's'} in ${k} of ${n} games (${Math.round((100 * k) / n)}%)`,
+    }, el('div', { class: k === 0 ? 'muted' : k === top ? 'b' : '', text: `${k}/${n}` }),
+    el('div', { class: cls('np', k > 0 && 'np-has'), text: `${Math.round((100 * k) / n)}%` })));
+  };
+  return [games, recCell(r.join('-'), false), gCell, ...binCells(bins, 'scored'), ...binCells(binsA, 'conceded')];
 }
 const h2hCells = (h, since) => formCells(h && h.games, { empty: h ? `none since ${since}` : '—', colorGoals: true });
 const last5Cells = (list) => formCells(list);
 
 // Form block, one per fixture (spans both team rows), in one set of columns: the home club's
 // LAST 10, the away club's LAST 10, then their H2H LAST 5 (shared, so shown once, from the home
-// club's side). Matching figures (W-D-L, GF-GA, 0 G … 3+ G) line up vertically; each part keeps its
+// club's side). Matching figures (W-D-L, GF-GA, 0 G … 3+ G, 0 GA … 3+ GA) line up vertically; each part keeps its
 // own colour classes and tooltip, the cell keeps the column's layout classes.
 function fixtureFormCells(fx, since) {
   const [home, away] = fx.teams;
