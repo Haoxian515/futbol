@@ -388,5 +388,4 @@ table.heat td.sp-btts { box-shadow: inset 0 0 0 1px var(--good); }
 .stk-part.h2h .stk-line { white-space: normal; max-width: 500px; padding-left: 38px; text-indent: -38px; }
 .stk-part.h2h .stk-line .h2h-g { text-indent: 0; }
 .stk-part.h2h .stk-line .stk-tag { text-indent: 0; }
-/* every part the height of a two-line games list, so the parts line up across columns */
-.match td.stk .stk-part { min-height: 34px; }
+.h2h-more { color: var(--muted); font-size: 10px; font-weight: 600; cursor: help; }

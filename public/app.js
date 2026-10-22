@@ -275,9 +275,11 @@ function absentCells(absent) {
 // many of those games the club scored that many in (top line, G) and conceded that many in (bottom
 // line, GA), each with its share — scored and conceded on the same vertical.
 const GOAL_BINS = ['0', '1', '2', '3+'];
+const SHOW_GAMES = 7; // games listed under NEWEST →; the figures beside them use every game
 const FORM_N_COLS = 3 + GOAL_BINS.length;
 const FORM_SUBS = (what) => [
-  el('th', { class: 'l sep', text: 'NEWEST →' }), el('th', { text: 'W-D-L' }),
+  el('th', { class: 'l sep', text: 'NEWEST →', title: `the newest ${SHOW_GAMES} games; W-D-L, GF-GA and the goal counts cover all of them (up to 20)` }),
+  el('th', { text: 'W-D-L' }),
   el('th', { text: 'GF-GA', title: `goals for-against over the ${what}; np line = with penalty goals excluded, then penalties scored-conceded` }),
   ...GOAL_BINS.map((b, k) => el('th', {
     class: cls('gbin', k === 0 && 'gbin-first'),
@@ -286,12 +288,17 @@ const FORM_SUBS = (what) => [
 ];
 function formCells(list, { empty = '—', colorGoals = false } = {}) {
   if (!list || !list.length) return [td(empty, 'l muted h2h sep'), ...Array.from({ length: FORM_N_COLS - 1 }, (_, k) => td('—', cls('num muted', k === 2 && 'gbin-first')))];
-  const games = el('td', { class: 'l h2h sep' }, list.map((g) => el('span', {
+  // the newest SHOW_GAMES listed; the rest are counted in the figures (hover "+13" for them)
+  const shown = list.slice(0, SHOW_GAMES);
+  const more = list.slice(SHOW_GAMES);
+  const games = el('td', { class: 'l h2h sep' }, shown.map((g) => el('span', {
     class: cls('h2h-g', RES[g.o]),
     title: `${g.season ? `${g.season} · ` : ''}${g.date || ''} · ${g.ha === 'H' ? 'home' : g.ha === 'N' ? 'neutral' : 'away'}${g.opp ? ` v ${g.opp}` : ''}`
       + `${g.comp ? ` · ${g.comp}` : ''}${g.pf ? ` · ${g.pf} pen scored` : ''}${g.pa ? ` · ${g.pa} pen conceded` : ''}`,
     text: `${g.o} ${g.gf}-${g.ga}`,
-  })));
+  })), more.length ? el('span', {
+    class: 'h2h-more', title: `${more.length} earlier games, in the figures: ${more.map((g) => `${g.o} ${g.gf}-${g.ga}`).join(', ')}`, text: `+${more.length}`,
+  }) : null);
   const r = [0, 0, 0];
   const bins = [0, 0, 0, 0];
   const binsA = [0, 0, 0, 0];
