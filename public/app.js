@@ -71,7 +71,9 @@ async function loadUpcoming() {
   },
   el('span', { class: 'up-date', text: `${u.day} ${u.label}` }),
   el('span', { class: 'up-name', text: u.name.replace(/^UEFA /, '') }),
-  el('span', { class: 'up-round', text: `${u.roundWord} ${u.round}` }))));
+  el('span', { class: 'up-round', text: `${u.roundWord} ${u.round}` }),
+  // a rescheduled game before the next match week: small blue note
+  u.catchup ? el('span', { class: 'up-catch', title: `rescheduled ${u.roundWord} ${u.catchup.round} game`, text: `+ catch-up ${u.catchup.day} ${u.catchup.label} (${u.roundWord} ${u.catchup.round})` }) : null)));
   [...$('upList').children].forEach((b, i) => b.addEventListener('click', async () => {
     const u = data.items[i];
     $('league').value = u.key;
@@ -91,9 +93,12 @@ async function loadRounds(preferredRound, preferredHistory) {
     const data = await api(`/api/rounds?league=${encodeURIComponent($('league').value)}`);
     sel.replaceChildren(...data.rounds.map((r) => {
       // a round whose only unplayed games were rescheduled reads as final, with the moved dates
-      const later = (r.movedOpen || []).map((d) => (d ? `${MONTHS[+d.slice(5, 7) - 1]} ${+d.slice(8, 10)}` : 'TBC'));
+      const mv = r.movedOpen || [];
+      const later = mv.filter(Boolean).map((d) => `${MONTHS[+d.slice(5, 7) - 1]} ${+d.slice(8, 10)}`);
+      const tbc = mv.length - later.length; // postponed, no new date yet
+      const moved = [later.length ? `${later.length} rescheduled to ${later.join(', ')}` : '', tbc ? `${tbc} postponed, date TBC` : ''].filter(Boolean).join(' · ');
       const state = r.played === r.total ? 'final'
-        : r.open === 0 && later.length ? `final · ${later.length} rescheduled to ${later.join(', ')}`
+        : r.open === 0 && mv.length ? `final · ${moved}`
           : r.played ? `${r.played}/${r.total} played` : 'upcoming';
       return el('option', { value: r.n, text: `${data.roundWord} ${r.n} · ${r.range} · ${state}` });
     }));
