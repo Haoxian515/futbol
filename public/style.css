@@ -384,8 +384,4 @@ table.heat td.sp-btts { box-shadow: inset 0 0 0 1px var(--good); }
 .match .gbin .gb-ga { border-top: 1px dotted var(--rule); color: var(--bad); }
 .match .gbin .gb-ga .np { color: var(--bad); opacity: .75; }
 .match th.gbin .gbin-ga { color: var(--bad); font-size: 9.5px; }
-/* LAST 20: the games list wraps after ~10, continuing under the first game (hanging indent past the tag) */
-.stk-part.h2h .stk-line { white-space: normal; max-width: 500px; padding-left: 38px; text-indent: -38px; }
-.stk-part.h2h .stk-line .h2h-g { text-indent: 0; }
-.stk-part.h2h .stk-line .stk-tag { text-indent: 0; }
 .h2h-more { color: var(--muted); font-size: 10px; font-weight: 600; cursor: help; }
