@@ -378,3 +378,14 @@ table.sp td.sp-here { outline: 2px solid var(--accent); outline-offset: -2px; }
 table.sp-prof td, table.sp-prof th { padding: 3px 8px; }
 table.heat td.sp-btts { box-shadow: inset 0 0 0 1px var(--good); }
 .up-catch { color: var(--accent); font-size: 10.5px; font-weight: 600; }
+/* goal counts: scored (G) over conceded (GA) in one column */
+.match .gbin .gb-line { display: flex; justify-content: center; align-items: baseline; gap: 4px; white-space: nowrap; line-height: 1.25; }
+.match .gbin .gb-line .np { font-size: 9.5px; }
+.match .gbin .gb-ga { border-top: 1px dotted var(--rule); color: var(--bad); }
+.match .gbin .gb-ga .np { color: var(--bad); opacity: .75; }
+.match th.gbin .gbin-ga { color: var(--bad); font-size: 9.5px; }
+/* LAST 20: the games list wraps after ~10, continuing under the first game (hanging indent past the tag) */
+.stk-part.h2h .stk-line { white-space: normal; max-width: 500px; padding-left: 38px; text-indent: -38px; }
+.stk-part.h2h .stk-line .h2h-g { text-indent: 0; }
+.stk-part.h2h .stk-line .stk-tag { text-indent: 0; }
+.h2h-more { color: var(--muted); font-size: 10px; font-weight: 600; cursor: help; }
