@@ -150,8 +150,8 @@ function card(m) {
         ${m.home && m.home.shootout != null ? `<div class="pens">pens ${m.home.shootout}–${m.away.shootout}</div>` : ''}</div>
       ${teamCell(m.away, 'away', d, flashing && f.side === 'away')}
     </div>
-    ${d ? `<details class="sect" open><summary>Stats</summary>${statRows(d.stats)}</details>
-      <details class="sect" open><summary>Commentary</summary>${commentary(m.id, d)}</details>
+    ${d ? `<details class="sect" open><summary>Commentary</summary>${commentary(m.id, d)}</details>
+      <details class="sect" open><summary>Stats</summary>${statRows(d.stats)}</details>
       <p class="stamp">${esc(d.source)} · fetched ${esc(timeFmt.format(new Date(d.fetchedAt)))}${m.venue ? ` · ${esc(m.venue)}` : ''}</p>`
     : m.status.state === 'pre' ? '<p class="muted">Stats and commentary start at kickoff.</p>' : '<p class="muted">Loading stats and commentary…</p>'}
   </article>`;
