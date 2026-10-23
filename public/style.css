@@ -378,6 +378,18 @@ table.sp td.sp-here { outline: 2px solid var(--accent); outline-offset: -2px; }
 table.sp-prof td, table.sp-prof th { padding: 3px 8px; }
 table.heat td.sp-btts { box-shadow: inset 0 0 0 1px var(--good); }
 .up-catch { color: var(--accent); font-size: 10.5px; font-weight: 600; }
+/* named chart blocks: a divider and a "Chart N · name" tag above each chart */
+.chart-block { margin-top: 22px; padding-top: 8px; border-top: 2px solid var(--ink); }
+.chart-block:first-of-type { margin-top: 10px; }
+.chart-block > .btts, .chart-block > details.notes { margin-top: 4px; }
+.chart-tag { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+.chart-id { font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #fff; background: var(--accent); padding: 1px 7px; border-radius: 3px; }
+.chart-name { font-size: 13px; font-weight: 700; color: var(--ink); }
+.chart-part { margin-top: 12px; padding-top: 6px; border-top: 1px dashed var(--rule); }
+.chart-sub { display: flex; align-items: baseline; gap: 6px; margin-bottom: 4px; font-size: 12px; }
+.chart-sub .chart-id { font-size: 10px; padding: 0 5px; }
+.chart-sub .chart-name { font-size: 12px; }
+table.sc-top .sc-tot { background: rgba(43,95,217,.07); }
 /* scorelines: "k/n" with its share, as the goal counts */
 .scores td.sc .gb-line { display: flex; justify-content: center; align-items: baseline; gap: 4px; white-space: nowrap; line-height: 1.25; }
 table.sc-grid td { min-width: 64px; padding: 4px 6px; }
