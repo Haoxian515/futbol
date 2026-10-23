@@ -29,7 +29,11 @@ function serveStatic(res, url) {
     res.writeHead(400);
     return res.end();
   }
-  if (rel === '/') rel = '/index.html';
+  if (rel === '/live') {
+    res.writeHead(301, { Location: '/live/' });
+    return res.end();
+  }
+  if (rel.endsWith('/')) rel += 'index.html';
   const file = path.resolve(PUBLIC, `.${rel}`);
   if (!file.startsWith(PUBLIC + path.sep)) {
     res.writeHead(403);

@@ -8,5 +8,12 @@
       "includeFiles": "data/**",
       "maxDuration": 300
     }
-  }
+  },
+  "redirects": [
+    {
+      "source": "/live",
+      "destination": "/live/",
+      "permanent": false
+    }
+  ]
 }
