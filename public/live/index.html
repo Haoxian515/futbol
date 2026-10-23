@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Live Matches</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:ital,wght@0,700;0,800;1,800&display=swap">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="live.css">
+</head>
+<body class="ucl">
+  <header class="controls live-head">
+    <div class="live-title">
+      <h1>Live</h1>
+      <a href="../" class="live-back">Charts</a>
+    </div>
+    <div id="compFilter" class="comp-filter" role="group" aria-label="Competitions"></div>
+    <button type="button" id="alertBtn" class="alert-btn" aria-pressed="false"></button>
+    <span id="liveStatus" class="live-status" role="status" aria-live="polite"></span>
+  </header>
+
+  <main class="live-main">
+    <div id="error" class="error" role="alert" hidden></div>
+
+    <section aria-labelledby="hLive">
+      <h2 id="hLive" class="live-h">In play <span id="nLive" class="live-n"></span></h2>
+      <p id="noLive" class="live-empty" hidden>No games in play right now. Cards appear here at kickoff and update on their own.</p>
+      <div id="liveGrid" class="live-grid"></div>
+    </section>
+
+    <section aria-labelledby="hNext">
+      <h2 id="hNext" class="live-h">Up next <span class="live-sub">next 30 h, times PT</span></h2>
+      <div id="nextList" class="mlist"></div>
+    </section>
+
+    <section aria-labelledby="hDone">
+      <h2 id="hDone" class="live-h">Finished <span class="live-sub">last 12 h — tap a game for its stats and commentary</span></h2>
+      <div id="doneList" class="mlist"></div>
+    </section>
+
+    <p class="live-src" id="liveSrc"></p>
+  </main>
+
+  <script src="live.js"></script>
+</body>
+</html>

@@ -407,3 +407,8 @@ table.sc-top td, table.sc-top th { padding: 2px 8px; }
 .match .gbin .gb-ga .np { color: var(--bad); opacity: .75; }
 .match th.gbin .gbin-ga { color: var(--bad); font-size: 9.5px; }
 .h2h-more { color: var(--muted); font-size: 10px; font-weight: 600; cursor: help; }
+
+/* link to /live/ */
+.live-link { margin-left: auto; font-size: 12px; font-weight: 700; color: var(--bad); text-decoration: none; white-space: nowrap; }
+.live-link::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 5px; border-radius: 50%; background: var(--bad); vertical-align: 1px; }
+.live-link:hover { text-decoration: underline; }
