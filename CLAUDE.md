@@ -19,7 +19,7 @@
    DAY|DATE|TIME (PT)|TEAM|H/A|INJURED|SUSP.|STANDING('26,'24,'25,NOW)|GF/G|
    GA/G|GF/GA|TOT/G|LAST|MATCH-N HIST '23-'26|SEASON RECORD '23-'26+NOW|
    FT/WIN%|H2H LAST 5 and LAST 20 (each: results (newest 7 listed), W-D-L, GF-GA with non-penalty line, and per
-   goal count 0/1/2/3/4+ the games with that many scored over the games with that many conceded)|WEATHER|IMPORTANCE. League extra_columns append
+   goal count 0/1/2/3/4+ the games with that many scored over the games with that many conceded, then 1+ = games scored in / conceded in at least once)|WEATHER|IMPORTANCE. League extra_columns append
    after the core set.
 6. INJURED / SUSP. (formerly STAR / STATUS, repurposed by the owner) come
    only from a dated injuries & suspensions source (SportsGambler league
