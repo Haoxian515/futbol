@@ -514,6 +514,79 @@ function driversPanel(d) {
       : null);
 }
 
+// Each chart on the page sits in a named, numbered block with a divider above it, so it can be
+// referred to by name ("Chart 3 · BTTS spread"); parts inside a chart are 2A, 2B, ...
+function chartBlock(n, name, ...nodes) {
+  if (!nodes.some(Boolean)) return null;
+  return el('div', { class: 'chart-block', id: `chart-${n}` },
+    el('div', { class: 'chart-tag' }, el('span', { class: 'chart-id', text: `Chart ${n}` }), el('span', { class: 'chart-name', text: name })), ...nodes);
+}
+
+// Scorelines: how often each exact final score (home-away) came up, written like the 0 / 1 / 2 / 3+
+// goal counts: "k/n" with its share beside it, the most common in bold, zeros faded.
+//   2A: the commonest scores, one column per finished season, then the 4-season total and this season
+//   2B: every score as a home × away grid, for the total or any one season (tabs)
+function scoresPanel(sc) {
+  if (!sc || !sc.all || !sc.all.n) return null;
+  const TOP = 12; // scores in 2A
+  const max = sc.all.max;
+  const lab = (i) => (i === max ? `${max}+` : String(i));
+  const score = (h, a) => `${lab(h)}-${lab(a)}`;
+  const pc = (k, n) => `${Math.round((100 * k) / n)}%`;
+  const topOf = (S) => Math.max(0, ...S.grid.flat());
+  const line = (k, S, top = topOf(S)) => el('div', { class: 'gb-line' },
+    el('span', { class: k === 0 ? 'muted' : k === top ? 'b' : '', text: `${k}/${S.n}` }), el('span', { class: cls('np', k > 0 && 'np-has'), text: S.n ? pc(k, S.n) : '—' }));
+  const cols = [
+    ...(sc.bySeason || []).filter((S) => S.n).map((S) => ({ key: S.label, head: S.label, sub: `${S.n} games`, S })),
+    { key: 'all', head: '4 seasons', sub: `total · ${sc.all.n} games`, S: sc.all, total: true },
+    ...(sc.season && sc.season.n ? [{ key: 'season', head: 'This season', sub: `so far · ${sc.season.n} games`, S: sc.season }] : []),
+  ];
+  const sub = (id, name, note) => el('div', { class: 'chart-sub' }, el('span', { class: 'chart-id', text: id }), el('span', { class: 'chart-name', text: name }),
+    note ? el('span', { class: 'btts-sub', text: ` — ${note}` }) : null);
+
+  // 2A: the TOP commonest scores over the 4 seasons, each season beside the total
+  const ranked = sc.all.grid.flatMap((row, h) => row.map((k, a) => ({ h, a, k }))).filter((x) => x.k > 0)
+    .sort((p, q) => q.k - p.k || (p.h + p.a) - (q.h + q.a) || q.h - p.h).slice(0, TOP);
+  const tops = new Map(cols.map((c) => [c.key, topOf(c.S)]));
+  const byS = el('div', { class: 'bt-wrap' }, el('table', { class: 'bt sp-prof sc-top' },
+    el('thead', {}, el('tr', {}, el('th', { class: 'l', text: '#' }), el('th', { class: 'l', text: 'Score' }),
+      ...cols.map((c) => el('th', { class: cls(c.total && 'sc-tot') }, c.head, el('div', { class: 'bt-th2', text: c.sub }))))),
+    el('tbody', {}, ...ranked.map((x, i) => el('tr', {}, td(String(i + 1), 'l muted'), td(score(x.h, x.a), 'l b'),
+      ...cols.map((c) => { const k = c.S.grid[x.h][x.a]; return el('td', { class: cls('num sc', c.total && 'sc-tot'), title: `${c.head}: ${score(x.h, x.a)} in ${k} of ${c.S.n} games (${pc(k, c.S.n)})` }, line(k, c.S, tops.get(c.key))); }))))));
+
+  // 2B: the full grid for one scope
+  const box = el('div');
+  const draw = (key) => {
+    const c = cols.find((x) => x.key === key);
+    const S = c.S;
+    const top = topOf(S);
+    box.replaceChildren(el('div', { class: 'bt-grid-t', text: `${c.head}${c.total ? ` (${S.from})` : ''} — ${S.n} games; home goals (rows) × away goals (columns); outlined = BTTS` }),
+      el('table', { class: 'bt heat sc-grid' },
+        el('thead', {}, el('tr', {}, el('th', { text: 'home ↓ / away →' }), ...S.grid[0].map((_, a) => el('th', { text: lab(a) })))),
+        el('tbody', {}, ...S.grid.map((row, h) => el('tr', {}, el('th', { text: lab(h) }),
+          ...row.map((k, a) => el('td', {
+            class: cls('num sc', h > 0 && a > 0 && 'sp-btts'), title: `${score(h, a)}: ${k} of ${S.n} games (${S.n ? pc(k, S.n) : '—'})`,
+            style: k && top ? `background: rgba(43,95,217,${(0.45 * k / top).toFixed(2)})` : '',
+          }, line(k, S, top))))))));
+    for (const b of tabs.children) b.classList.toggle('on', b.dataset.scope === key);
+  };
+  const order = [cols.find((c) => c.total), ...cols.filter((c) => !c.total)];
+  const tabs = el('div', { class: 'sp-tabs' }, ...order.map((c) => el('button', { type: 'button', 'data-scope': c.key, text: c.total ? '4 seasons total' : c.head })));
+  tabs.addEventListener('click', (ev) => { const b = ev.target.closest('button'); if (b) draw(b.dataset.scope); });
+
+  const sec = el('section', { class: 'btts scores' },
+    el('h2', { class: 'btts-h' }, 'Scorelines — exact final scores', el('span', { class: 'btts-sub', text: ` — how often each home-away score came up, ${sc.all.from}` })),
+    el('details', { class: 'bt-help' }, el('summary', { text: 'How to read this' }), el('p', { class: 'foot', text: 'Every league game played, by its final score, home goals first '
+      + '(2-1 = home 2, away 1). Each figure = games that ended on that score / games played in that season (or the 4 seasons together), with its share beside it; '
+      + 'the most common score in each column or grid in bold, zeros faded. 4 seasons = the four finished seasons before this one added up (cup competitions: '
+      + `league / group phase only); This season = played games so far. ${max}+ = ${max} or more goals for that side. `
+      + '2A lists the 12 most common scores over the 4 seasons. 2B: shading = share of games (darker = more common); outlined cells = both teams scored.' })),
+    el('div', { class: 'chart-part' }, sub('2A', 'Scores by season', `the ${TOP} most common over the 4 seasons, each season and the total`), byS),
+    el('div', { class: 'chart-part' }, sub('2B', 'Score grid', 'every score, home × away'), el('div', { class: 'sp-head' }, tabs), box));
+  draw('all');
+  return sec;
+}
+
 // BTTS spread: every game played, by the model's home 1+ chance (rows) × away 1+ chance (columns),
 // over all seasons or this season; this round's fixtures are outlined in their cells
 function spreadPanel(sp) {
@@ -716,71 +789,6 @@ function btKit(b) {
   return { tone, featTable, grid, histCell, result };
 }
 
-// BTTS correlation panel: historic BTTS rate by what was known before kickoff, and where this
-// round's fixtures fall. A bucket is coloured when it is 5+ pts off the base rate on enough games.
-function bttsPanel(b) {
-  if (!b || !b.features) return null;
-  const { tone, featTable, grid } = btKit(b);
-  const N = b.formN || 5;
-  // [key, header, second header line, help]; one format per kind of value: counts "6/10 · 9/10"
-  // (home · away), per-game rates "1.40 · 2.00", single figures "0.60", chances "61%"
-  const HA = 'home · away';
-  const KEYS = [
-    ['l5', `LAST ${N} BTTS`, HA, `games with both teams scoring, of each club's last ${N}`],
-    ['s1min', `SCORED 1+ L${N}`, HA, `games in which the club scored, of its last ${N}`],
-    ['np5min', `NP GF/G L${N}`, HA, `non-penalty goals per game over the last ${N}`],
-    ['np5delta', 'NP GF/G GAP', 'between the two', 'difference between the two clubs\' non-penalty goals per game'],
-    ['gddelta', 'NP GD/G GAP', 'between the two', 'difference between the two clubs\' non-penalty goal difference per game (a mismatch)'],
-    ['h2h', 'H2H BTTS', 'meetings', 'meetings in which both teams scored'],
-    ['h2hmin', 'H2H GF/G', HA, 'goals per game in the meetings, home club · away club'],
-    ['one', 'BOTH SCORE 1+', 'model', 'model chance each club scores, multiplied'],
-    ['xgmin', 'LOWER xG', 'model', 'the lower of the two clubs\' model xG'],
-    ['xgsum', 'TOTAL xG', 'model', 'both clubs\' model xG added'],
-    ['model', 'MODEL BTTS', 'model', 'the model\'s both-teams-score chance'],
-  ];
-  const r2 = (v) => (v == null ? '—' : v.toFixed(2));
-  const pair = (h, a) => `${h} · ${a}`;
-  const SHOW = {
-    l5: (x) => pair(`${x.l5h}/${N}`, `${x.l5a}/${N}`),
-    s1min: (x) => pair(`${x.s1h}/${N}`, `${x.s1a}/${N}`),
-    np5min: (x) => pair(r2(x.np5h), r2(x.np5a)),
-    h2h: (x, c) => { const [k, n] = c.text.split('/').map(Number); return `${k}/${n} · ${Math.round((100 * k) / n)}%`; },
-    h2hmin: (x) => pair(r2(x.h2hgf), r2(x.h2hga)),
-  };
-  const grids = (b.grids || []).map(grid);
-  const roundRows = b.round.map((x) => {
-    const both = x.result ? (x.result.hg > 0 && x.result.ag > 0) : null;
-    return el('tr', {},
-      td(x.label, 'l'),
-      ...KEYS.map(([k]) => {
-        const c = x.cells[k];
-        if (!c) return td('—', 'muted');
-        return el('td', { title: `bucket ${c.bucket}: BTTS ${pct(c.rate)} of ${c.n} games` },
-          el('div', { class: 'bt-val', text: SHOW[k] ? SHOW[k](x, c) : c.text }),
-          el('div', { class: cls('bt-hist', tone(c.rate, c.n)), text: `BTTS ${pct(c.rate)}` }));
-      }),
-      td(both == null ? '—' : both ? 'Yes' : 'No', cls(both == null ? 'muted' : both ? 'good b' : 'bad b')));
-  });
-  // always shown, right under the match table
-  return el('section', { class: 'btts' },
-    el('h2', { class: 'btts-h' }, 'BTTS correlation (history)',
-      el('span', { class: 'btts-sub', text: ` — both teams scored in ${pct(b.base)} of ${b.games} games, ${b.seasons}` })),
-    el('details', { class: 'bt-help' }, el('summary', { text: 'How to read this' }), el('p', { class: 'foot', text: 'Each past game is described by what was known before kickoff (earlier games only); bars = how often both teams then scored, with the number of games. '
-      + 'r = correlation with BTTS (0 = none, ±1 = perfect; |r| < 0.1 is weak). Green / red = 5+ pts above / below the base rate on '
-      + `${b.minBucket}+ games. LAST ${b.formN || 5} = BTTS games in each club's last ${b.formN || 5} ${b.formDesc || 'league games'} (within 12 months); H2H = BTTS share of every ${b.h2hDesc || 'league meeting'} since ${b.h2hFrom} (${b.h2hMin || 3}+ meetings); `
-      + `SCORED 1+ = games with a goal in the last ${b.formN || 5}; NP GF/G = non-penalty goals per game over the last ${b.formN || 5}; NP GF/G GAP / NP GD/G GAP = difference between the two sides' `
-      + 'non-penalty goals per game / goal difference per game (a mismatch); H2H GF/G = goals per game of the home club · away club over those meetings (all goals); '
-      + 'in This round, two values in a cell are home · away, and the BTTS line under each value = how often both teams scored in past games in the same band; '
-      + `BOTH 1+ = model chance each team scores, multiplied; xG = the model's expected goals. Heat maps: cells shaded by distance from the base rate; grey = under ${b.minBucket} games. Source: ${b.source}.` })),
-    featTable(b.features),
-    el('div', { class: 'bt-grids' }, ...grids),
-    el('div', { class: 'bt-wrap' }, el('table', { class: 'bt btts-round' },
-      el('thead', {}, el('tr', {}, el('th', { class: 'l' }, 'This round', el('div', { class: 'bt-th2', text: 'BTTS line = past games like it' })),
-        ...KEYS.map(([, l, l2, help]) => el('th', { title: help }, l, el('div', { class: 'bt-th2', text: l2 }))),
-        el('th', {}, 'BTTS?', el('div', { class: 'bt-th2', text: 'result' })))),
-      el('tbody', {}, ...roundRows))));
-}
-
 // DATE, with a blue note under a rescheduled game ("rescheduled · round Sep 15–17")
 function dateCell(fx) {
   if (!fx.moved) return td(fx.date, 'l', 2);
@@ -867,13 +875,13 @@ function renderChart(c) {
   $('chart').replaceChildren(
     el('h1', { text: c.title }),
     el('p', { class: 'subtitle', text: c.sub }),
-    el('div', { class: 'table-wrap' }, el('table', { class: 'match', 'data-lock': 5 }, head, ...bodies)),
-    spreadPanel(c.btts && c.btts.spread),
-    driversPanel(c.btts && c.btts.drivers),
-    bttsPanel(c.btts),
-    el('details', { class: 'notes' }, el('summary', { text: 'Notes & sources' }),
-      el('p', { class: 'foot', text: c.foot1 }), el('p', { class: 'foot', text: c.foot2 })),
-    backtestPanel(c.model),
+    chartBlock(1, 'Match table', el('div', { class: 'table-wrap' }, el('table', { class: 'match', 'data-lock': 5 }, head, ...bodies))),
+    chartBlock(2, 'Scorelines', scoresPanel(c.btts && c.btts.scores)),
+    chartBlock(3, 'BTTS spread', spreadPanel(c.btts && c.btts.spread)),
+    chartBlock(4, 'BTTS drivers', driversPanel(c.btts && c.btts.drivers)),
+    chartBlock(5, 'Notes & sources', el('details', { class: 'notes' }, el('summary', { text: 'Notes & sources' }),
+      el('p', { class: 'foot', text: c.foot1 }), el('p', { class: 'foot', text: c.foot2 }))),
+    chartBlock(6, 'Model accuracy', backtestPanel(c.model)),
   );
   $('chart').hidden = false;
   document.title = c.title;
@@ -919,9 +927,9 @@ function renderIntl(c) {
   $('chart').replaceChildren(
     el('h1', { text: c.title }),
     el('p', { class: 'subtitle', text: c.sub }),
-    el('div', { class: 'table-wrap' }, el('table', { class: 'match', 'data-lock': 6 }, head, ...bodies)),
-    el('details', { class: 'notes' }, el('summary', { text: 'Notes & sources' }),
-      el('p', { class: 'foot', text: c.foot1 }), el('p', { class: 'foot', text: c.foot2 })),
+    chartBlock(1, 'Match table', el('div', { class: 'table-wrap' }, el('table', { class: 'match', 'data-lock': 6 }, head, ...bodies))),
+    chartBlock(2, 'Notes & sources', el('details', { class: 'notes' }, el('summary', { text: 'Notes & sources' }),
+      el('p', { class: 'foot', text: c.foot1 }), el('p', { class: 'foot', text: c.foot2 }))),
   );
   $('chart').hidden = false;
   document.title = c.title;
