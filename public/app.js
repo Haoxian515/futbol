@@ -271,12 +271,13 @@ function absentCells(absent) {
 }
 
 // H2H LAST 5 and LAST 20 share one set of columns: the games (newest first), W-D-L, goals
-// for-against with a small non-penalty line underneath, and per goal count (0 / 1 / 2 / 3+) how
+// for-against with a small non-penalty line underneath, and per goal count (0 / 1 / 2 / 3 / 4+) how
 // many of those games the club scored that many in (top line, G) and conceded that many in (bottom
 // line, GA), each with its share — scored and conceded on the same vertical.
-const GOAL_BINS = ['0', '1', '2', '3+'];
+const GOAL_BINS = ['0', '1', '2', '3', '4+'];
+const TOP_BIN = GOAL_BINS.length - 1; // the last bin takes every higher count
 const SHOW_GAMES = 7; // games listed under NEWEST →; the figures beside them use every game
-const FORM_N_COLS = 3 + GOAL_BINS.length;
+const FORM_N_COLS = 3 + GOAL_BINS.length + 1; // + the 1+ column
 const FORM_SUBS = (what) => [
   el('th', { class: 'l sep', text: 'NEWEST →', title: `the newest ${SHOW_GAMES} games; W-D-L, GF-GA and the goal counts cover all of them (up to 20)` }),
   el('th', { text: 'W-D-L' }),
@@ -285,9 +286,11 @@ const FORM_SUBS = (what) => [
     class: cls('gbin', k === 0 && 'gbin-first'),
     title: `${what} in which the club scored (G) / conceded (GA) ${b} goal${b === '1' ? '' : 's'}`,
   }, el('div', { text: `${b} G` }), el('div', { class: 'gbin-ga', text: `${b} GA` }))),
+  el('th', { class: 'gbin gbin-first', title: `${what} in which the club scored (G) / conceded (GA) at least one goal` },
+    el('div', { text: '1+ G' }), el('div', { class: 'gbin-ga', text: '1+ GA' })),
 ];
 function formCells(list, { empty = '—', colorGoals = false } = {}) {
-  if (!list || !list.length) return [td(empty, 'l muted h2h sep'), ...Array.from({ length: FORM_N_COLS - 1 }, (_, k) => td('—', cls('num muted', k === 2 && 'gbin-first')))];
+  if (!list || !list.length) return [td(empty, 'l muted h2h sep'), ...Array.from({ length: FORM_N_COLS - 1 }, (_, k) => td('—', cls('num muted', (k === 2 || k === FORM_N_COLS - 2) && 'gbin-first')))];
   // the newest SHOW_GAMES listed; the rest are counted in the figures (hover "+13" for them)
   const shown = list.slice(0, SHOW_GAMES);
   const more = list.slice(SHOW_GAMES);
@@ -300,13 +303,13 @@ function formCells(list, { empty = '—', colorGoals = false } = {}) {
     class: 'h2h-more', title: `${more.length} earlier games, in the figures: ${more.map((g) => `${g.o} ${g.gf}-${g.ga}`).join(', ')}`, text: `+${more.length}`,
   }) : null);
   const r = [0, 0, 0];
-  const bins = [0, 0, 0, 0];
-  const binsA = [0, 0, 0, 0];
+  const bins = GOAL_BINS.map(() => 0);
+  const binsA = GOAL_BINS.map(() => 0);
   let gf = 0; let ga = 0; let pf = 0; let pa = 0; let known = 0;
   for (const g of list) {
     r['WDL'.indexOf(g.o)] += 1;
-    bins[Math.min(g.gf, 3)] += 1;
-    binsA[Math.min(g.ga, 3)] += 1;
+    bins[Math.min(g.gf, TOP_BIN)] += 1;
+    binsA[Math.min(g.ga, TOP_BIN)] += 1;
     gf += g.gf; ga += g.ga;
     if (g.pf != null && g.pa != null) { pf += g.pf; pa += g.pa; known += 1; }
   }
@@ -337,14 +340,21 @@ function formCells(list, { empty = '—', colorGoals = false } = {}) {
     class: cls('num gp gbin', i === 0 && 'gbin-first'),
     title: `${b} goal${b === '1' ? '' : 's'}: scored in ${bins[i]} of ${n} games (${pc(bins[i])}), conceded in ${binsA[i]} (${pc(binsA[i])})`,
   }, line(bins[i], topG), line(binsA[i], topA, 'gb-ga')));
-  return [games, recCell(r.join('-'), false), gCell, ...binCells];
+  // 1+: games with at least one goal scored / conceded (= n minus the 0 bin)
+  const any = n - bins[0];
+  const anyA = n - binsA[0];
+  const anyCell = el('td', {
+    class: 'num gp gbin gbin-first',
+    title: `1+ goals: scored in ${any} of ${n} games (${pc(any)}), conceded in ${anyA} (${pc(anyA)})`,
+  }, line(any, -1), line(anyA, -1, 'gb-ga'));
+  return [games, recCell(r.join('-'), false), gCell, ...binCells, anyCell];
 }
 const h2hCells = (h, since) => formCells(h && h.games, { empty: h ? `none since ${since}` : '—', colorGoals: true });
 const last5Cells = (list) => formCells(list);
 
 // Form block, one per fixture (spans both team rows), in one set of columns: the home club's
 // LAST 20, the away club's LAST 20, then their H2H LAST 5 (shared, so shown once, from the home
-// club's side). Matching figures (W-D-L, GF-GA, 0 / 1 / 2 / 3+ with G over GA) line up vertically; each part keeps its
+// club's side). Matching figures (W-D-L, GF-GA, 0 / 1 / 2 / 3 / 4+ / 1+ with G over GA) line up vertically; each part keeps its
 // own colour classes and tooltip, the cell keeps the column's layout classes.
 function fixtureFormCells(fx, since) {
   const [home, away] = fx.teams;
