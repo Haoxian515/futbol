@@ -789,71 +789,6 @@ function btKit(b) {
   return { tone, featTable, grid, histCell, result };
 }
 
-// BTTS correlation panel: historic BTTS rate by what was known before kickoff, and where this
-// round's fixtures fall. A bucket is coloured when it is 5+ pts off the base rate on enough games.
-function bttsPanel(b) {
-  if (!b || !b.features) return null;
-  const { tone, featTable, grid } = btKit(b);
-  const N = b.formN || 5;
-  // [key, header, second header line, help]; one format per kind of value: counts "6/10 · 9/10"
-  // (home · away), per-game rates "1.40 · 2.00", single figures "0.60", chances "61%"
-  const HA = 'home · away';
-  const KEYS = [
-    ['l5', `LAST ${N} BTTS`, HA, `games with both teams scoring, of each club's last ${N}`],
-    ['s1min', `SCORED 1+ L${N}`, HA, `games in which the club scored, of its last ${N}`],
-    ['np5min', `NP GF/G L${N}`, HA, `non-penalty goals per game over the last ${N}`],
-    ['np5delta', 'NP GF/G GAP', 'between the two', 'difference between the two clubs\' non-penalty goals per game'],
-    ['gddelta', 'NP GD/G GAP', 'between the two', 'difference between the two clubs\' non-penalty goal difference per game (a mismatch)'],
-    ['h2h', 'H2H BTTS', 'meetings', 'meetings in which both teams scored'],
-    ['h2hmin', 'H2H GF/G', HA, 'goals per game in the meetings, home club · away club'],
-    ['one', 'BOTH SCORE 1+', 'model', 'model chance each club scores, multiplied'],
-    ['xgmin', 'LOWER xG', 'model', 'the lower of the two clubs\' model xG'],
-    ['xgsum', 'TOTAL xG', 'model', 'both clubs\' model xG added'],
-    ['model', 'MODEL BTTS', 'model', 'the model\'s both-teams-score chance'],
-  ];
-  const r2 = (v) => (v == null ? '—' : v.toFixed(2));
-  const pair = (h, a) => `${h} · ${a}`;
-  const SHOW = {
-    l5: (x) => pair(`${x.l5h}/${N}`, `${x.l5a}/${N}`),
-    s1min: (x) => pair(`${x.s1h}/${N}`, `${x.s1a}/${N}`),
-    np5min: (x) => pair(r2(x.np5h), r2(x.np5a)),
-    h2h: (x, c) => { const [k, n] = c.text.split('/').map(Number); return `${k}/${n} · ${Math.round((100 * k) / n)}%`; },
-    h2hmin: (x) => pair(r2(x.h2hgf), r2(x.h2hga)),
-  };
-  const grids = (b.grids || []).map(grid);
-  const roundRows = b.round.map((x) => {
-    const both = x.result ? (x.result.hg > 0 && x.result.ag > 0) : null;
-    return el('tr', {},
-      td(x.label, 'l'),
-      ...KEYS.map(([k]) => {
-        const c = x.cells[k];
-        if (!c) return td('—', 'muted');
-        return el('td', { title: `bucket ${c.bucket}: BTTS ${pct(c.rate)} of ${c.n} games` },
-          el('div', { class: 'bt-val', text: SHOW[k] ? SHOW[k](x, c) : c.text }),
-          el('div', { class: cls('bt-hist', tone(c.rate, c.n)), text: `BTTS ${pct(c.rate)}` }));
-      }),
-      td(both == null ? '—' : both ? 'Yes' : 'No', cls(both == null ? 'muted' : both ? 'good b' : 'bad b')));
-  });
-  // always shown, right under the match table
-  return el('section', { class: 'btts' },
-    el('h2', { class: 'btts-h' }, 'BTTS correlation (history)',
-      el('span', { class: 'btts-sub', text: ` — both teams scored in ${pct(b.base)} of ${b.games} games, ${b.seasons}` })),
-    el('details', { class: 'bt-help' }, el('summary', { text: 'How to read this' }), el('p', { class: 'foot', text: 'Each past game is described by what was known before kickoff (earlier games only); bars = how often both teams then scored, with the number of games. '
-      + 'r = correlation with BTTS (0 = none, ±1 = perfect; |r| < 0.1 is weak). Green / red = 5+ pts above / below the base rate on '
-      + `${b.minBucket}+ games. LAST ${b.formN || 5} = BTTS games in each club's last ${b.formN || 5} ${b.formDesc || 'league games'} (within 12 months); H2H = BTTS share of every ${b.h2hDesc || 'league meeting'} since ${b.h2hFrom} (${b.h2hMin || 3}+ meetings); `
-      + `SCORED 1+ = games with a goal in the last ${b.formN || 5}; NP GF/G = non-penalty goals per game over the last ${b.formN || 5}; NP GF/G GAP / NP GD/G GAP = difference between the two sides' `
-      + 'non-penalty goals per game / goal difference per game (a mismatch); H2H GF/G = goals per game of the home club · away club over those meetings (all goals); '
-      + 'in This round, two values in a cell are home · away, and the BTTS line under each value = how often both teams scored in past games in the same band; '
-      + `BOTH 1+ = model chance each team scores, multiplied; xG = the model's expected goals. Heat maps: cells shaded by distance from the base rate; grey = under ${b.minBucket} games. Source: ${b.source}.` })),
-    featTable(b.features),
-    el('div', { class: 'bt-grids' }, ...grids),
-    el('div', { class: 'bt-wrap' }, el('table', { class: 'bt btts-round' },
-      el('thead', {}, el('tr', {}, el('th', { class: 'l' }, 'This round', el('div', { class: 'bt-th2', text: 'BTTS line = past games like it' })),
-        ...KEYS.map(([, l, l2, help]) => el('th', { title: help }, l, el('div', { class: 'bt-th2', text: l2 }))),
-        el('th', {}, 'BTTS?', el('div', { class: 'bt-th2', text: 'result' })))),
-      el('tbody', {}, ...roundRows))));
-}
-
 // DATE, with a blue note under a rescheduled game ("rescheduled · round Sep 15–17")
 function dateCell(fx) {
   if (!fx.moved) return td(fx.date, 'l', 2);
@@ -944,10 +879,9 @@ function renderChart(c) {
     chartBlock(2, 'Scorelines', scoresPanel(c.btts && c.btts.scores)),
     chartBlock(3, 'BTTS spread', spreadPanel(c.btts && c.btts.spread)),
     chartBlock(4, 'BTTS drivers', driversPanel(c.btts && c.btts.drivers)),
-    chartBlock(5, 'BTTS correlation', bttsPanel(c.btts)),
-    chartBlock(6, 'Notes & sources', el('details', { class: 'notes' }, el('summary', { text: 'Notes & sources' }),
+    chartBlock(5, 'Notes & sources', el('details', { class: 'notes' }, el('summary', { text: 'Notes & sources' }),
       el('p', { class: 'foot', text: c.foot1 }), el('p', { class: 'foot', text: c.foot2 }))),
-    chartBlock(7, 'Model accuracy', backtestPanel(c.model)),
+    chartBlock(6, 'Model accuracy', backtestPanel(c.model)),
   );
   $('chart').hidden = false;
   document.title = c.title;
