@@ -24,3 +24,4 @@ desktop.ini
 # Build artifacts / scratch
 futbol-agents-scaffold.zip
 futbol-agents-scaffold/
+data/cache/_week/
