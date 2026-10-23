@@ -514,6 +514,57 @@ function driversPanel(d) {
       : null);
 }
 
+// Scorelines: how often each exact final score (home-away) came up, over the last 4 finished
+// seasons or this season so far, written like the 0 / 1 / 2 / 3+ goal counts: "k/n" with its share
+// beside it, the most common in bold, zeros faded. Left: the commonest scores; right: every score.
+function scoresPanel(sc) {
+  if (!sc || !sc.all || !sc.all.n) return null;
+  const TOP = 12; // scores in the ranked list
+  const box = el('div', { class: 'drv-row' });
+  const lab = (i, max) => (i === max ? `${max}+` : String(i));
+  const draw = (scope) => {
+    const S = sc[scope];
+    const { n, max, grid } = S;
+    const pc = (k) => `${Math.round((100 * k) / n)}%`;
+    const top = Math.max(0, ...grid.flat());
+    const line = (k) => el('div', { class: 'gb-line' },
+      el('span', { class: k === 0 ? 'muted' : k === top ? 'b' : '', text: `${k}/${n}` }), el('span', { class: cls('np', k > 0 && 'np-has'), text: n ? pc(k) : '—' }));
+    const ranked = grid.flatMap((row, h) => row.map((k, a) => ({ h, a, k }))).filter((x) => x.k > 0)
+      .sort((p, q) => q.k - p.k || (p.h + p.a) - (q.h + q.a) || q.h - p.h).slice(0, TOP);
+    const score = (x) => `${lab(x.h, max)}-${lab(x.a, max)}`;
+    box.replaceChildren(
+      el('div', { class: 'bt-grid' }, el('div', { class: 'bt-grid-t', text: `Most common scores (home-away), of ${n} games` }),
+        el('table', { class: 'bt sp-prof sc-top' },
+          el('thead', {}, el('tr', {}, el('th', { class: 'l', text: '#' }), el('th', { class: 'l', text: 'Score' }), el('th', { text: 'Games' }))),
+          el('tbody', {}, ...ranked.map((x, i) => el('tr', {}, td(String(i + 1), 'l muted'), td(score(x), 'l b'),
+            el('td', { class: 'num sc', title: `${score(x)}: ${x.k} of ${n} games (${pc(x.k)})` }, line(x.k))))))),
+      el('div', { class: 'bt-grid' }, el('div', { class: 'bt-grid-t', text: `Every score — home goals (rows) × away goals (columns), games of ${n}; outlined = BTTS` }),
+        el('table', { class: 'bt heat sc-grid' },
+          el('thead', {}, el('tr', {}, el('th', { text: 'home ↓ / away →' }), ...grid[0].map((_, a) => el('th', { text: lab(a, max) })))),
+          el('tbody', {}, ...grid.map((row, h) => el('tr', {}, el('th', { text: lab(h, max) }),
+            ...row.map((k, a) => el('td', {
+              class: cls('num sc', h > 0 && a > 0 && 'sp-btts'), title: `${lab(h, max)}-${lab(a, max)}: ${k} of ${n} games (${pc(k)})`,
+              style: k && top ? `background: rgba(43,95,217,${(0.45 * k / top).toFixed(2)})` : '',
+            }, line(k)))))))));
+    for (const b of tabs.children) b.classList.toggle('on', b.dataset.scope === scope);
+    note.textContent = `${n} games, ${S.from}.`;
+  };
+  const scopes = [['all', 'Last 4 seasons'], ['season', 'This season']].filter(([k]) => sc[k] && sc[k].n);
+  const tabs = el('div', { class: 'sp-tabs' }, ...scopes.map(([k, l]) => el('button', { type: 'button', 'data-scope': k, text: `${l} (${sc[k].n})` })));
+  tabs.addEventListener('click', (ev) => { const b = ev.target.closest('button'); if (b) draw(b.dataset.scope); });
+  const note = el('span', { class: 'btts-sub' });
+  const sec = el('section', { class: 'btts scores' },
+    el('h2', { class: 'btts-h' }, 'Scorelines — exact final scores', el('span', { class: 'btts-sub', text: ' — how often each home-away score came up' })),
+    el('details', { class: 'bt-help' }, el('summary', { text: 'How to read this' }), el('p', { class: 'foot', text: 'Every league game played, by its final score, home goals first '
+      + '(2-1 = home 2, away 1). Each figure = games that ended on that score / games played in the scope, with its share beside it; the most common score in bold, '
+      + 'zeros faded. Last 4 seasons = the four finished seasons before this one (cup competitions: league / group phase only); This season = played games so far. '
+      + `${sc.all.max}+ = ${sc.all.max} or more goals for that side. Shading = share of games (darker = more common); outlined cells = both teams scored.` })),
+    el('div', { class: 'sp-head' }, tabs, note),
+    box);
+  draw('all');
+  return sec;
+}
+
 // BTTS spread: every game played, by the model's home 1+ chance (rows) × away 1+ chance (columns),
 // over all seasons or this season; this round's fixtures are outlined in their cells
 function spreadPanel(sp) {
@@ -868,6 +919,7 @@ function renderChart(c) {
     el('h1', { text: c.title }),
     el('p', { class: 'subtitle', text: c.sub }),
     el('div', { class: 'table-wrap' }, el('table', { class: 'match', 'data-lock': 5 }, head, ...bodies)),
+    scoresPanel(c.btts && c.btts.scores),
     spreadPanel(c.btts && c.btts.spread),
     driversPanel(c.btts && c.btts.drivers),
     bttsPanel(c.btts),
