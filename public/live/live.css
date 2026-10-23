@@ -21,11 +21,51 @@
 .live-src { margin-top: 24px; font-size: 12px; color: var(--sub); }
 
 .live-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 14px; align-items: start; }
-.mcard { border: 1px solid var(--rule); border-radius: 8px; padding: 10px 12px; background: #fff; transition: box-shadow .3s, border-color .3s; }
+.mcard { position: relative; overflow: hidden; border: 1px solid var(--rule); border-radius: 8px; padding: 10px 12px; background: #fff; transition: box-shadow .3s, border-color .3s; }
 .mcard.goal-flash { border-color: var(--good); box-shadow: 0 0 0 3px rgba(26, 127, 78, .25); }
 .mhead { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--sub); }
 .mhead .chip { margin-left: auto; }
-.goal-banner { margin: 8px 0 0; padding: 4px 8px; border-radius: 4px; background: var(--good); color: #fff; font-weight: 800; letter-spacing: .06em; text-align: center; animation: pop .4s ease-out; }
+
+/* goal animation over the top of the card; delays are offset by --t (time already elapsed) so a
+   refresh mid-animation carries on instead of restarting */
+.goal-burst { --t: 0ms; position: absolute; z-index: 2; top: 0; left: 0; right: 0; min-height: 200px; padding: 22px 16px 18px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: #fff; text-align: center;
+  background: radial-gradient(circle at 50% 30%, #2fbf71 0%, #1a7f4e 55%, #0f5c37 100%);
+  animation: burst 6.5s var(--t) ease-out both; pointer-events: none; }
+.goal-burst.from-home { --ox: 15%; }
+.goal-burst.from-away { --ox: 85%; }
+.goal-burst.disallowed { background: radial-gradient(circle at 50% 30%, #6b7280, #374151); }
+.b-word { font-size: 44px; font-weight: 900; font-style: italic; letter-spacing: .04em; line-height: 1; text-shadow: 0 3px 0 rgba(0,0,0,.18);
+  animation: word .9s calc(var(--t) + 250ms) cubic-bezier(.2, 1.6, .4, 1) both; }
+.disallowed .b-word { font-size: 26px; font-style: normal; }
+.b-ball { display: inline-block; margin-right: 8px; font-style: normal; animation: ball .9s calc(var(--t) + 150ms) ease-out both; }
+.from-away .b-ball { animation-name: ball-r; }
+.b-team { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 800; animation: rise .5s calc(var(--t) + 800ms) ease-out both; }
+.b-team img { background: #fff; border-radius: 50%; padding: 4px; object-fit: contain; }
+.b-who { font-size: 14px; font-weight: 600; opacity: .95; animation: rise .5s calc(var(--t) + 1100ms) ease-out both; }
+.bmin { opacity: .75; font-variant-numeric: tabular-nums; }
+.b-score { font-size: 26px; font-weight: 900; font-variant-numeric: tabular-nums; animation: rise .5s calc(var(--t) + 1350ms) ease-out both; }
+.b-score .bnew { display: inline-block; animation: tick .7s calc(var(--t) + 1700ms) ease-out both; }
+
+@keyframes burst {
+  0% { clip-path: circle(0% at var(--ox, 50%) 50%); opacity: 1; }
+  10% { clip-path: circle(150% at var(--ox, 50%) 50%); opacity: 1; }
+  88% { clip-path: circle(150% at var(--ox, 50%) 50%); opacity: 1; }
+  100% { clip-path: circle(150% at var(--ox, 50%) 50%); opacity: 0; }
+}
+@keyframes word { from { transform: scale(.2) rotate(-6deg); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes ball { from { transform: translateX(-140px) rotate(-540deg); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes ball-r { from { transform: translateX(140px) rotate(540deg); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes rise { from { transform: translateY(10px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes tick { 0% { transform: translateY(-70%); opacity: 0; } 60% { transform: translateY(8%) scale(1.35); opacity: 1; color: #fff4c2; } 100% { transform: none; } }
+
+/* after the animation: the new goal's digit and scorer stay marked while the card glows */
+.score .g.scored { color: var(--good); animation: thump 1s ease-out 2; }
+.goals li.hot { font-weight: 700; color: var(--good); }
+@keyframes thump { 50% { transform: scale(1.3); } }
+
+.alert-btn { font: inherit; font-size: 12px; font-weight: 600; padding: 3px 10px; border: 1px solid var(--rule); border-radius: 12px; background: #fff; color: var(--sub); cursor: pointer; }
+.alert-btn.on { border-color: var(--good); color: var(--good); background: var(--ftbg); }
 
 .chip { display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 10px; letter-spacing: .02em; text-transform: none; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .chip.live { background: var(--bad); color: #fff; }
@@ -81,7 +121,6 @@
 .rs { text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
 
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
-@keyframes pop { from { transform: scale(.9); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes fresh { from { background: #fff4c2; } to { background: transparent; } }
 
 @media (max-width: 640px) {
@@ -90,6 +129,10 @@
   .mrow { grid-template-columns: 64px 1fr 56px 1fr; }
   .rc { display: none; }
   .score { font-size: 24px; }
+  .b-word { font-size: 36px; }
   .live-status { margin-left: 0; }
 }
-@media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; }
+  .goal-burst { opacity: 1; } /* still shown, just without motion, until it is removed */
+}

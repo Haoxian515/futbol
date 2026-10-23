@@ -2,11 +2,14 @@
 // /live/: every game in play across the charted competitions, side by side, each updating on
 // its own. The list of games comes from /api/live (every LIST_MS); each game in play polls
 // /api/live?event=ID for goals, stats and commentary (every DETAIL_MS), all in parallel.
-// Polling pauses while the tab is hidden and catches up as soon as it is visible again.
+// A score change plays a goal animation in that game's card and, with goal alerts on, a sound
+// and a browser notification. Polling pauses while the tab is hidden unless goal alerts are on.
 
 const LIST_MS = 20000;
 const DETAIL_MS = 10000;
 const COMM_SHORT = 6;
+const BURST_MS = 6500; // the in-card goal animation
+const GLOW_MS = 30000; // card glow and scorer highlight after a goal
 const TZ = 'America/Los_Angeles';
 
 const $ = (id) => document.getElementById(id);
@@ -16,14 +19,19 @@ const state = {
   board: null,
   details: new Map(), // id -> match detail
   score: new Map(), // id -> "h-a" last seen, to spot new goals
-  flash: new Map(), // id -> {until, side}
+  flash: new Map(), // id -> {at, side, kind: 'goal'|'disallowed', scorer, minute}
   seen: new Map(), // id -> Set of commentary ids already shown (new ones get highlighted)
   fresh: new Map(), // id -> Set of commentary ids that arrived on the latest poll
   open: new Set(), // finished / upcoming games expanded into a card
   allComm: new Set(), // cards showing the full commentary
   hidden: loadHidden(), // competitions switched off in the filter
   lastOk: null,
+  alerts: loadAlerts(), // goal alerts on: sound + browser notification
 };
+
+function loadAlerts() {
+  try { return localStorage.getItem('live.alerts') === '1'; } catch { return false; }
+}
 
 function loadHidden() {
   try { return new Set(JSON.parse(localStorage.getItem('live.hidden') || '[]')); } catch { return new Set(); }
@@ -62,21 +70,21 @@ function statusChip(m) {
 }
 
 const MARK = { pen: ' (pen)', og: ' (og)' };
-function goalList(list) {
+function goalList(list, hot) {
   if (!list || !list.length) return '';
-  return `<ul class="goals">${list.map((g) => `<li><span class="min">${esc(g.minute)}</span><span>${esc(g.player || 'Goal')}${MARK[g.kind] || ''}</span></li>`).join('')}</ul>`;
+  return `<ul class="goals">${list.map((g, i) => `<li${hot && i === list.length - 1 ? ' class="hot"' : ''}><span class="min">${esc(g.minute)}</span><span>${esc(g.player || 'Goal')}${MARK[g.kind] || ''}</span></li>`).join('')}</ul>`;
 }
 function reds(d, side) {
   const r = (d.events || []).filter((e) => e.kind === 'red' && e.side === side);
   return r.length ? `<ul class="reds">${r.map((e) => `<li><span class="min"><span class="card-red"></span>${esc(e.minute)}</span><span>${esc(e.player)}</span></li>`).join('')}</ul>` : '';
 }
 
-function teamCell(t, side, d) {
+function teamCell(t, side, d, hot) {
   if (!t) return `<div class="team ${side}">—</div>`;
   const logo = t.logo ? `<img src="${esc(t.logo)}" alt="" width="28" height="28" loading="lazy">` : '';
   return `<div class="team ${side}">
     <div class="tname">${logo}<span>${esc(t.name)}</span></div>
-    ${d ? goalList(d.goals && d.goals[side]) + reds(d, side) : ''}
+    ${d ? goalList(d.goals && d.goals[side], hot) + reds(d, side) : ''}
   </div>`;
 }
 
@@ -107,10 +115,27 @@ function commentary(id, d) {
     ${lines.length > COMM_SHORT ? `<button type="button" class="linkbtn" data-comm="${esc(id)}">${all ? 'Show latest only' : `Show all ${lines.length} lines`}</button>` : ''}`;
 }
 
+// The goal animation laid over the card. It is rebuilt on every refresh, so its CSS animations
+// start at a negative delay (time already elapsed) and carry on where they were.
+function burst(m, f, age) {
+  const t = f.side === 'home' ? m.home : m.away;
+  const logo = t && t.logo ? `<img src="${esc(t.logo)}" alt="" width="44" height="44">` : '';
+  const who = f.scorer ? `${esc(f.scorer)}${f.minute ? ` <span class="bmin">${esc(f.minute)}</span>` : ''}` : '';
+  const g = (x) => goalsText(x && x.goals);
+  const score = `<span class="${f.side === 'home' ? 'bnew' : ''}">${g(m.home)}</span> – <span class="${f.side === 'away' ? 'bnew' : ''}">${g(m.away)}</span>`;
+  return `<div class="goal-burst ${f.kind} from-${f.side}" style="--t:-${age}ms">
+    <div class="b-word">${f.kind === 'goal' ? '<span class="b-ball">⚽</span>GOAL!' : 'Goal disallowed'}</div>
+    <div class="b-team">${logo}<span>${esc(t && t.name)}</span></div>
+    ${who ? `<div class="b-who">${who}</div>` : ''}
+    <div class="b-score">${score}</div>
+  </div>`;
+}
+
 function card(m) {
   const d = state.details.get(m.id);
   const f = state.flash.get(m.id);
-  const flashing = f && f.until > Date.now();
+  const age = f ? Date.now() - f.at : Infinity;
+  const flashing = f && f.kind === 'goal' && age < GLOW_MS;
   const closable = m.status.state !== 'in';
   return `<article class="mcard${flashing ? ' goal-flash' : ''}" data-id="${esc(m.id)}">
     <header class="mhead">
@@ -118,12 +143,12 @@ function card(m) {
       ${statusChip(m)}
       ${closable ? `<button type="button" class="linkbtn close" data-close="${esc(m.id)}" aria-label="Close">✕</button>` : ''}
     </header>
-    ${flashing ? `<div class="goal-banner">GOAL — ${esc((f.side === 'home' ? m.home : m.away).name)}</div>` : ''}
+    ${f && age < BURST_MS ? burst(m, f, age) : ''}
     <div class="score-row">
-      ${teamCell(m.home, 'home', d)}
-      <div class="score"><span class="g h">${goalsText(m.home && m.home.goals)}</span><span class="dash">–</span><span class="g a">${goalsText(m.away && m.away.goals)}</span>
+      ${teamCell(m.home, 'home', d, flashing && f.side === 'home')}
+      <div class="score"><span class="g h${flashing && f.side === 'home' ? ' scored' : ''}">${goalsText(m.home && m.home.goals)}</span><span class="dash">–</span><span class="g a${flashing && f.side === 'away' ? ' scored' : ''}">${goalsText(m.away && m.away.goals)}</span>
         ${m.home && m.home.shootout != null ? `<div class="pens">pens ${m.home.shootout}–${m.away.shootout}</div>` : ''}</div>
-      ${teamCell(m.away, 'away', d)}
+      ${teamCell(m.away, 'away', d, flashing && f.side === 'away')}
     </div>
     ${d ? `<details class="sect" open><summary>Stats</summary>${statRows(d.stats)}</details>
       <details class="sect" open><summary>Commentary</summary>${commentary(m.id, d)}</details>
@@ -183,7 +208,9 @@ function render() {
   const done = visible(b.matches.filter((m) => m.status.state === 'post' && !state.open.has(m.id)));
   $('nextList').innerHTML = next.map(row).join('') || '<p class="live-empty">Nothing scheduled.</p>';
   $('doneList').innerHTML = done.map(row).join('') || '<p class="live-empty">Nothing finished yet.</p>';
-  document.title = live.length ? `(${live.length}) Live Matches` : 'Live Matches';
+  const goalNow = [...state.flash.values()].some((f) => f.kind === 'goal' && Date.now() - f.at < GLOW_MS);
+  document.title = `${goalNow ? '⚽ GOAL · ' : ''}${live.length ? `(${live.length}) ` : ''}Live Matches`;
+  renderAlertBtn();
   renderFilter();
   const errs = b.errors.length ? ` · unavailable: ${b.errors.map((e) => e.name).join(', ')}` : '';
   $('liveSrc').textContent = `Source: ${b.source}. Scores and events are shown exactly as the feed gives them; a dash means the feed has no value yet.${errs}`;
@@ -200,23 +227,43 @@ function renderFilter() {
 function tickStatus() {
   if (!state.lastOk) return;
   const s = Math.round((Date.now() - state.lastOk) / 1000);
-  $('liveStatus').textContent = document.hidden ? 'Paused' : `Updated ${s < 2 ? 'just now' : `${s}s ago`}`;
+  $('liveStatus').textContent = document.hidden && !state.alerts ? 'Paused' : `Updated ${s < 2 ? 'just now' : `${s}s ago`}`;
+}
+
+// Compare a game's score with the last one seen; a change starts the goal animation (and the
+// alert, if on). A score that goes down is a goal taken back (VAR), shown as such.
+function checkScore(id, m) {
+  if (!m.home || !m.away || m.home.goals == null || m.away.goals == null) return;
+  const now = `${m.home.goals}-${m.away.goals}`;
+  const prev = state.score.get(id);
+  state.score.set(id, now);
+  if (!prev || prev === now || m.status.state !== 'in') return;
+  const [ph, pa] = prev.split('-').map(Number);
+  const side = m.home.goals > ph ? 'home' : m.away.goals > pa ? 'away' : m.home.goals < ph ? 'home' : 'away';
+  const kind = m.home.goals > ph || m.away.goals > pa ? 'goal' : 'disallowed';
+  state.flash.set(id, { at: Date.now(), side, kind, scorer: null, minute: null });
+  setTimeout(render, BURST_MS + 50);
+  setTimeout(render, GLOW_MS + 50);
+  if (kind === 'goal') alertGoal(id, m, side);
+}
+
+// the detail names the scorer, which the list does not: fill it in on the running animation
+function fillScorer(id, d) {
+  const f = state.flash.get(id);
+  if (!f || f.kind !== 'goal' || f.scorer) return;
+  const list = d.goals && d.goals[f.side];
+  const g = list && list[list.length - 1];
+  if (g) Object.assign(f, { scorer: `${g.player || 'Goal'}${MARK[g.kind] || ''}`, minute: g.minute });
 }
 
 function noteDetail(id, d) {
-  const prev = state.score.get(id);
-  const now = `${d.home && d.home.goals}-${d.away && d.away.goals}`;
-  if (prev && prev !== now && d.status.state === 'in') {
-    const [ph, pa] = prev.split('-').map(Number);
-    const side = d.home.goals > ph ? 'home' : d.away.goals > pa ? 'away' : null;
-    if (side) state.flash.set(id, { until: Date.now() + 20000, side });
-  }
-  state.score.set(id, now);
+  checkScore(id, d);
   const seen = state.seen.get(id);
   const ids = new Set((d.commentary || []).map((c) => c.id));
   state.fresh.set(id, seen ? new Set([...ids].filter((x) => !seen.has(x))) : new Set());
   state.seen.set(id, ids);
   state.details.set(id, d);
+  fillScorer(id, d);
   // the detail is newer than the list: carry its score and clock into the list entry
   const m = state.board && state.board.matches.find((x) => x.id === id);
   if (m) Object.assign(m, { status: d.status, home: d.home, away: d.away });
@@ -229,7 +276,7 @@ async function pollList() {
       const d = state.details.get(m.id);
       // keep the fresher detail score if the list lags behind it
       if (d && Date.parse(d.fetchedAt) > Date.parse(m.fetchedAt)) Object.assign(m, { status: d.status, home: d.home, away: d.away });
-      else if (!state.score.has(m.id) && m.status.state === 'in') state.score.set(m.id, `${m.home.goals}-${m.away.goals}`);
+      else checkScore(m.id, m);
     }
     state.lastOk = Date.now();
     $('error').hidden = true;
@@ -252,6 +299,61 @@ async function pollDetails(only) {
   if (!only) detailBusy = false;
   render();
 }
+
+// ---------------------------------------------------------------- goal alerts
+function renderAlertBtn() {
+  const b = $('alertBtn');
+  b.classList.toggle('on', state.alerts);
+  b.setAttribute('aria-pressed', String(state.alerts));
+  b.textContent = state.alerts ? '🔔 Goal alerts on' : '🔕 Goal alerts off';
+  b.title = state.alerts
+    ? 'A sound and a notification for every goal, in any game shown. Click to turn off.'
+    : 'Turn on a sound and a notification for every goal';
+}
+
+let audio = null;
+function chime() {
+  try {
+    audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+    const t0 = audio.currentTime;
+    [[660, 0], [880, 0.14], [1320, 0.28]].forEach(([hz, dt]) => {
+      const o = audio.createOscillator();
+      const g = audio.createGain();
+      o.type = 'triangle';
+      o.frequency.value = hz;
+      g.gain.setValueAtTime(0.0001, t0 + dt);
+      g.gain.exponentialRampToValueAtTime(0.25, t0 + dt + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dt + 0.35);
+      o.connect(g).connect(audio.destination);
+      o.start(t0 + dt);
+      o.stop(t0 + dt + 0.4);
+    });
+  } catch { /* no audio */ }
+}
+
+function alertGoal(id, m, side) {
+  if (!state.alerts || state.hidden.has(m.comp)) return;
+  chime();
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  const t = side === 'home' ? m.home : m.away;
+  try {
+    const n = new Notification(`⚽ GOAL! ${t.name}`, {
+      body: `${m.home.name} ${m.home.goals} – ${m.away.goals} ${m.away.name}${m.status.clock ? ` (${m.status.clock})` : ''}`,
+      icon: t.logo || undefined, tag: `goal-${id}`,
+    });
+    n.onclick = () => { window.focus(); n.close(); };
+  } catch { /* some mobile browsers only notify from a service worker */ }
+}
+
+$('alertBtn').addEventListener('click', async () => {
+  state.alerts = !state.alerts;
+  try { localStorage.setItem('live.alerts', state.alerts ? '1' : '0'); } catch { /* private mode */ }
+  if (state.alerts) {
+    chime(); // also unlocks audio, which browsers allow only after a click
+    if ('Notification' in window && Notification.permission === 'default') await Notification.requestPermission();
+  }
+  renderAlertBtn();
+});
 
 function showError(msg) {
   $('error').textContent = msg;
@@ -292,5 +394,9 @@ function start() {
   timers = [setInterval(pollList, LIST_MS), setInterval(() => pollDetails(), DETAIL_MS), setInterval(tickStatus, 1000)];
 }
 function stop() { timers.forEach(clearInterval); timers = []; tickStatus(); }
-document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
+// hidden tab: pause, unless goal alerts are on (browsers may still slow timers in background tabs)
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { if (!state.alerts) stop(); } else start();
+});
+renderAlertBtn();
 start();
