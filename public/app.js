@@ -610,9 +610,13 @@ function scoresPanel(sc) {
           : [el('tr', {}, td(`no league games for ${t.team} in these seasons`, 'l muted'))]))));
     for (const b of tTabs.querySelectorAll('button')) b.classList.toggle('on', +b.dataset.i === i);
   };
-  // the picker: this round's fixtures in table order, home club then away club
-  const tTabs = el('div', { class: 'sc-pick' }, ...[...new Set(T.map((t) => t.label))].map((label) => el('div', { class: 'sp-tabs sc-fx' },
-    ...T.map((t, i) => [t, i]).filter(([t]) => t.label === label).map(([t, i]) => el('button', { type: 'button', 'data-i': i, text: t.team })))));
+  // the picker: this round's clubs A–Z, 5 to a row; grey = no league games last season (promoted / new)
+  const prev = (t) => { const b = t.bySeason || []; return b.length ? b[b.length - 1].n : 0; };
+  const alpha = T.map((t, i) => [t, i]).sort(([p], [q]) => p.team.localeCompare(q.team));
+  const tTabs = el('div', { class: 'sc-pick' }, ...alpha.map(([t, i]) => el('button', {
+    type: 'button', 'data-i': i, class: cls(!prev(t) && 'sc-new'), text: t.team,
+    title: prev(t) ? `${t.team}: ${prev(t)} league games last season` : `${t.team}: no league games last season`,
+  })));
   tTabs.addEventListener('click', (ev) => { const b = ev.target.closest('button'); if (b) drawT(+b.dataset.i); });
 
   const sec = el('section', { class: 'btts scores' },
@@ -622,14 +626,14 @@ function scoresPanel(sc) {
       + 'the most common score in each column or grid in bold, zeros faded. 4 seasons = the four finished seasons before this one added up (cup competitions: '
       + `league / group phase only); This season = played games so far. ${max}+ = ${max} or more goals for that side. `
       + '2A lists the 12 most common scores over the 4 seasons. 2B: shading = share of games (darker = more common); outlined cells = both teams scored. '
-      + '2C: pick one of this round\'s clubs: its 12 most common scores over the 4 seasons, as 2A, counting every game it played at home or away and '
+      + '2C: pick one of this round\'s clubs (A–Z; grey = no league games last season): its 12 most common scores over the 4 seasons, as 2A, counting every game it played at home or away and '
       + 'writing each score from its side (2-1 = it scored 2 and conceded 1; green = won, red = lost). A season it was not in the league shows —.' })),
     el('div', { class: 'chart-part' }, sub('2A', 'Scores by season', `the ${TOP} most common over the 4 seasons, each season and the total`), byS),
     el('div', { class: 'chart-part' }, sub('2B', 'Score grid', 'every score, home × away'), el('div', { class: 'sp-head' }, tabs), box),
     T.length ? el('div', { class: 'chart-part' }, sub('2C', 'Club scores', 'one of this round\'s clubs, every game it played, its goals first; pick a club'),
       tTabs, tBox) : null);
   draw('all');
-  if (T.length) drawT(0);
+  if (T.length) drawT(alpha[0][1]);
   return sec;
 }
 
