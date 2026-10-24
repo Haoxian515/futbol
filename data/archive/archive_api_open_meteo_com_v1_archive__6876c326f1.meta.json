@@ -1,0 +1,6 @@
+{
+ "url": "https://archive-api.open-meteo.com/v1/archive?latitude=49.238188&longitude=8.887987&timezone=auto&start_date=2025-01-25&end_date=2025-01-31&hourly=temperature_2m",
+ "status": 200,
+ "fetched_at": 1792823478.832,
+ "fetched_at_iso": "2026-10-24T06:31:18"
+}
