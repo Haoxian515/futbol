@@ -591,17 +591,17 @@ function scoresPanel(sc) {
   const drawT = (i) => {
     const t = T[i];
     const tc = [
-      ...(t.bySeason || []).map((S) => ({ head: S.label, S })),
+      ...(t.bySeason || []).map((S) => ({ head: S.label, S, tier: S.tier })),
       { head: '4 seasons', S: t.all, total: true },
       { head: 'This season', S: t.season },
-    ].map((c) => ({ ...c, sub: c.total ? `total · ${c.S.n} games` : `${c.S.n} games`, top: topOf(c.S) }));
+    ].map((c) => ({ ...c, sub: c.total ? `total · ${c.S.n} games${c.S.lower ? ' · incl. 2nd tier' : ''}` : `${c.S.n} games${c.tier ? ` · ${c.tier}` : ''}`, top: topOf(c.S) }));
     const tr = t.all.grid.flatMap((row, h) => row.map((k, a) => ({ h, a, k }))).filter((x) => x.k > 0)
       .sort((p, q) => q.k - p.k || (p.h + p.a) - (q.h + q.a) || q.h - p.h).slice(0, TOP);
     tBox.replaceChildren(
       el('div', { class: 'bt-grid-t', text: `${t.team} — every game, home or away; score = ${t.team}'s goals first` }),
       el('table', { class: 'bt sp-prof sc-top' },
         el('thead', {}, el('tr', {}, el('th', { class: 'l', text: '#' }), el('th', { class: 'l', text: 'Score' }),
-          ...tc.map((c) => el('th', { class: cls(c.total && 'sc-tot') }, c.head, el('div', { class: 'bt-th2', text: c.sub }))))),
+          ...tc.map((c) => el('th', { class: cls(c.total && 'sc-tot', c.tier && 'sc-low') }, c.head, el('div', { class: 'bt-th2', text: c.sub }))))),
         el('tbody', {}, ...(tr.length ? tr.map((x, k) => el('tr', {}, td(String(k + 1), 'l muted'), td(score(x.h, x.a), cls('l b', x.h > x.a ? 'good' : x.h < x.a ? 'bad' : '')),
           ...tc.map((c) => (c.S.n
             ? el('td', { class: cls('num sc', c.total && 'sc-tot'), title: `${t.team}, ${c.head}: ${score(x.h, x.a)} in ${c.S.grid[x.h][x.a]} of ${c.S.n} games (${pc(c.S.grid[x.h][x.a], c.S.n)})` },
@@ -611,13 +611,73 @@ function scoresPanel(sc) {
     for (const b of tTabs.querySelectorAll('button')) b.classList.toggle('on', +b.dataset.i === i);
   };
   // the picker: this round's clubs A–Z, 5 to a row; grey = no league games last season (promoted / new)
-  const prev = (t) => { const b = t.bySeason || []; return b.length ? b[b.length - 1].n : 0; };
+  // last season's games in this league (0 when it was in the division below, or absent)
+  const last = (t) => { const b = t.bySeason || []; return b.length ? b[b.length - 1] : null; };
+  const prev = (t) => { const b = last(t); return b && !b.tier ? b.n : 0; };
+  const prevTitle = (t) => { const b = last(t); return prev(t) ? `${t.team}: ${prev(t)} league games last season`
+    : b && b.tier ? `${t.team}: promoted — last season in the ${b.tier} (${b.n} games, shown in 2C / 2D)` : `${t.team}: no league games last season`; };
   const alpha = T.map((t, i) => [t, i]).sort(([p], [q]) => p.team.localeCompare(q.team));
   const tTabs = el('div', { class: 'sc-pick' }, ...alpha.map(([t, i]) => el('button', {
     type: 'button', 'data-i': i, class: cls(!prev(t) && 'sc-new'), text: t.team,
-    title: prev(t) ? `${t.team}: ${prev(t)} league games last season` : `${t.team}: no league games last season`,
+    title: prevTitle(t),
   })));
   tTabs.addEventListener('click', (ev) => { const b = ev.target.closest('button'); if (b) drawT(+b.dataset.i); });
+
+  // 2D: goal streaks for one of this round's clubs (own picker): for G+0 (scored 0) and G+1..G+3
+  // (scored at least 1 / 2 / 3) and G=1 (scored exactly 1), how many times it put together a run of 2, 3, ... games in a row,
+  // per season, the 4 seasons added up and this season; every game, or home / away games only
+  const ST = [['g0', 'G+0', 'scored 0'], ['e1', 'G=1', 'scored exactly 1'], ['g1', 'G+1', 'scored 1+ (any goal)'], ['g2', 'G+2', 'scored 2+ (more than 1)'],
+    ['g3', 'G+3', 'scored 3+']];
+  const SIDES = [['all', 'All games'], ['H', 'Home only'], ['A', 'Away only']];
+  const sBox = el('div', { class: 'bt-wrap' });
+  let sTeam = null, sSide = 'all';
+  const drawS = () => {
+    const t = T[sTeam];
+    const sk = t.streaks;
+    const sc = [
+      ...sk.bySeason.map((S) => ({ head: S.label, S: S[sSide], tier: S.tier })),
+      { head: '4 seasons', total: true },
+      { head: 'This season', S: sk.season[sSide], now: true },
+    ];
+    const past = sk.bySeason.map((S) => S[sSide]).filter((S) => S.n);
+    const tot = sc.find((c) => c.total);
+    tot.S = { n: past.reduce((a, S) => a + S.n, 0) };
+    for (const [key] of ST) {
+      const runs = {};
+      for (const S of past) for (const [len, k] of Object.entries(S[key].runs)) runs[len] = (runs[len] || 0) + k;
+      tot.S[key] = { runs, longest: Math.max(0, ...past.map((S) => S[key].longest)) };
+    }
+    const cell = (c, f, cl = '') => (c.S && c.S.n ? f(c.S) : td('—', cls('num muted', cl, c.total && 'sc-tot')));
+    const rows = ST.flatMap(([key, name, what]) => {
+      const lens = [...new Set(sc.flatMap((c) => (c.S && c.S.n ? Object.keys(c.S[key].runs).map(Number) : [])))].sort((p, q) => p - q);
+      return [
+        el('tr', { class: 'gs-head' }, el('td', { class: 'l b', colspan: sc.length + 1 }, `${name}`, el('span', { class: 'muted', text: ` — ${what}, games in a row` }))),
+        ...(lens.length ? lens : [2]).map((len) => el('tr', {}, td(`${len} in a row`, 'l'),
+          ...sc.map((c) => cell(c, (S) => { const k = S[key].runs[len] || 0; return el('td', { class: cls('num sc', c.total && 'sc-tot'), title: `${t.team}, ${c.head}, ${name}: ${len} games in a row ${k} time${k === 1 ? '' : 's'}` },
+            el('span', { class: k ? 'b' : 'muted', text: `${k}×` })); })))),
+        el('tr', { class: 'gs-sum' }, td('longest', 'l muted'), ...sc.map((c) => cell(c, (S) => td(String(S[key].longest), cls('num', c.total && 'sc-tot'))))),
+        el('tr', { class: 'gs-sum' }, td('running now', 'l muted'), ...sc.map((c) => (c.now && c.S.n ? td(String(c.S[key].now), cls('num', c.S[key].now >= 2 && 'b')) : td('', cls('num', c.total && 'sc-tot'))))),
+      ];
+    });
+    const recent = sk.season[sSide].scores || sk.season[sSide].goals;
+    sBox.replaceChildren(
+      el('div', { class: 'bt-grid-t', text: `${t.team} — ${SIDES.find(([k]) => k === sSide)[1].toLowerCase()}; this season's scores, its goals first, game by game (oldest → newest): ${recent.length ? recent.join(' · ') : 'no games yet'}` }),
+      el('table', { class: 'bt sp-prof sc-top gs' },
+        el('thead', {}, el('tr', {}, el('th', { class: 'l', text: 'Streak' }),
+          ...sc.map((c) => el('th', { class: cls(c.total && 'sc-tot', c.tier && 'sc-low') }, c.head,
+            el('div', { class: 'bt-th2', text: c.S && c.S.n ? `${c.S.n} games${c.tier ? ` · ${c.tier}` : c.total && sk.bySeason.some((S) => S.tier) ? ' · incl. 2nd tier' : ''}` : '—' }))))),
+        el('tbody', {}, ...rows)));
+    for (const b of sTabs.querySelectorAll('button')) b.classList.toggle('on', +b.dataset.i === sTeam);
+    for (const b of sSides.querySelectorAll('button')) b.classList.toggle('on', b.dataset.side === sSide);
+  };
+  const sTabs = el('div', { class: 'sc-pick' }, ...alpha.map(([t, i]) => el('button', {
+    type: 'button', 'data-i': i, class: cls(!prev(t) && 'sc-new'), text: t.team,
+    title: prevTitle(t),
+  })));
+  sTabs.addEventListener('click', (ev) => { const b = ev.target.closest('button'); if (b) { sTeam = +b.dataset.i; drawS(); } });
+  const sSides = el('div', { class: 'sp-tabs' }, ...SIDES.map(([k, l]) => el('button', { type: 'button', 'data-side': k, text: l })));
+  sSides.addEventListener('click', (ev) => { const b = ev.target.closest('button'); if (b) { sSide = b.dataset.side; drawS(); } });
+  const hasS = T.length && T[0].streaks;
 
   const sec = el('section', { class: 'btts scores' },
     el('h2', { class: 'btts-h' }, 'Scorelines — exact final scores', el('span', { class: 'btts-sub', text: ` — how often each home-away score came up, ${sc.all.from}` })),
@@ -626,14 +686,21 @@ function scoresPanel(sc) {
       + 'the most common score in each column or grid in bold, zeros faded. 4 seasons = the four finished seasons before this one added up (cup competitions: '
       + `league / group phase only); This season = played games so far. ${max}+ = ${max} or more goals for that side. `
       + '2A lists the 12 most common scores over the 4 seasons. 2B: shading = share of games (darker = more common); outlined cells = both teams scored. '
-      + '2C: pick one of this round\'s clubs (A–Z; grey = no league games last season): its 12 most common scores over the 4 seasons, as 2A, counting every game it played at home or away and '
-      + 'writing each score from its side (2-1 = it scored 2 and conceded 1; green = won, red = lost). A season it was not in the league shows —.' })),
+      + '2C: pick one of this round\'s clubs (A–Z; grey = not in this league last season): its 12 most common scores over the 4 seasons, as 2A, counting every game it played at home or away and '
+      + 'writing each score from its side (2-1 = it scored 2 and conceded 1; green = won, red = lost). A season it spent in the division below (promoted since) shows its games there, marked with that division (Championship, Segunda, Serie B, Ligue 2, 2. Bundesliga), and counts in the 4-season total; a season in neither shows —. '
+      + '2D: goal streaks for one of this round\'s clubs. G+0 = it scored 0; G+1, G+2, G+3 = it scored at least 1, 2, 3, so a 5-goal game counts towards G+1, G+2 and G+3; G=1 = it scored exactly 1 (a 2-goal game breaks a G=1 run). All are the club\'s own goals only. '
+      + 'Each row counts how many times it scored that way in that many games in a row (a run of 2+; each run is counted once, at its full length, so 1 1 0 0 5 1 = G+1 2 in a row 2×, G=1 2 in a row 1×, G+0 2 in a row 1×). '
+      + 'Runs stop at the end of a season; 4 seasons adds the four seasons\' counts up. Longest = its longest run; running now = the run still going after its latest game this season. '
+      + 'Home only / Away only = its home (or away) games in a row, skipping the others.' })),
     el('div', { class: 'chart-part' }, sub('2A', 'Scores by season', `the ${TOP} most common over the 4 seasons, each season and the total`), byS),
     el('div', { class: 'chart-part' }, sub('2B', 'Score grid', 'every score, home × away'), el('div', { class: 'sp-head' }, tabs), box),
     T.length ? el('div', { class: 'chart-part' }, sub('2C', 'Club scores', 'one of this round\'s clubs, every game it played, its goals first; pick a club'),
-      tTabs, tBox) : null);
+      tTabs, tBox) : null,
+    hasS ? el('div', { class: 'chart-part' }, sub('2D', 'Goal streaks', 'one of this round\'s clubs: runs of G+0 / G=1 / G+1 / G+2 / G+3 games in a row, and how often each run came up; pick a club'),
+      sTabs, el('div', { class: 'sp-head' }, sSides), sBox) : null);
   draw('all');
   if (T.length) drawT(alpha[0][1]);
+  if (hasS) { sTeam = alpha[0][1]; drawS(); }
   return sec;
 }
 

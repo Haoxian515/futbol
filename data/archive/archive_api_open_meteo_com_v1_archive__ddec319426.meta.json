@@ -1,0 +1,6 @@
+{
+ "url": "https://archive-api.open-meteo.com/v1/archive?latitude=50.93333&longitude=6.95&timezone=Europe/Berlin&start_date=2023-11-05&end_date=2023-11-11&hourly=temperature_2m",
+ "status": 200,
+ "fetched_at": 1792824986.69,
+ "fetched_at_iso": "2026-10-24T06:56:26"
+}
