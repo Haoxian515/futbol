@@ -400,6 +400,8 @@ table.sc-top .sc-tot { background: rgba(43,95,217,.07); }
 .scores td.sc .gb-line { display: flex; justify-content: center; align-items: baseline; gap: 4px; white-space: nowrap; line-height: 1.25; }
 table.sc-grid td { min-width: 64px; padding: 4px 6px; }
 table.sc-top td, table.sc-top th { padding: 2px 8px; }
+table.gs tr.gs-head td { background: var(--rule); padding-top: 5px; }
+table.gs tr.gs-sum td { font-size: 11px; }
 /* goal counts: scored (G) over conceded (GA) in one column */
 .match .gbin .gb-line { display: flex; justify-content: center; align-items: baseline; gap: 4px; white-space: nowrap; line-height: 1.25; }
 .match .gbin .gb-line .np { font-size: 9.5px; }
