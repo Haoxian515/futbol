@@ -620,9 +620,10 @@ function scoresPanel(sc) {
   tTabs.addEventListener('click', (ev) => { const b = ev.target.closest('button'); if (b) drawT(+b.dataset.i); });
 
   // 2D: goal streaks for one of this round's clubs (own picker): for G+0 (scored 0) and G+1..G+3
-  // (scored at least 1 / 2 / 3), how many times it put together a run of 2, 3, ... games in a row,
+  // (scored at least 1 / 2 / 3) and T+1 / T+2 (the game had 1+ / 2+ goals, either side), how many times it put together a run of 2, 3, ... games in a row,
   // per season, the 4 seasons added up and this season; every game, or home / away games only
-  const ST = [['g0', 'G+0', 'scored 0'], ['g1', 'G+1', 'scored 1+'], ['g2', 'G+2', 'scored 2+'], ['g3', 'G+3', 'scored 3+']];
+  const ST = [['g0', 'G+0', 'scored 0'], ['g1', 'G+1', 'scored 1+'], ['g2', 'G+2', 'scored 2+'], ['g3', 'G+3', 'scored 3+'],
+    ['t1', 'T+1', 'the game had a goal, either side'], ['t2', 'T+2', 'the game had 2+ goals, either side']];
   const SIDES = [['all', 'All games'], ['H', 'Home only'], ['A', 'Away only']];
   const sBox = el('div', { class: 'bt-wrap' });
   let sTeam = null, sSide = 'all';
@@ -654,9 +655,9 @@ function scoresPanel(sc) {
         el('tr', { class: 'gs-sum' }, td('running now', 'l muted'), ...sc.map((c) => (c.now && c.S.n ? td(String(c.S[key].now), cls('num', c.S[key].now >= 2 && 'b')) : td('', cls('num', c.total && 'sc-tot'))))),
       ];
     });
-    const recent = sk.season[sSide].goals;
+    const recent = sk.season[sSide].scores || sk.season[sSide].goals;
     sBox.replaceChildren(
-      el('div', { class: 'bt-grid-t', text: `${t.team} — ${SIDES.find(([k]) => k === sSide)[1].toLowerCase()}; this season's goals, game by game (oldest → newest): ${recent.length ? recent.join(' · ') : 'no games yet'}` }),
+      el('div', { class: 'bt-grid-t', text: `${t.team} — ${SIDES.find(([k]) => k === sSide)[1].toLowerCase()}; this season's scores, its goals first, game by game (oldest → newest): ${recent.length ? recent.join(' · ') : 'no games yet'}` }),
       el('table', { class: 'bt sp-prof sc-top gs' },
         el('thead', {}, el('tr', {}, el('th', { class: 'l', text: 'Streak' }),
           ...sc.map((c) => el('th', { class: cls(c.total && 'sc-tot') }, c.head, el('div', { class: 'bt-th2', text: c.S && c.S.n ? `${c.S.n} games` : '—' }))))),
@@ -682,7 +683,7 @@ function scoresPanel(sc) {
       + '2A lists the 12 most common scores over the 4 seasons. 2B: shading = share of games (darker = more common); outlined cells = both teams scored. '
       + '2C: pick one of this round\'s clubs (A–Z; grey = no league games last season): its 12 most common scores over the 4 seasons, as 2A, counting every game it played at home or away and '
       + 'writing each score from its side (2-1 = it scored 2 and conceded 1; green = won, red = lost). A season it was not in the league shows —. '
-      + '2D: goal streaks for one of this round\'s clubs. G+0 = it scored 0; G+1, G+2, G+3 = it scored at least 1, 2, 3, so a 5-goal game counts towards G+1, G+2 and G+3. '
+      + '2D: goal streaks for one of this round\'s clubs. G+0 = it scored 0; G+1, G+2, G+3 = it scored at least 1, 2, 3, so a 5-goal game counts towards G+1, G+2 and G+3. T+1 / T+2 = the game had at least 1 / 2 goals in all, either team (T+1 breaks only on a 0-0). '
       + 'Each row counts how many times it scored that way in that many games in a row (a run of 2+; each run is counted once, at its full length, so 1 1 0 0 5 1 = G+1 2 in a row 2×, G+0 2 in a row 1×). '
       + 'Runs stop at the end of a season; 4 seasons adds the four seasons\' counts up. Longest = its longest run; running now = the run still going after its latest game this season. '
       + 'Home only / Away only = its home (or away) games in a row, skipping the others.' })),
@@ -690,7 +691,7 @@ function scoresPanel(sc) {
     el('div', { class: 'chart-part' }, sub('2B', 'Score grid', 'every score, home × away'), el('div', { class: 'sp-head' }, tabs), box),
     T.length ? el('div', { class: 'chart-part' }, sub('2C', 'Club scores', 'one of this round\'s clubs, every game it played, its goals first; pick a club'),
       tTabs, tBox) : null,
-    hasS ? el('div', { class: 'chart-part' }, sub('2D', 'Goal streaks', 'one of this round\'s clubs: runs of G+0 / G+1 / G+2 / G+3 games in a row, and how often each run came up; pick a club'),
+    hasS ? el('div', { class: 'chart-part' }, sub('2D', 'Goal streaks', 'one of this round\'s clubs: runs of G+0 / G+1 / G+2 / G+3 and T+1 / T+2 games in a row, and how often each run came up; pick a club'),
       sTabs, el('div', { class: 'sp-head' }, sSides), sBox) : null);
   draw('all');
   if (T.length) drawT(alpha[0][1]);
